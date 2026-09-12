@@ -92,10 +92,11 @@ export function sfxScore() {
 }
 
 export function sfxTd() {
-  tone(196, 0.14, "triangle", 0.05);
-  tone(294, 0.16, "sine", 0.045, 0.05);
-  tone(392, 0.2, "sine", 0.04, 0.12);
-  noiseBurst(0.28, 0.04, 200);
+  tone(196, 0.16, "triangle", 0.07);
+  tone(294, 0.2, "sine", 0.06, 0.05);
+  tone(392, 0.24, "sine", 0.05, 0.12);
+  tone(523, 0.28, "sine", 0.04, 0.2);
+  noiseBurst(0.36, 0.06, 180);
 }
 
 export function sfxSnap() {
@@ -179,6 +180,11 @@ export function stopCrowd() {
   }
 }
 
+export function sfxWhoosh() {
+  noiseBurst(0.18, 0.045, 280);
+  tone(180, 0.12, "sine", 0.03);
+}
+
 export function sfxPick() {
   tone(520, 0.07, "sine", 0.035);
   tone(780, 0.09, "triangle", 0.025, 0.04);
@@ -186,10 +192,25 @@ export function sfxPick() {
 
 let bedOsc: OscillatorNode[] = [];
 let bedGain: GainNode | null = null;
+let kickTimer = 0;
 
-export function sfxWhoosh() {
-  noiseBurst(0.18, 0.045, 280);
-  tone(180, 0.12, "sine", 0.03);
+function playKick() {
+  const c = context();
+  const out = bus();
+  if (!c || !out) return;
+  const t = c.currentTime;
+  const osc = c.createOscillator();
+  const g = c.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(150, t);
+  osc.frequency.exponentialRampToValueAtTime(38, t + 0.2);
+  g.gain.setValueAtTime(0.18, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+  osc.connect(g);
+  g.connect(out);
+  osc.start(t);
+  osc.stop(t + 0.26);
+  noiseBurst(0.08, 0.03, 80);
 }
 
 export function startBed() {
@@ -200,23 +221,29 @@ export function startBed() {
   const g = c.createGain();
   g.gain.value = 0.0001;
   g.connect(out);
-  const freqs = [82.41, 123.47, 164.81, 196];
+  const freqs = [55, 82.41, 123.47, 164.81, 196];
   bedOsc = freqs.map((f, i) => {
     const o = c.createOscillator();
-    o.type = i === 0 ? "sine" : i === 3 ? "triangle" : "sine";
+    o.type = i === 0 ? "sine" : i % 2 ? "triangle" : "sine";
     o.frequency.value = f;
     const og = c.createGain();
-    og.gain.value = i === 0 ? 0.4 : i === 3 ? 0.08 : 0.14;
+    og.gain.value = i === 0 ? 0.5 : i === 4 ? 0.07 : 0.12;
     o.connect(og);
     og.connect(g);
     o.start();
     return o;
   });
-  g.gain.setTargetAtTime(0.034, c.currentTime, 0.45);
+  g.gain.setTargetAtTime(0.042, c.currentTime, 0.5);
   bedGain = g;
+  playKick();
+  kickTimer = window.setInterval(playKick, 540);
 }
 
 export function stopBed() {
+  if (kickTimer) {
+    window.clearInterval(kickTimer);
+    kickTimer = 0;
+  }
   const c = context();
   if (bedGain && c) {
     bedGain.gain.setTargetAtTime(0.0001, c.currentTime, 0.2);

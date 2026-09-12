@@ -30,7 +30,19 @@ export function TitleScreen() {
 
   return (
     <Field>
-      <main className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center px-5 py-16">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <video
+          className="h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/art/field.jpg"
+          src="/art/field.mp4"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/80 to-black/45" />
+      </div>
+      <main className="relative z-10 mx-auto flex min-h-dvh max-w-lg flex-col justify-center px-5 py-16">
         <div className="stagger-in mb-10">
           <svg viewBox="0 0 48 32" className="mb-6 h-8 w-12 text-field" aria-hidden>
             <path

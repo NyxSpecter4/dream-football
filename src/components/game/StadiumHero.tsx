@@ -34,7 +34,11 @@ export function StadiumHero({
         background: `linear-gradient(180deg, ${pick.sky[0]}, ${pick.sky[1]} 52%, #102016 100%)`,
       }}
     >
-      <Skyline vibe={pick.vibe} />
+      <img
+        src="/art/field.jpg"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover opacity-55"
+      />
       <div className="flood-pulse pointer-events-none absolute inset-x-6 top-0 h-20 bg-[radial-gradient(ellipse_at_50%_0%,rgba(232,212,77,0.22),transparent_70%)]" />
       <svg viewBox="0 0 400 120" className="absolute inset-x-0 bottom-0 h-[72%] w-full" aria-hidden>
         <path d="M0 70 L40 48 H360 L400 70 V120 H0 Z" fill="#1a231c" />
