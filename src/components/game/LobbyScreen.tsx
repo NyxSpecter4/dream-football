@@ -75,14 +75,14 @@ function LobbyGate() {
           Back
         </button>
         <h1 className="mt-8 font-display text-4xl font-semibold tracking-tight">
-          {pending ? "Join the room" : "Play with friends"}
+          {pending ? "Join the room" : "Play with a friend"}
         </h1>
         <p className="mt-2 text-sm text-muted">
           {pending
-            ? "Name your club, then sit. Same eight-club board as everyone else."
+            ? "Name your team, then join. Same league as the host."
             : isLiveShareHost()
-              ? "Host gets a 4-letter code. Friend opens this same page and joins. Empty seats play themselves."
-              : "Friends can't join from this preview. Open the live Dream Football link on both phones, then host or join."}
+              ? "Host a room. Text the 4-letter code. Friend opens this same site and joins."
+              : "This preview can't reach a friend. Both of you open nl-play.vercel.app, then host or join."}
         </p>
 
         <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Team name</label>
@@ -241,7 +241,7 @@ function WaitingRoom() {
             : !liveShare
               ? "This preview is only you. Open the live link on each phone, then use this code."
               : isHost
-                ? "Text Cindy the code. She opens the same link, taps Play with friends, and joins."
+                ? "Text the code to your friend. They open this same site, tap Play with a friend, and join."
                 : "Waiting on the host. Stay on this page."}
         </p>
 
@@ -297,7 +297,7 @@ function WaitingRoom() {
 
         {isHost && !lateJoinBlocked ? (
           <Button size="lg" className="mt-8" disabled={!localPeerId} onClick={start}>
-            Start auction
+            Start the draft
           </Button>
         ) : (
           <p className="mt-8 text-sm text-muted">

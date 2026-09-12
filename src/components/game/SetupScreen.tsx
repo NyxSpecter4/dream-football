@@ -45,14 +45,14 @@ export function SetupScreen() {
         >
           Back
         </button>
-        <h1 className="mt-8 font-display text-4xl font-semibold tracking-tight">Take a club</h1>
-        <p className="mt-2 text-sm text-muted">32 NFL twins. NY and LA are the duals. You take one. Eight play this season.</p>
+        <h1 className="mt-8 font-display text-4xl font-semibold tracking-tight">Name your team</h1>
+        <p className="mt-2 text-sm text-muted">Pick a city. Then you draft players with a $301.2M cap.</p>
 
         <div className="mt-6">
           <StadiumHero city={city} stadium={stadium} jersey={jersey} club={name} />
         </div>
 
-        <label className="mt-6 text-xs font-medium tracking-wide text-muted uppercase">Club</label>
+        <label className="mt-6 text-xs font-medium tracking-wide text-muted uppercase">Team name</label>
         <input
           value={name}
           maxLength={22}
@@ -60,7 +60,7 @@ export function SetupScreen() {
           className="mt-2 h-12 w-full rounded-lg bg-surface px-4 text-base text-fg shadow-[var(--shadow-border)] outline-none focus:ring-2 focus:ring-accent/40"
         />
 
-        <p className="mt-6 text-xs font-medium tracking-wide text-muted uppercase">NFL city</p>
+        <p className="mt-6 text-xs font-medium tracking-wide text-muted uppercase">City</p>
         <input
           value={query}
           maxLength={32}
@@ -147,7 +147,7 @@ export function SetupScreen() {
             startSeason(name, short, jersey, city, stadium);
           }}
         >
-          Enter the auction
+          Start the draft
         </Button>
       </main>
     </Field>

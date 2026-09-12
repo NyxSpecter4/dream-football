@@ -23,7 +23,6 @@ export function TitleScreen() {
   const feat = pickWireFeatured(data?.games ?? []);
   const featHome = feat ? teamOf(feat.homeAbbr) : null;
   const featAway = feat ? teamOf(feat.awayAbbr) : null;
-  const [guide, setGuide] = useState(false);
 
   if (watchNight) {
     return <WatchNightScreen />;
@@ -45,14 +44,66 @@ export function TitleScreen() {
             <circle cx="24" cy="3" r="1.6" fill="currentColor" />
           </svg>
           <p className="mb-3 font-mono text-[11px] tracking-[0.22em] text-muted uppercase">
-            Eight-club NFL twin
+            Fantasy football
           </p>
           <h1 className="font-display text-6xl font-semibold tracking-tight text-fg sm:text-7xl">
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            32 NFL cities. You take one twin. Eight clubs, $301.2M cap. Sunday's NFL feeds the board.
+            Draft a team. Score this week's real NFL games. Eight teams, one league.
           </p>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {hasSave && (
+            <Button
+              size="lg"
+              onClick={() => {
+                unlockAudio();
+                startBed();
+                setScreen(phase === "draft" ? "draft" : phase === "offseason" ? "offseason" : "home");
+              }}
+            >
+              Continue your season
+            </Button>
+          )}
+          <Button
+            size="lg"
+            variant={hasSave ? "secondary" : "primary"}
+            onClick={() => {
+              unlockAudio();
+              startBed();
+              if (hasSave) resetSeason();
+              startSetup();
+            }}
+          >
+            Start a season
+          </Button>
+          <Button
+            size="lg"
+            variant="secondary"
+            onClick={() => {
+              unlockAudio();
+              startBed();
+              setScreen("lobby");
+            }}
+          >
+            Play with a friend
+          </Button>
+          <Button
+            size="lg"
+            variant="ghost"
+            onClick={() => {
+              unlockAudio();
+              stopBed();
+              startWatchNight();
+            }}
+          >
+            Watch NFL scores
+          </Button>
+        </div>
+
+        <div className="stagger-in mt-8 pb-8">
           {feat && featAway && featHome && (
             <p className="overlay-chip overlay-chip-live mt-4">
               {feat.state === "live" && <span className="live-dot" />}
@@ -69,69 +120,6 @@ export function TitleScreen() {
           <div className="mt-4">
             <WireTicker />
           </div>
-          <ol className="mt-6 space-y-1.5 text-sm text-muted">
-            <li>
-              <span className="text-fg">Take a club.</span> Bid the $301.2M cap. Floor $885K.
-            </li>
-            <li>
-              <span className="text-fg">Sit Sunday.</span> Live PPR. Lock the week.
-            </li>
-            <li>
-              <span className="text-fg">Keep the club.</span> Cut payroll. Run it back.
-            </li>
-          </ol>
-          <div className="mt-3">
-            <GuideLink onClick={() => setGuide(true)} />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 pb-8">
-          {hasSave && (
-            <Button
-              size="lg"
-              onClick={() => {
-                unlockAudio();
-                startBed();
-                setScreen(phase === "draft" ? "draft" : phase === "offseason" ? "offseason" : "home");
-              }}
-            >
-              Continue season
-            </Button>
-          )}
-          <Button
-            size="lg"
-            variant={hasSave ? "secondary" : "primary"}
-            onClick={() => {
-              unlockAudio();
-              startBed();
-              if (hasSave) resetSeason();
-              startSetup();
-            }}
-          >
-            Take a club
-          </Button>
-          <Button
-            size="lg"
-            variant="secondary"
-            onClick={() => {
-              unlockAudio();
-              stopBed();
-              startWatchNight();
-            }}
-          >
-            Watch this week
-          </Button>
-          <Button
-            size="lg"
-            variant="ghost"
-            onClick={() => {
-              unlockAudio();
-              startBed();
-              setScreen("lobby");
-            }}
-          >
-            Play with friends
-          </Button>
         </div>
 
         {career.seasons > 0 && (
@@ -142,7 +130,6 @@ export function TitleScreen() {
           </p>
         )}
       </main>
-      <BoardGuide open={guide} onClose={() => setGuide(false)} />
     </Field>
   );
 }
@@ -241,7 +228,7 @@ function WatchNightScreen() {
               startSetup();
             }}
           >
-          Bid for a club
+          Start a season
           </Button>
           <Button
             variant="ghost"
@@ -250,7 +237,7 @@ function WatchNightScreen() {
               setScreen("lobby");
             }}
           >
-            Play with friends
+            Play with a friend
           </Button>
           <Button variant="ghost" onClick={() => endWatchNight()}>
             Back
