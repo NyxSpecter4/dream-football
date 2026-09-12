@@ -2,7 +2,7 @@
 
 $200 auction fantasy football. You and a friend bid on a roster. Seven weeks. Then four teams play for the title.
 
-Live: [nightleague-makothoth.vercel.app](https://nightleague-makothoth.vercel.app)
+Live: [nl-play.vercel.app](https://nl-play.vercel.app)
 
 ## Play together
 
