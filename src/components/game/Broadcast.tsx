@@ -179,24 +179,20 @@ export function NightBroadcast({
 
   return (
     <div>
-      <div className="mb-3">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <span
           className={cn(
-            "inline-block rounded-md px-2.5 py-1 font-display text-sm font-semibold tracking-wide uppercase",
+            "rounded-sm px-1.5 py-0.5 font-mono text-[10px] tracking-[0.16em] uppercase",
             taped && card?.state === "live"
-              ? "bg-live text-bg"
+              ? "bg-live/15 text-live"
               : taped
-                ? "bg-win text-bg"
-                : "bg-surface-2 text-fg",
+                ? "bg-win/15 text-win"
+                : "bg-surface-2 text-muted",
           )}
         >
-          {taped
-            ? card?.state === "live"
-              ? "LIVE · this week's NFL"
-              : "REAL · this week's NFL"
-            : "SIM · made-up snaps"}
+          {taped ? (card?.state === "live" ? "Live downs" : "Real downs") : "Sim"}
         </span>
-        <p className="mt-2 min-w-0 font-mono text-[11px] text-subtle">{wireNote(card, taped)}</p>
+        <p className="min-w-0 font-mono text-[11px] text-subtle">{wireNote(card, taped)}</p>
       </div>
       <div className="flex items-end justify-between gap-3">
         <NflScore
@@ -209,7 +205,7 @@ export function NightBroadcast({
         <p className="pb-1 text-center font-mono text-[11px] tabular-nums text-muted">
           {current?.clock ?? "Q1 15:00"}
           <span className="mt-0.5 block tracking-[0.16em] uppercase text-subtle">
-            {taped ? (card?.state === "final" ? "NFL" : "LIVE") : "SIM"}
+            {taped ? (card?.state === "final" ? "Tape" : "Live") : "Sim"}
           </span>
         </p>
         <NflScore
@@ -310,8 +306,8 @@ export function NightBroadcast({
 
       <p className="mt-4 text-[11px] leading-relaxed text-subtle">
         {taped
-          ? "These downs are this week's public NFL play-by-play. Not an NFL broadcast."
-          : "These downs are made up. The real NFL score is on the ticker, not this grass."}
+          ? "Ball follows public play-by-play. Not an NFL broadcast."
+          : "Sim of this week's card. Real scores sit on the wire. Not an NFL broadcast."}
       </p>
     </div>
   );
@@ -495,7 +491,7 @@ function StadiumCanvas({
   return (
     <canvas
       ref={ref}
-      className="mt-3 h-80 w-full rounded-xl bg-turf sm:h-[28rem]"
+      className="mt-3 h-72 w-full rounded-xl bg-turf sm:h-96"
       aria-hidden
     />
   );
@@ -601,16 +597,9 @@ function draw(
   ctx.stroke();
 
   if (play && play.down > 0) {
-    const los = play.spot;
     const stick = play.spot + play.toGo * (play.possession === "home" ? 1 : -1);
-    ctx.strokeStyle = "rgba(90, 170, 255, 0.95)";
-    ctx.lineWidth = Math.max(3, h * 0.01);
-    ctx.beginPath();
-    ctx.moveTo(sx(los), pad);
-    ctx.lineTo(sx(los), pad + fieldH);
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(232, 212, 77, 1)";
-    ctx.lineWidth = Math.max(3, h * 0.01);
+    ctx.strokeStyle = "rgba(232, 212, 77, 0.9)";
+    ctx.lineWidth = Math.max(2, h * 0.007);
     ctx.beginPath();
     ctx.moveTo(sx(stick), pad);
     ctx.lineTo(sx(stick), pad + fieldH);
@@ -694,63 +683,6 @@ function draw(
   }
 
   ctx.restore();
-  drawHud(ctx, w, h, play, home, away);
-}
-
-function drawHud(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  play: NightPlay | undefined,
-  home: { abbr: string },
-  away: { abbr: string },
-) {
-  const barH = Math.max(36, h * 0.13);
-  ctx.fillStyle = "rgba(8,11,9,0.82)";
-  ctx.fillRect(0, h - barH, w, barH);
-  ctx.fillStyle = "rgba(232,212,77,0.85)";
-  ctx.fillRect(0, h - barH, w, Math.max(2, h * 0.006));
-
-  if (!play) {
-    ctx.fillStyle = "#8b9488";
-    ctx.font = `600 ${Math.floor(h * 0.045)}px "Barlow Condensed", sans-serif`;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    ctx.fillText("KICKOFF", 16, h - barH / 2);
-    return;
-  }
-
-  const down =
-    play.down <= 0 ? "KICK" : `${play.down === 1 ? "1st" : play.down === 2 ? "2nd" : play.down === 3 ? "3rd" : "4th"} & ${play.toGo}`;
-  const yds = play.yards !== 0 ? `${play.yards > 0 ? "+" : ""}${play.yards} yd` : play.kind.toUpperCase();
-  const who = play.playerId ? getPlayer(play.playerId).name : "";
-  const ppr = play.ticks.reduce((s, t) => s + t.pts, 0);
-  const pprLine = ppr ? `${ppr > 0 ? "+" : ""}${ppr.toFixed(1)} PPR` : "";
-
-  ctx.textBaseline = "middle";
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#eef2ec";
-  ctx.font = `700 ${Math.floor(h * 0.048)}px "Barlow Condensed", sans-serif`;
-  ctx.fillText(down, 14, h - barH * 0.62);
-  ctx.fillStyle = "#e8d44d";
-  ctx.font = `700 ${Math.floor(h * 0.042)}px "Barlow Condensed", sans-serif`;
-  ctx.fillText(`${play.kind.toUpperCase()}  ${yds}`, 14, h - barH * 0.28);
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#eef2ec";
-  ctx.font = `600 ${Math.floor(h * 0.04)}px "Barlow Condensed", sans-serif`;
-  ctx.fillText(`${away.abbr}  ${play.awayScore}   ${home.abbr}  ${play.homeScore}`, w / 2, h - barH * 0.62);
-  ctx.fillStyle = "#8b9488";
-  ctx.font = `500 ${Math.floor(h * 0.032)}px "IBM Plex Mono", monospace`;
-  ctx.fillText(play.clock, w / 2, h - barH * 0.28);
-
-  ctx.textAlign = "right";
-  ctx.fillStyle = "#7dba8e";
-  ctx.font = `700 ${Math.floor(h * 0.042)}px "Barlow Condensed", sans-serif`;
-  ctx.fillText(pprLine || who, w - 14, h - barH * 0.62);
-  ctx.fillStyle = "#eef2ec";
-  ctx.font = `600 ${Math.floor(h * 0.034)}px "Barlow Condensed", sans-serif`;
-  ctx.fillText(pprLine ? who : "", w - 14, h - barH * 0.28);
 }
 
 function hexA(hex: string, a: number) {
@@ -810,7 +742,7 @@ function drawBall(
       ctx.fill();
     }
   }
-  const br = h * (td ? 0.048 : 0.038);
+  const br = h * (td ? 0.034 : 0.026);
   ctx.save();
   ctx.translate(x, y + br * 0.9);
   ctx.scale(1, 0.35);
@@ -890,55 +822,45 @@ function drawMan(
   tag: string,
   last: string,
 ) {
-  const r = h * 0.052;
-  ctx.fillStyle = "rgba(0,0,0,0.4)";
+  const r = h * 0.04;
+  ctx.fillStyle = "rgba(0,0,0,0.28)";
   ctx.beginPath();
-  ctx.ellipse(x, y + r * 1.35, r * 0.85, r * 0.28, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + r * 1.15, r * 0.7, r * 0.22, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = fill;
-  roundRect(ctx, x - r * 0.82, y - r * 0.95, r * 1.64, r * 2.2, r * 0.45);
-  ctx.fill();
-  ctx.fillStyle = hexA("#000000", 0.18);
-  roundRect(ctx, x - r * 0.82, y + r * 0.55, r * 1.64, r * 0.7, r * 0.2);
+  roundRect(ctx, x - r * 0.72, y - r * 1.05, r * 1.44, r * 2.05, r * 0.4);
   ctx.fill();
 
   ctx.beginPath();
-  ctx.arc(x, y - r * 1.35, r * 0.62, 0, Math.PI * 2);
+  ctx.arc(x, y - r * 1.28, r * 0.52, 0, Math.PI * 2);
   ctx.fillStyle = helmet;
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(x + r * 0.12, y - r * 1.32, r * 0.38, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(20,24,28,0.55)";
-  ctx.fill();
-  ctx.fillStyle = "rgba(255,255,255,0.22)";
-  ctx.beginPath();
-  ctx.ellipse(x - r * 0.18, y - r * 1.5, r * 0.22, r * 0.1, -0.4, 0, Math.PI * 2);
+  ctx.arc(x, y - r * 1.28, r * 0.28, 0, Math.PI * 2);
+  ctx.fillStyle = ink;
   ctx.fill();
 
   if (tag) {
     ctx.fillStyle = ink;
-    ctx.font = `700 ${Math.floor(h * 0.042)}px "Barlow Condensed", sans-serif`;
+    ctx.font = `700 ${Math.floor(h * 0.038)}px "Barlow Condensed", sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(tag, x, y);
+    ctx.fillText(tag, x, y - r * 0.15);
   }
   if (ring) {
     ctx.strokeStyle = ring;
-    ctx.lineWidth = Math.max(2, h * 0.009);
+    ctx.lineWidth = Math.max(1.6, h * 0.007);
     ctx.beginPath();
-    ctx.arc(x, y - r * 0.1, r * 1.7, 0, Math.PI * 2);
+    ctx.arc(x, y - r * 0.15, r * 1.55, 0, Math.PI * 2);
     ctx.stroke();
   }
-  if (last) {
-    ctx.fillStyle = ring || "#eef2ec";
-    ctx.font = `700 ${Math.floor(h * 0.036)}px "Barlow Condensed", sans-serif`;
+  if (last && ring) {
+    ctx.fillStyle = ring;
+    ctx.font = `600 ${Math.floor(h * 0.032)}px "Barlow Condensed", sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    ctx.strokeStyle = "rgba(0,0,0,0.65)";
-    ctx.lineWidth = 3;
-    ctx.strokeText(last, x, y + r * 1.4);
-    ctx.fillText(last, x, y + r * 1.4);
+    ctx.fillText(last, x, y + r * 1.25);
   }
 }
 

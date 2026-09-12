@@ -1,0 +1,6 @@
+{
+  "name": "Dream Football",
+  "description": "Fantasy football auction draft and season simulation app with live PPR scoring, custom leagues, side bets, and franchise management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

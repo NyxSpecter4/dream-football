@@ -1,33 +1,26 @@
-# Dream Football
+# Dream Football (Android)
 
-An eight-club league. Your franchise, your city, your field. $301.2M cap. Sunday's games feed the board.
+A fantasy football auction draft and franchise simulation app built for Android with Kotlin, Jetpack Compose, Material 3, and Room.
 
-Not the NFL. Not the UFL. Not a Chrome plugin. The league you run — eight clubs, one cup.
+## Overview
 
-## The clubs
+Dream Football puts you at the helm of an 8-team franchise league with a $301.2M salary cap, real-time auction draft room, full PPR head-to-head match scoring, side bets, and multi-year dynasty roster management.
 
-Harbor Wolves (Seattle) · Iron Ridge (Pittsburgh) · Dust Devils (Phoenix) · Lake Effect (Buffalo) · Redline (Kansas City) · North Pine (Green Bay) · Metro Kings (Chicago) — plus yours in any of the 32 NFL cities. NY and LA are the duals.
+## Key Features
 
-## Try it
+- **Franchise Builder**: Custom franchise name, short ticker, home city, stadium, and 10 jersey colorway schemes.
+- **Real-Time Auction Draft Room**: $301.2M salary cap, minimum bids, intelligent CPU bidding AI with positional need models and hammer states (*Going Once, Going Twice, Sold!*).
+- **Weekly Matchup Engine**: Full PPR scoring model (passing, rushing, receiving, field goals, defenses) with boom/bust variance curves and slot-by-slot box score breakdowns.
+- **House Chips Side Bets**: Wager house bankroll against your weekly matchup opponent with automated CPU acceptance and payoff settlements.
+- **Roster & Lineup Manager**: Active starters (QB, RB1, RB2, WR1, WR2, TE, FLEX, K, DST) plus bench with tap-to-swap lineup management and waiver wire free agent acquisitions.
+- **Standings & Playoff Bracket**: 8-team league table with top-4 playoff cut line, semifinal matchups, and championship final.
+- **Dynasty Offseason**: Retain key players, cut contracts to free salary cap space, and roll forward into next season's auction draft.
 
-1. **Take a club** — name, city, stadium. Bid the $301.2M cap. Floor $885K.
-2. **Sit Sunday** — slot vs slot, live PPR as they land, then lock.
-3. **Keep the club** — after the cup, cut payroll, fill holes, run it back.
-4. **Play with friends** — host a room, text a 4-letter code.
+## Android Architecture
 
-## The league
+- **UI Framework**: Jetpack Compose with Material Design 3 (M3)
+- **Architecture**: MVVM with unidirectional data flow (`GameViewModel`, `StateFlow`)
+- **Persistence**: Room Database with Kotlin Symbol Processing (KSP) and `kotlinx.serialization`
+- **Gradle**: Kotlin DSL with Version Catalog (`gradle/libs.versions.toml`)
+- **Adaptive Icon**: Material You adaptive launcher icon with football helmet & goalpost emblem
 
-| | |
-|---|---|
-| Clubs | 8 |
-| Cap | $301.2 million |
-| Floor | $885K · $100K raises |
-| Roster | 10 names (9 start + bench) |
-| Scoring | Standard PPR from Sunday's games |
-| Season | 14 regular, semis, title — then keep the club |
-
-Talent is the real Sunday board. The league, the cities, the cup are ours.
-
-## Repo
-
-Dedicated home: [NyxSpecter4/night-league](https://github.com/NyxSpecter4/night-league)
