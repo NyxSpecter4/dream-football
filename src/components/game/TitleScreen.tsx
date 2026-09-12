@@ -2,9 +2,11 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "./chrome";
 import { NightBroadcast } from "./Broadcast";
+import { BoardGuide, GuideLink } from "./BoardGuide";
 import { WireStrip, WireTicker } from "./Wire";
 import { useGame } from "@/game/store";
-import { unlockAudio } from "@/game/audio";
+import { unlockAudio, startBed, stopBed } from "@/game/audio";
+import { teamOf } from "@/game/nfl";
 import { pickWireFeatured, useWire, watchPool } from "@/game/wire";
 
 export function TitleScreen() {
@@ -17,6 +19,11 @@ export function TitleScreen() {
   const watchNight = useGame((s) => s.watchNight);
   const startWatchNight = useGame((s) => s.startWatchNight);
   const hasSave = teams.length > 0 && phase !== "complete";
+  const { data } = useWire();
+  const feat = pickWireFeatured(data?.games ?? []);
+  const featHome = feat ? teamOf(feat.homeAbbr) : null;
+  const featAway = feat ? teamOf(feat.awayAbbr) : null;
+  const [guide, setGuide] = useState(false);
 
   if (watchNight) {
     return <WatchNightScreen />;
@@ -38,39 +45,54 @@ export function TitleScreen() {
             <circle cx="24" cy="3" r="1.6" fill="currentColor" />
           </svg>
           <p className="mb-3 font-mono text-[11px] tracking-[0.22em] text-muted uppercase">
-            On this week's NFL
+            Eight-club NFL twin
           </p>
           <h1 className="font-display text-6xl font-semibold tracking-tight text-fg sm:text-7xl">
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            Live PPR on your names. A night you can sit when the game isn't on TV. Bid $200. Stake house chips.
+            32 NFL cities. You take one twin. Eight clubs, $301.2M cap. Sunday's NFL feeds the board.
           </p>
-          <p className="mt-3 max-w-sm text-sm text-subtle">
-            The board is real points from this NFL week. The field follows real downs when the card has them.
-          </p>
-          <div className="mt-5">
+          {feat && featAway && featHome && (
+            <p className="overlay-chip overlay-chip-live mt-4">
+              {feat.state === "live" && <span className="live-dot" />}
+              {featAway.city}
+              {feat.state === "soon" ? "" : ` ${feat.awayScore}`}
+              <span className="text-muted"> · </span>
+              {featHome.city}
+              {feat.state === "soon" ? "" : ` ${feat.homeScore}`}
+              <span className={feat.state === "final" ? "text-muted" : "text-live"}>
+                {feat.state === "final" ? " Final" : ` ${feat.clock}`}
+              </span>
+            </p>
+          )}
+          <div className="mt-4">
             <WireTicker />
+          </div>
+          <ol className="mt-6 space-y-1.5 text-sm text-muted">
+            <li>
+              <span className="text-fg">Take a club.</span> Bid the $301.2M cap. Floor $885K.
+            </li>
+            <li>
+              <span className="text-fg">Sit Sunday.</span> Live PPR. Lock the week.
+            </li>
+            <li>
+              <span className="text-fg">Keep the club.</span> Cut payroll. Run it back.
+            </li>
+          </ol>
+          <div className="mt-3">
+            <GuideLink onClick={() => setGuide(true)} />
           </div>
         </div>
 
         <div className="flex flex-col gap-3 pb-8">
-          <Button
-            size="lg"
-            onClick={() => {
-              unlockAudio();
-              startWatchNight();
-            }}
-          >
-            Watch tonight
-          </Button>
           {hasSave && (
             <Button
               size="lg"
-              variant="secondary"
               onClick={() => {
                 unlockAudio();
-                setScreen(phase === "draft" ? "draft" : "home");
+                startBed();
+                setScreen(phase === "draft" ? "draft" : phase === "offseason" ? "offseason" : "home");
               }}
             >
               Continue season
@@ -78,20 +100,33 @@ export function TitleScreen() {
           )}
           <Button
             size="lg"
-            variant="secondary"
+            variant={hasSave ? "secondary" : "primary"}
             onClick={() => {
               unlockAudio();
+              startBed();
               if (hasSave) resetSeason();
               startSetup();
             }}
           >
-            New season
+            Take a club
+          </Button>
+          <Button
+            size="lg"
+            variant="secondary"
+            onClick={() => {
+              unlockAudio();
+              stopBed();
+              startWatchNight();
+            }}
+          >
+            Watch this week
           </Button>
           <Button
             size="lg"
             variant="ghost"
             onClick={() => {
               unlockAudio();
+              startBed();
               setScreen("lobby");
             }}
           >
@@ -107,6 +142,7 @@ export function TitleScreen() {
           </p>
         )}
       </main>
+      <BoardGuide open={guide} onClose={() => setGuide(false)} />
     </Field>
   );
 }
@@ -119,10 +155,13 @@ function WatchNightScreen() {
   const setScreen = useGame((s) => s.setScreen);
   const [done, setDone] = useState(false);
   const [cardI, setCardI] = useState(0);
+  const [guide, setGuide] = useState(false);
   const { data, fail } = useWire();
 
   const pool = useMemo(() => (data ? watchPool(data.games) : []), [data]);
   const card = pool.length > 0 ? pool[cardI % pool.length]! : pickWireFeatured(data?.games ?? []);
+  const home = card ? teamOf(card.homeAbbr) : null;
+  const away = card ? teamOf(card.awayAbbr) : null;
 
   if (!night) return null;
 
@@ -130,12 +169,15 @@ function WatchNightScreen() {
     <Field>
       <main className="mx-auto min-h-dvh max-w-3xl px-5 pb-16 pt-8">
         <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">
-          Tonight · week {data?.week ?? night.week}
+          Week {data?.week ?? night.week}
         </p>
-        <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">The night</h1>
+        <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">
+          {away && home ? `${away.city} at ${home.city}` : "This week"}
+        </h1>
         <p className="mt-2 max-w-md text-sm text-muted">
-          Real card. Real downs when they exist. Your league board sits on this week when you bid $200.
+          This week's card. Real downs when they exist. Bid $301.2M for your own board.
         </p>
+        <GuideLink onClick={() => setGuide(true)}>How to read the grass</GuideLink>
 
         <div className="mt-6">
           {card ? (
@@ -170,7 +212,9 @@ function WatchNightScreen() {
               onDone={() => setDone(true)}
             />
           ) : (
-            <p className="font-mono text-[11px] text-subtle">Pulling this week's card…</p>
+            <div className="mt-3 flex h-72 items-center justify-center rounded-xl bg-turf sm:h-96">
+              <p className="font-mono text-[11px] text-subtle">Pulling this week's card…</p>
+            </div>
           )}
         </div>
 
@@ -187,7 +231,7 @@ function WatchNightScreen() {
                 reshuffleWatchNight();
               }}
             >
-              Another night
+              Next game
             </Button>
           )}
           <Button
@@ -197,7 +241,7 @@ function WatchNightScreen() {
               startSetup();
             }}
           >
-            Bid $200
+          Bid for a club
           </Button>
           <Button
             variant="ghost"
@@ -213,6 +257,7 @@ function WatchNightScreen() {
           </Button>
         </div>
       </main>
+      <BoardGuide open={guide} tab="grass" onClose={() => setGuide(false)} />
     </Field>
   );
 }

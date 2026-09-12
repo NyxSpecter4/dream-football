@@ -55,6 +55,60 @@ function pickStat(file: Record<string, Record<string, unknown>>, sid: string) {
   return file[sid] ?? file[sid.replace(/^TEAM_/, "")] ?? file[`TEAM_${sid}`];
 }
 
+async function getText(url: string, ms = 8000) {
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/rss+xml, application/xml, text/xml, */*",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    },
+    signal: AbortSignal.timeout(ms),
+  });
+  if (!res.ok) throw new Error(url);
+  return res.text();
+}
+
+function stripHtml(s: string) {
+  return s.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/&#39;/g, "'").replace(/"/g, '"').replace(/\s+/g, " ").trim();
+}
+
+function tagText(xml: string, tag: string) {
+  const m = xml.match(new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>|<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, "i"));
+  return stripHtml((m?.[1] || m?.[2] || "").trim());
+}
+
+function parseRss(xml: string): Array<{ title: string; blurb: string }> {
+  return xml
+    .split(/<item[\s>]/i)
+    .slice(1)
+    .map((chunk) => ({
+      title: tagText(chunk, "title"),
+      blurb: tagText(chunk, "description").slice(0, 180),
+    }))
+    .filter((n) => n.title.length > 8);
+}
+
+function newsFromEspn(raw: unknown): Array<{ title: string; blurb: string; source: "espn" }> {
+  const j = asRec(raw);
+  const nested = asRec(j.news).articles;
+  const articles = Array.isArray(j.articles) ? j.articles : Array.isArray(nested) ? nested : [];
+  const out: Array<{ title: string; blurb: string; source: "espn" }> = [];
+  for (const a of articles) {
+    const r = asRec(a);
+    const title = str(r.headline) || str(r.title);
+    if (!title) continue;
+    out.push({ title, blurb: str(r.description).slice(0, 180), source: "espn" });
+  }
+  const feed = Array.isArray(j.nowFeed) ? j.nowFeed : [];
+  for (const a of feed.slice(0, 8)) {
+    const r = asRec(a);
+    const title = str(r.headline) || str(r.title) || str(r.linkText);
+    if (!title) continue;
+    out.push({ title: title.slice(0, 140), blurb: str(r.story || r.linkText).slice(0, 180), source: "espn" });
+  }
+  return out;
+}
+
 function tapeTargets(games: WireGame[]): WireGame[] {
   const live = games.filter((g) => g.state === "live");
   const finals = games.filter((g) => g.state === "final");
@@ -82,15 +136,23 @@ async function attachTape(games: WireGame[]) {
 }
 
 async function build(weekHint = 0) {
-  const [board, newsRaw, state] = await Promise.allSettled([
+  const [board, newsRaw, state, yahooRss, espnCdn] = await Promise.allSettled([
     getJson("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"),
     getJson("https://site.api.espn.com/apis/site/v2/sports/football/nfl/news?limit=8"),
     getJson("https://api.sleeper.app/v1/state/nfl"),
+    getText("https://sports.yahoo.com/nfl/rss.xml"),
+    getJson("https://cdn.espn.com/core/nfl/scoreboard?xhr=1"),
   ]);
 
   const boardJ = board.status === "fulfilled" ? asRec(board.value) : {};
-  const events = Array.isArray(boardJ.events) ? boardJ.events : [];
-  const games: WireGame[] = events.map((ev) => {
+  const cdnJ = espnCdn.status === "fulfilled" ? asRec(espnCdn.value) : {};
+  const sbFallback = asRec(asRec(cdnJ.content).sbData);
+  const eventsRaw = Array.isArray(boardJ.events)
+    ? boardJ.events
+    : Array.isArray(sbFallback.events)
+      ? sbFallback.events
+      : [];
+  const games: WireGame[] = eventsRaw.map((ev) => {
     const e = asRec(ev);
     const comps = Array.isArray(e.competitions) ? e.competitions : [];
     const c = asRec(comps[0]);
@@ -126,14 +188,26 @@ async function build(weekHint = 0) {
   await attachTape(games);
 
   const newsJ = newsRaw.status === "fulfilled" ? asRec(newsRaw.value) : {};
-  const articles = Array.isArray(newsJ.articles) ? newsJ.articles : [];
-  const news = articles
-    .slice(0, 6)
-    .map((a) => {
-      const r = asRec(a);
-      return { title: str(r.headline), blurb: str(r.description).slice(0, 180) };
-    })
-    .filter((n) => n.title);
+  const espnBits = [...newsFromEspn(newsJ), ...newsFromEspn(cdnJ)];
+  const yahooBits =
+    yahooRss.status === "fulfilled"
+      ? parseRss(yahooRss.value).map((n) => ({ ...n, source: "yahoo" as const }))
+      : [];
+  const seen = new Set<string>();
+  const news: Array<{ title: string; blurb: string; source: "espn" | "yahoo" }> = [];
+  const take = (title: string, blurb: string, source: "espn" | "yahoo") => {
+    const key = title.toLowerCase().slice(0, 80);
+    if (!title || seen.has(key) || news.length >= 10) return;
+    seen.add(key);
+    news.push({ title, blurb, source });
+  };
+  const n = Math.max(espnBits.length, yahooBits.length);
+  for (let i = 0; i < n && news.length < 10; i++) {
+    const e = espnBits[i];
+    if (e) take(e.title, e.blurb, "espn");
+    const y = yahooBits[i];
+    if (y) take(y.title, y.blurb, "yahoo");
+  }
 
   const stateJ = state.status === "fulfilled" ? asRec(state.value) : {};
   const liveWeek = num(stateJ.week) || num(asRec(boardJ.week).number) || 1;
@@ -186,7 +260,7 @@ async function build(weekHint = 0) {
     season,
     week,
     games,
-    news,
+    news: news.slice(0, 10),
     stats: mapped,
     updated: Date.now(),
   };

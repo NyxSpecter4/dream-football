@@ -40,7 +40,11 @@ function Home() {
   }, [search.room]);
 
   const league =
-    screen === "home" || screen === "roster" || screen === "matchup" || screen === "standings";
+    screen === "home" ||
+    screen === "roster" ||
+    screen === "matchup" ||
+    screen === "standings" ||
+    screen === "offseason";
 
   return (
     <>

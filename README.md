@@ -1,26 +1,33 @@
-# Night League
+# Dream Football
 
-A fantasy overlay on this week's NFL — live PPR, a night you can sit when the game isn't on TV, $200 auction with friends.
+An eight-club league. Your franchise, your city, your field. $301.2M cap. Sunday's games feed the board.
 
-**Sit this week** is your live board: slot vs slot, real points as they land, projections until they kick. **Lock week** writes the result — real where they played, a sim for names that haven't. **Watch tonight** follows real downs from the public play-by-play when a card has them, and a night sim when it doesn't. House chips are fake money you stake on your matchup.
+Not the NFL. Not the UFL. Not a Chrome plugin. The league you run — eight clubs, one cup.
 
-Same PPR math as ESPN / Yahoo / Sleeper. Real names. No player photos, no league logos. Not a Chrome plugin — this is the overlay.
+## The clubs
 
-## Play together
+Harbor Wolves (Seattle) · Iron Ridge (Pittsburgh) · Dust Devils (Phoenix) · Lake Effect (Buffalo) · Redline (Kansas City) · North Pine (Green Bay) · Metro Kings (Chicago) — plus yours in any of the 32 NFL cities. NY and LA are the duals.
 
-1. Both open this app.
-2. Host: **Play with friends** → name your club → **Host a room**.
-3. Text the 4-letter code.
-4. Friend: **Play with friends** → paste the code → **Join**.
-5. Host taps **Start auction**. Keep both pages open.
-6. After the draft, sit the live board, stake house chips, then lock the week.
+## Try it
 
-Empty seats play themselves. No accounts.
+1. **Take a club** — name, city, stadium. Bid the $301.2M cap. Floor $885K.
+2. **Sit Sunday** — slot vs slot, live PPR as they land, then lock.
+3. **Keep the club** — after the cup, cut payroll, fill holes, run it back.
+4. **Play with friends** — host a room, text a 4-letter code.
 
-## Solo
+## The league
 
-**Watch tonight** on the title, or **New season** to bid $200.
+| | |
+|---|---|
+| Clubs | 8 |
+| Cap | $301.2 million |
+| Floor | $885K · $100K raises |
+| Roster | 10 names (9 start + bench) |
+| Scoring | Standard PPR from Sunday's games |
+| Season | 14 regular, semis, title — then keep the club |
+
+Talent is the real Sunday board. The league, the cities, the cup are ours.
 
 ## Repo
 
-[NyxSpecter4/night-league](https://github.com/NyxSpecter4/night-league)
+Dedicated home: [NyxSpecter4/night-league](https://github.com/NyxSpecter4/night-league)

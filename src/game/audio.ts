@@ -178,3 +178,60 @@ export function stopCrowd() {
     }
   }
 }
+
+export function sfxPick() {
+  tone(520, 0.07, "sine", 0.035);
+  tone(780, 0.09, "triangle", 0.025, 0.04);
+}
+
+let bedOsc: OscillatorNode[] = [];
+let bedGain: GainNode | null = null;
+
+export function startBed() {
+  const c = context();
+  const out = bus();
+  if (!c || !out) return;
+  if (bedGain) return;
+  const g = c.createGain();
+  g.gain.value = 0.0001;
+  g.connect(out);
+  const freqs = [110, 164.81, 196];
+  bedOsc = freqs.map((f, i) => {
+    const o = c.createOscillator();
+    o.type = i === 0 ? "sine" : "triangle";
+    o.frequency.value = f;
+    const og = c.createGain();
+    og.gain.value = i === 0 ? 0.35 : 0.12;
+    o.connect(og);
+    og.connect(g);
+    o.start();
+    return o;
+  });
+  g.gain.setTargetAtTime(0.028, c.currentTime, 0.4);
+  bedGain = g;
+}
+
+export function stopBed() {
+  const c = context();
+  if (bedGain && c) {
+    bedGain.gain.setTargetAtTime(0.0001, c.currentTime, 0.2);
+  }
+  const osc = bedOsc;
+  const g = bedGain;
+  bedOsc = [];
+  bedGain = null;
+  window.setTimeout(() => {
+    for (const o of osc) {
+      try {
+        o.stop();
+      } catch {
+        /* already */
+      }
+    }
+    try {
+      g?.disconnect();
+    } catch {
+      /* already */
+    }
+  }, 400);
+}

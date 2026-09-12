@@ -1,14 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Field, JerseyMark, PlayerRow, PosChip, RoomBar } from "./chrome";
+import { Field, JerseyMark, PlayerRow, PosChip, RoomBar, fmtMoney } from "./chrome";
 import { useGame } from "@/game/store";
-import { availablePlayers, marketValue, maxAffordable, nextNominator, spotsLeft } from "@/game/draft";
+import { availablePlayers, marketValue, maxAffordable, nextNominator, nextRaise, spotsLeft } from "@/game/draft";
+import { AUCTION_PLANS, leftoverAfter, nomAdvice, planMax, type AuctionPlan } from "@/game/plans";
 import { getPlayer } from "@/game/players";
 import { ownedSet } from "@/game/simulate";
 import { rosterPlayerIds, slotLabel, teamById } from "@/game/league";
 import { canTeamBid } from "@/game/net";
 import { sfxBid, sfxSold, sfxTick } from "@/game/audio";
-import { ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
+import { MIN_BID, ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
+import { BoardGuide, GuideLink, markGuideSeen, shouldShowGuide } from "./BoardGuide";
 import { cn } from "@/lib/utils";
 
 const POS_FILTERS: Array<Position | "ALL"> = ["ALL", "QB", "RB", "WR", "TE", "K", "DST"];
@@ -32,10 +34,17 @@ export function AuctionScreen() {
   const setPauseEvery = useGame((s) => s.setPauseEvery);
   const setAutoFill = useGame((s) => s.setAutoFill);
   const fillRest = useGame((s) => s.fillRest);
-
+  const [plan, setPlan] = useState<AuctionPlan>("balanced");
   const [filter, setFilter] = useState<Position | "ALL">("ALL");
   const [selected, setSelected] = useState<string | null>(null);
   const [soldFlash, setSoldFlash] = useState(lastSold);
+  const [guide, setGuide] = useState(false);
+  const guideRef = useRef(false);
+  guideRef.current = guide;
+
+  useEffect(() => {
+    if (shouldShowGuide()) setGuide(true);
+  }, []);
 
   const yourRoster = rosters[you];
   const spots = yourRoster ? spotsLeft(yourRoster) : 10;
@@ -68,6 +77,10 @@ export function AuctionScreen() {
       last = now;
       const st = useGame.getState();
       if (st.online && !st.isHost) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      if (guideRef.current) {
         raf = requestAnimationFrame(loop);
         return;
       }
@@ -109,19 +122,59 @@ export function AuctionScreen() {
           <div className="min-w-0">
             <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Auction</p>
             <h1 className="font-display text-3xl font-semibold tracking-tight">The board</h1>
+            <GuideLink onClick={() => setGuide(true)} />
           </div>
           <div className="shrink-0 text-right">
-            <p className="font-mono text-2xl tabular-nums leading-none">${budget}</p>
+            <p className="font-mono text-2xl tabular-nums leading-none">{fmtMoney(budget)}</p>
             <p className="mt-1 text-xs text-muted">
-              {spots} of {ROSTER_SIZE} open · max ${cap} on one name
+              {spots} of {ROSTER_SIZE} open · max {fmtMoney(cap)} on one name
             </p>
             {spots > 1 && (
-              <p className="mt-0.5 text-[11px] text-subtle">Leave ${budget - cap} to fill the rest</p>
+              <p className="mt-0.5 text-[11px] text-subtle">Leave {fmtMoney(budget - cap)} to fill the rest</p>
             )}
           </div>
         </header>
 
         {online && <RoomBar className="mt-3" />}
+
+        <div className="mt-4 flex gap-1.5 overflow-x-auto pb-1">
+          {AUCTION_PLANS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setPlan(p.id)}
+              className={cn(
+                "chip min-h-9 shrink-0 rounded-full px-3 text-xs font-medium",
+                plan === p.id ? "bg-accent text-accent-fg" : "bg-surface text-muted",
+              )}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-subtle">{AUCTION_PLANS.find((p) => p.id === plan)?.line}</p>
+
+        <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-8">
+          {teams.map((t) => {
+            const open = spotsLeft(rosters[t.id]!);
+            return (
+              <li
+                key={t.id}
+                className={cn(
+                  "rounded-md px-2 py-1.5",
+                  t.id === you ? "bg-surface-2 shadow-[var(--shadow-border-hover)]" : "bg-surface shadow-[var(--shadow-border)]",
+                )}
+              >
+                <p className="flex items-center gap-1 truncate font-mono text-[11px] text-muted">
+                  <JerseyMark jersey={t.jersey} className="size-2" />
+                  {t.short}
+                </p>
+                <p className="font-mono text-sm tabular-nums">{fmtMoney(budgets[t.id] ?? 0)}</p>
+                <p className="font-mono text-[10px] tabular-nums text-subtle">{open} open</p>
+              </li>
+            );
+          })}
+        </ul>
 
         <p className="mt-3 font-mono text-xs tabular-nums text-subtle">
           {filled}/{totalLots} signed
@@ -135,6 +188,7 @@ export function AuctionScreen() {
 
         {block ? (
           <BlockCard
+            plan={plan}
             onBid={(n) => {
               sfxBid();
               bid(n);
@@ -148,7 +202,8 @@ export function AuctionScreen() {
         ) : myNomination ? (
           <div className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
             <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Your nomination</p>
-            <p className="mt-1 text-sm text-muted">Put a name on the block at $1. You still need {spots}.</p>
+            <p className="mt-1 text-sm text-muted">{nomAdvice(plan, spots)}</p>
+            <p className="mt-1 text-sm text-subtle">You still need {spots}.</p>
           </div>
         ) : waitingOn ? (
           <div className="mt-6 rounded-xl bg-surface p-4 text-sm text-muted shadow-[var(--shadow-border)]">
@@ -162,7 +217,8 @@ export function AuctionScreen() {
 
         {soldFlash && (
           <p className="pop-in mt-3 font-mono text-xs text-win">
-            Sold · {getPlayer(soldFlash.playerId).name} to {teamById(teams, soldFlash.teamId).name} · $
+            Sold · {getPlayer(soldFlash.playerId).name} to {teamById(teams, soldFlash.teamId).name} ·{" "}
+            {fmtMoney(soldFlash.price)}
             {soldFlash.price}
           </p>
         )}
@@ -176,7 +232,7 @@ export function AuctionScreen() {
                   type="button"
                   onClick={() => setFilter(p)}
                   className={cn(
-                    "min-h-9 shrink-0 rounded-full px-3 text-xs font-medium",
+                    "chip min-h-9 shrink-0 rounded-full px-3 text-xs font-medium",
                     filter === p ? "bg-accent text-accent-fg" : "bg-surface text-muted",
                   )}
                 >
@@ -196,7 +252,7 @@ export function AuctionScreen() {
                         : undefined
                     }
                     trailing={
-                      <span className="font-mono text-sm tabular-nums text-muted">${marketValue(pl.id)}</span>
+                      <span className="font-mono text-sm tabular-nums text-muted">{fmtMoney(marketValue(pl.id))}</span>
                     }
                   />
                 </li>
@@ -207,7 +263,7 @@ export function AuctionScreen() {
                 <div className="mx-auto flex max-w-5xl items-center gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{getPlayer(selected).name}</p>
-                    <p className="font-mono text-xs text-muted">Opens at $1 · value ${marketValue(selected)}</p>
+                    <p className="font-mono text-xs text-muted">Opens at {fmtMoney(MIN_BID)} · value {fmtMoney(marketValue(selected))}</p>
                   </div>
                   <Button
                     onClick={() => {
@@ -236,7 +292,7 @@ export function AuctionScreen() {
                 fillRest();
               }}
             >
-              Fill my last {spots} at $1
+              Fill my last {spots} at {fmtMoney(MIN_BID)}
             </Button>
           )}
           {!online && (
@@ -253,6 +309,14 @@ export function AuctionScreen() {
           )}
         </div>
       </div>
+      <BoardGuide
+        open={guide}
+        tab="auction"
+        onClose={() => {
+          markGuideSeen();
+          setGuide(false);
+        }}
+      />
     </Field>
   );
 }
@@ -261,35 +325,47 @@ function BlockCard({
   onBid,
   onPass,
   cap,
+  plan,
 }: {
   onBid: (n: number) => void;
   onPass: () => void;
   cap: number;
+  plan: AuctionPlan;
 }) {
   const block = useGame((s) => s.block)!;
   const teams = useGame((s) => s.teams);
   const you = useGame((s) => s.playerTeamId);
+  const roster = useGame((s) => s.rosters[s.playerTeamId]);
+  const budget = useGame((s) => s.budgets[s.playerTeamId] ?? 0);
+  const contracts = useGame((s) => s.contracts);
   const canBid = useGame((s) => (s.block ? canTeamBid(s, s.playerTeamId, s.block) : false));
   const player = getPlayer(block.playerId);
   const high = teamById(teams, block.highBidderId);
-  const nextBid = block.highBid + 1;
+  const nextBid = nextRaise(block.highBid);
   const going =
     block.going === 1 ? "Going once" : block.going === 2 ? "Going twice" : "On the block";
   const valueBid = Math.min(cap, Math.max(nextBid, marketValue(player.id)));
+  const planBid = roster ? planMax(plan, player, budget, roster, contracts, you) : cap;
+  const win = leftoverAfter(budget, nextBid, roster ? spotsLeft(roster) : 10);
+  const overPlan = nextBid > planBid && planBid > 0;
 
   return (
     <section className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)] sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-[11px] tracking-wide text-muted uppercase">{going}</p>
+          <p className={cn("font-mono text-[11px] tracking-wide uppercase", block.going > 0 ? "going-pulse" : "text-muted")}>
+            {going}
+          </p>
           <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">{player.name}</h2>
           <p className="mt-1 flex items-center gap-2 text-sm text-muted">
             <PosChip pos={player.pos} />
-            {player.nfl} · value ${marketValue(player.id)}
+            {player.nfl} · value {fmtMoney(marketValue(player.id))} · plan {fmtMoney(planBid)}
           </p>
         </div>
         <div className="text-right">
-          <p className="font-display text-4xl font-semibold tabular-nums leading-none">${block.highBid}</p>
+          <p key={block.highBid} className="pop-in font-display text-4xl font-semibold tabular-nums leading-none">
+            {fmtMoney(block.highBid)}
+          </p>
           <p className="mt-2 flex items-center justify-end gap-1.5 text-xs text-muted">
             <JerseyMark jersey={high.jersey} />
             {high.id === you ? "You" : high.short}
@@ -297,10 +373,17 @@ function BlockCard({
         </div>
       </div>
 
+      {canBid && nextBid <= cap && (
+        <p className={cn("mt-3 text-xs", overPlan ? "text-loss" : "text-subtle")}>
+          Win at {fmtMoney(nextBid)} → {fmtMoney(win.nextBudget)} for {win.rest} more
+          {overPlan ? " · over the plan" : ""}
+        </p>
+      )}
+
       <ol className="mt-4 space-y-1 font-mono text-[11px] text-subtle">
         {block.log.slice(-5).map((b, i) => (
           <li key={`${b.teamId}-${b.amount}-${i}`}>
-            {teamById(teams, b.teamId).short} · ${b.amount}
+            {teamById(teams, b.teamId).short} · {fmtMoney(b.amount)}
           </li>
         ))}
       </ol>
@@ -310,22 +393,22 @@ function BlockCard({
           <Button variant="secondary" onClick={onPass}>
             Pass
           </Button>
-          <Button disabled={!canBid} onClick={() => onBid(nextBid)}>
-            Bid ${nextBid}
+          <Button variant="field" disabled={!canBid} onClick={() => onBid(nextBid)}>
+            Bid {fmtMoney(nextBid)}
           </Button>
           <Button
             variant="secondary"
-            disabled={!canBid || cap < nextBid + 4}
-            onClick={() => onBid(Math.min(cap, nextBid + 4))}
+            disabled={!canBid || cap < nextBid + 1_000}
+            onClick={() => onBid(Math.min(cap, nextBid + 1_000))}
           >
-            +$5
+            +{fmtMoney(1_000)}
           </Button>
           <Button
             variant="secondary"
-            disabled={!canBid || valueBid <= block.highBid}
-            onClick={() => onBid(valueBid)}
+            disabled={!canBid || planBid <= block.highBid}
+            onClick={() => onBid(Math.min(cap, Math.max(nextBid, planBid)))}
           >
-            Value ${valueBid}
+            Plan {fmtMoney(Math.min(cap, Math.max(nextBid, planBid)))}
           </Button>
         </div>
       )}
@@ -338,6 +421,15 @@ function BlockCard({
         <p className="mt-4 text-xs text-muted">
           {block.highBidderId === you ? "You have the bid." : "Bids incoming."}
         </p>
+      )}
+      {valueBid !== planBid && block.waitingForHuman && canBid && valueBid > block.highBid && (
+        <button
+          type="button"
+          className="mt-2 text-xs text-muted hover:text-fg"
+          onClick={() => onBid(valueBid)}
+        >
+          Or value {fmtMoney(valueBid)}
+        </button>
       )}
     </section>
   );
@@ -376,7 +468,7 @@ function YourRoster() {
             <li key={slot}>
               <PlayerRow
                 player={getPlayer(id)}
-                trailing={<span className="font-mono text-sm tabular-nums">${price(id)}</span>}
+                trailing={<span className="font-mono text-sm tabular-nums">{fmtMoney(price(id))}</span>}
               />
             </li>
           );
@@ -385,7 +477,7 @@ function YourRoster() {
           <li key={id}>
             <PlayerRow
               player={getPlayer(id)}
-              trailing={<span className="font-mono text-sm tabular-nums">${price(id)}</span>}
+              trailing={<span className="font-mono text-sm tabular-nums">{fmtMoney(price(id))}</span>}
             />
           </li>
         ))}

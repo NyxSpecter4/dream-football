@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
   CHAMPIONSHIP_WEEK,
+  BID_STEP,
   HOUSE_CASH,
   MIN_BID,
   PLAYOFF_WEEK,
@@ -19,7 +20,7 @@ import {
   type Slot,
   type TickerState,
 } from "./types";
-import { emptyRoster, placePlayer, dropPlayer, swapLineup, autoSetLineup, buildLeague, buildOnlineLeague, seasonSchedule, rosterPlayerIds } from "./league";
+import { emptyRoster, placePlayer, dropPlayer, swapLineup, autoSetLineup, buildLeague, buildOnlineLeague, seasonSchedule, rosterPlayerIds, ensureClubHomes } from "./league";
 import {
   availablePlayers,
   cpuMaxBid,
@@ -45,10 +46,11 @@ import {
 import { getPlayer } from "./players";
 import { calendarNight } from "./nfl";
 import { autoTakeCpu, canStake, newBetId, settleWeek } from "./cash";
+import { capSpace, cpuRefresh, cutPlayerFromClub } from "./franchise";
 import { anyHumanCanBid, type LobbyIdentity, type MeshPeer, type RemoteAct } from "./net";
 import type { WireGame, WireStat } from "./wire";
 
-const SAVE_VERSION = 6;
+const SAVE_VERSION = 9;
 const CAREER_KEY = "night-league-career";
 let remoteApplying = false;
 let lastSoloPersist: Record<string, unknown> | null = null;
@@ -75,6 +77,12 @@ function saveCareer(career: Career) {
   } catch {
     /* ignore quota */
   }
+}
+
+function scaleMoneyMap(m: Record<string, number>, k: number) {
+  const out: Record<string, number> = {};
+  for (const id of Object.keys(m ?? {})) out[id] = (m[id] ?? 0) * k;
+  return out;
 }
 
 function emptySave(): SaveState {
@@ -105,6 +113,7 @@ function emptySave(): SaveState {
     peerTeams: {},
     hostPeerId: "",
     nflWeekStart: 1,
+    seasonNo: 1,
   };
 }
 
@@ -157,7 +166,7 @@ type GameStore = SaveState & {
   setHydrated: () => void;
   setScreen: (screen: Screen) => void;
   startSetup: () => void;
-  startSeason: (name: string, short: string, jersey: JerseyId) => void;
+  startSeason: (name: string, short: string, jersey: JerseyId, city?: string, stadium?: string) => void;
   startOnlineSeason: (
     humans: Array<{ peerId: string; name: string; short: string; jersey: JerseyId }>,
     hostPeerId: string,
@@ -170,6 +179,9 @@ type GameStore = SaveState & {
   setPauseEvery: (v: boolean) => void;
   setAutoFill: (v: boolean) => void;
   fillRest: (teamId?: string) => void;
+  keepClub: () => void;
+  cutKeep: (playerId: string) => void;
+  openNextSeason: () => void;
   swapSlot: (slot: Slot, benchId: string, teamId?: string) => void;
   playWeek: () => void;
   tickReveal: () => void;
@@ -261,7 +273,7 @@ export const useGame = create<GameStore>()(
           return;
         }
         const teamOk = s.teams.some((t) => t.id === s.playerTeamId);
-        if (s.mode === "online" || !teamOk || s.version !== SAVE_VERSION) {
+        if (s.mode === "online" || !teamOk) {
           set({
             ...emptySave(),
             hydrated: true,
@@ -271,15 +283,51 @@ export const useGame = create<GameStore>()(
           });
           return;
         }
-        set({ hydrated: true, career: loadCareer() });
+        if (s.version !== SAVE_VERSION) {
+          if ((s.version === 6 || s.version === 7 || s.version === 8) && teamOk) {
+            const k = s.version === 8 ? 1 : 1000;
+            const block =
+              k === 1
+                ? s.block
+                : s.block
+                  ? {
+                      ...s.block,
+                      highBid: s.block.highBid * k,
+                      log: s.block.log.map((b) => ({ ...b, amount: b.amount * k })),
+                    }
+                  : null;
+            set({
+              hydrated: true,
+              career: loadCareer(),
+              version: SAVE_VERSION,
+              seasonNo: s.seasonNo ?? 1,
+              teams: ensureClubHomes(s.teams),
+              budgets: k === 1 ? s.budgets : scaleMoneyMap(s.budgets, k),
+              cash: k === 1 ? s.cash : scaleMoneyMap(s.cash ?? {}, k),
+              contracts: k === 1 ? s.contracts : s.contracts.map((c) => ({ ...c, price: c.price * k })),
+              bets: k === 1 ? s.bets : (s.bets ?? []).map((b) => ({ ...b, stake: b.stake * k })),
+              block,
+            });
+            return;
+          }
+          set({
+            ...emptySave(),
+            hydrated: true,
+            career: loadCareer(),
+            screen: "title",
+            ...offlineFields(),
+          });
+          return;
+        }
+        set({ hydrated: true, career: loadCareer(), teams: ensureClubHomes(s.teams) });
       },
       setScreen: (screen) => set({ screen }),
       startSetup: () => set({ screen: "setup" }),
 
-      startSeason: (name, short, jersey) => {
+      startSeason: (name, short, jersey, city, stadium) => {
         const seasonSeed = (Math.floor(Math.random() * 1e9) + Date.now()) >>> 0;
         const rand = mulberry32(seasonSeed);
-        const teams = buildLeague(name, short, jersey, rand);
+        const teams = buildLeague(name, short, jersey, rand, city, stadium);
         const rosters: SaveState["rosters"] = {};
         const budgets: Record<string, number> = {};
         const cash: Record<string, number> = {};
@@ -512,7 +560,7 @@ export const useGame = create<GameStore>()(
           const you = s.playerTeamId;
           const max = cpuMaxBid(block.playerId, s.rosters[you]!, s.budgets[you] ?? 0, 1);
           if (max > block.highBid && block.highBidderId !== you) {
-            const amount = Math.min(max, block.highBid + Math.max(1, Math.min(8, max - block.highBid)));
+            const amount = Math.min(max, block.highBid + Math.max(BID_STEP, Math.min(8_000, max - block.highBid)));
             set({
               block: {
                 ...block,
@@ -946,6 +994,83 @@ export const useGame = create<GameStore>()(
           ...offlineFields(),
         }),
 
+      keepClub: () => {
+        const s = get();
+        if (s.phase !== "complete" || s.online) return;
+        const budgets: Record<string, number> = {};
+        for (const t of s.teams) {
+          budgets[t.id] = capSpace(s.contracts, t.id);
+        }
+        const refreshed = cpuRefresh(s.teams, s.rosters, s.contracts, budgets);
+        set({
+          phase: "offseason",
+          screen: "offseason",
+          week: 1,
+          results: {},
+          playoffBracket: null,
+          schedule: [],
+          bets: [],
+          waiverClaims: [],
+          waiverUsedWeek: 0,
+          block: null,
+          nominating: false,
+          autoFill: false,
+          ticker: null,
+          lastSold: null,
+          contracts: refreshed.contracts,
+          rosters: refreshed.rosters,
+          budgets: refreshed.budgets,
+          seasonNo: (s.seasonNo ?? 1) + 1,
+        });
+      },
+
+      cutKeep: (playerId) => {
+        const s = get();
+        if (s.phase !== "offseason") return;
+        const out = cutPlayerFromClub(s.playerTeamId, playerId, s.rosters, s.contracts, s.budgets);
+        set({ rosters: out.rosters, contracts: out.contracts, budgets: out.budgets });
+      },
+
+      openNextSeason: () => {
+        const s = get();
+        if (s.phase !== "offseason") return;
+        const ids = s.teams.map((t) => t.id);
+        const holes = ids.some((id) => spotsLeft(s.rosters[id] ?? emptyRoster()) > 0);
+        const boot = () => {
+          if (holes) {
+            const nom = nextNominator(ids, s.rosters, 0);
+            set({
+              phase: "draft",
+              screen: "draft",
+              nominateIndex: nom?.index ?? 0,
+              nominating: Boolean(nom && s.teams.find((t) => t.id === nom.teamId)?.human),
+              block: null,
+              autoFill: false,
+              schedule: [],
+              results: {},
+              playoffBracket: null,
+            });
+            return;
+          }
+          set({
+            ...finishDraft({
+              ...s,
+              contracts: s.contracts,
+              rosters: s.rosters,
+              budgets: s.budgets,
+            }),
+            seasonNo: s.seasonNo,
+          });
+        };
+        boot();
+        void fetch("/api/nfl", { cache: "no-store" })
+          .then((r) => r.json())
+          .then((d: { week?: number }) => {
+            if (d.week) set({ nflWeekStart: d.week });
+          })
+          .catch(() => undefined);
+      },
+
       enterOnline: (roomCode, localPeerId, isHost) =>
         set({
           online: true,
@@ -1112,6 +1237,8 @@ export const useGame = create<GameStore>()(
           mode: "solo" as const,
           peerTeams: {} as Record<string, string>,
           hostPeerId: "",
+          nflWeekStart: 1,
+          seasonNo: 1,
         };
         if (s.online || s.mode === "online") {
           return lastSoloPersist ?? emptyOnline;
@@ -1121,7 +1248,13 @@ export const useGame = create<GameStore>()(
           seasonSeed: s.seasonSeed,
           week: s.week,
           phase: s.phase,
-          screen: (s.screen === "title" ? s.screen : s.phase === "draft" ? "draft" : "home") as SaveState["screen"],
+          screen: (s.screen === "title"
+            ? s.screen
+            : s.phase === "draft"
+              ? "draft"
+              : s.phase === "offseason"
+                ? "offseason"
+                : "home") as SaveState["screen"],
           playerTeamId: s.playerTeamId,
           teams: s.teams,
           nominateIndex: s.nominateIndex,
@@ -1142,6 +1275,8 @@ export const useGame = create<GameStore>()(
           mode: "solo" as const,
           peerTeams: {},
           hostPeerId: "",
+          nflWeekStart: s.nflWeekStart ?? 1,
+          seasonNo: s.seasonNo ?? 1,
         };
         lastSoloPersist = snap;
         return snap;

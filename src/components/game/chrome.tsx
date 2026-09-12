@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { PLAYOFF_WEEK, CHAMPIONSHIP_WEEK, type JerseyId, type Player, type Position } from "@/game/types";
 import { marketValue } from "@/game/draft";
+import { fmtMoney } from "@/game/money";
 import { projection } from "@/game/simulate";
 import { nflContext } from "@/game/scoring";
 import { useGame } from "@/game/store";
@@ -11,6 +12,8 @@ import { useWire } from "@/game/wire";
 export function fmtPts(n: number) {
   return (Math.round(n * 10) / 10).toFixed(1);
 }
+
+export { fmtMoney };
 
 export function Field({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -32,6 +35,10 @@ export function jerseyNum(id: string) {
     h = Math.imul(h, 16777619);
   }
   return 1 + (h >>> 0) % 99;
+}
+
+export function LiveDot({ className }: { className?: string }) {
+  return <span className={cn("live-dot", className)} aria-hidden />;
 }
 
 export function PlayerMark({ player }: { player: Player }) {
@@ -77,8 +84,8 @@ export function PlayerRow({
       type={onClick ? "button" : undefined}
       onClick={onClick}
       className={cn(
-        "flex w-full min-h-12 items-center gap-3 rounded-lg px-3 py-2 text-left transition-[background-color,box-shadow] duration-150",
-        onClick && "hover:bg-surface-2",
+        "flex w-full min-h-12 items-center gap-3 rounded-lg px-3 py-2 text-left transition-[background-color,box-shadow,transform] duration-150 ease-out",
+        onClick && "hover:bg-surface-2 hover:-translate-y-px active:scale-[0.99]",
         active ? "bg-surface-2 shadow-[var(--shadow-border-hover)]" : "shadow-[var(--shadow-border)]",
       )}
     >
@@ -94,7 +101,7 @@ export function PlayerRow({
         </span>
       </span>
       {trailing ?? (
-        <span className="font-mono text-sm tabular-nums text-muted">${marketValue(player.id)}</span>
+        <span className="font-mono text-sm tabular-nums text-muted">{fmtMoney(marketValue(player.id))}</span>
       )}
     </Comp>
   );
@@ -103,7 +110,7 @@ export function PlayerRow({
 export function WeekLabel({ week, phase }: { week: number; phase: string }) {
   if (phase === "complete") return "Final";
   if (week === PLAYOFF_WEEK) return "Semifinals";
-  if (week === CHAMPIONSHIP_WEEK) return "Championship";
+  if (week === CHAMPIONSHIP_WEEK) return "Title game";
   return `Week ${week}`;
 }
 

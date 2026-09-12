@@ -2,7 +2,7 @@ import type { BoxScore, LeagueTeam, SideBet } from "./types";
 import { HOUSE_CASH } from "./types";
 
 export { HOUSE_CASH };
-export const STAKES = [5, 10, 20, 40] as const;
+export const STAKES = [5_000, 10_000, 20_000, 40_000] as const;
 
 export function newBetId() {
   return `b-${Math.floor(Math.random() * 1e9).toString(36)}`;

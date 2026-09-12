@@ -18,8 +18,15 @@ export const FLEX_POSITIONS: Position[] = ["RB", "WR", "TE"];
 
 export const ROSTER_SIZE = 10;
 export const TEAM_COUNT = 8;
-export const SALARY_CAP = 200;
-export const HOUSE_CASH = 100;
+/** 2026 NFL salary cap. Internal unit is $1,000. */
+export const SALARY_CAP = 301_200;
+/** 2026 rookie minimum. */
+export const MIN_BID = 885;
+/** Raise size — $100K. */
+export const BID_STEP = 100;
+export const HOUSE_CASH = 100_000;
+/** Cap that must stay for each remaining skill hole. */
+export const SKILL_RESERVE = 8_000;
 
 export type SideBet = {
   id: string;
@@ -31,7 +38,6 @@ export type SideBet = {
   winnerId: string | null;
 };
 
-export const MIN_BID = 1;
 export const REGULAR_WEEKS = 14;
 export const PLAYOFF_WEEK = 15;
 export const CHAMPIONSHIP_WEEK = 16;
@@ -56,6 +62,9 @@ export type LeagueTeam = {
   short: string;
   jersey: JerseyId;
   human: boolean;
+  city: string;
+  stadium: string;
+  nfl: string;
   peerId?: string;
 };
 
@@ -104,13 +113,14 @@ export type Matchup = {
   awayId: string;
 };
 
-export type Phase = "draft" | "regular" | "playoffs" | "complete";
+export type Phase = "draft" | "offseason" | "regular" | "playoffs" | "complete";
 
 export type Screen =
   | "title"
   | "setup"
   | "lobby"
   | "draft"
+  | "offseason"
   | "home"
   | "roster"
   | "matchup"
@@ -164,4 +174,5 @@ export type SaveState = {
   peerTeams: Record<string, string>;
   hostPeerId: string;
   nflWeekStart: number;
+  seasonNo: number;
 };

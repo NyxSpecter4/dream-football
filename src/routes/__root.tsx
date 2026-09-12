@@ -11,10 +11,10 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: APP_NAME },
-      { name: "theme-color", content: "#0c0f0c" },
+      { name: "theme-color", content: "#080b09" },
       {
         name: "description",
-        content: "Auction-draft fantasy football. Bid on anyone. Seven weeks. One trophy.",
+        content: "Dream Football — eight-club league. Your franchise, $301.2M cap. Sunday feeds the board.",
       },
     ],
     links: [

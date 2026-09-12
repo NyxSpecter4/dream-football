@@ -88,6 +88,7 @@ export function pickSave(s: SaveState): SaveState {
     peerTeams: s.peerTeams,
     hostPeerId: s.hostPeerId,
     nflWeekStart: s.nflWeekStart ?? 1,
+    seasonNo: s.seasonNo ?? 1,
   };
 }
 

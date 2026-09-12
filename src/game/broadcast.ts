@@ -671,7 +671,7 @@ export function buildNight(opts: {
       awayScore: st.awayScore,
       hold: 1.05,
       ticks: [{ playerId: id, pts: left, board }],
-      also: { playerId: id, call: `${pl.name} · rest of the night`, pts: left, board },
+      also: { playerId: id, call: `${pl.name} · rest of the game`, pts: left, board },
     });
     remain[id] = 0;
   }
@@ -820,7 +820,7 @@ export function nightFromWire(opts: {
         awayScore: last.awayScore,
         hold: 1,
         ticks: [{ playerId: id, pts: left, board }],
-        also: { playerId: id, call: `${pl.name} · rest of the night`, pts: left, board },
+        also: { playerId: id, call: `${pl.name} · rest of the game`, pts: left, board },
       });
       remain[id] = 0;
     }
@@ -884,7 +884,7 @@ function alsoCall(playerId: string, pts: number, week: number) {
   const pl = getPlayer(playerId);
   const city = teamCity(pl.nfl);
   if (pl.bye === week) return `${pl.name} sits. Bye.`;
-  if (pts <= 0) return `${pl.name} — quiet night.`;
+  if (pts <= 0) return `${pl.name} — quiet game.`;
   if (pl.pos === "QB") return `${pl.name} still throwing in ${city}.`;
   if (pl.pos === "RB") return `${pl.name} finds the end zone. ${city}.`;
   if (pl.pos === "K") return `${pl.name} from distance. ${city}.`;

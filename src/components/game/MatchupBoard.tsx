@@ -1,4 +1,4 @@
-import { fmtPts, PosChip } from "./chrome";
+import { fmtPts, LiveDot, PosChip } from "./chrome";
 import { getPlayer } from "@/game/players";
 import { liveMark, scoreRosterLive } from "@/game/simulate";
 import { slotLabel } from "@/game/league";
@@ -48,7 +48,10 @@ export function LiveScorePeek({
         <p className="font-display text-3xl font-semibold tabular-nums">{fmtPts(home.points)}</p>
         <p className="font-mono text-[11px] tabular-nums text-subtle">proj {fmtPts(home.proj)}</p>
       </div>
-      <p className="pb-5 font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">Live PPR</p>
+      <p className="pb-5 flex items-center gap-1.5 font-mono text-[11px] tracking-[0.16em] text-subtle uppercase">
+        <LiveDot />
+        Live PPR
+      </p>
       <div className="min-w-0 flex-1 text-right">
         <p className="truncate text-sm text-muted">{awayName}</p>
         <p className="font-display text-3xl font-semibold tabular-nums">{fmtPts(away.points)}</p>
@@ -130,7 +133,11 @@ export function MatchupBoard({
         {rows.map((row) => (
           <li
             key={row.slot}
-            className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-lg bg-surface px-3 py-2 shadow-[var(--shadow-border)]"
+            className={cn(
+              "grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-lg bg-surface px-3 py-2 shadow-[var(--shadow-border)] transition-[box-shadow] duration-150",
+              (row.hm?.state === "live" || row.am?.state === "live") &&
+                "shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-live)_35%,transparent)]",
+            )}
           >
             <SlotSide player={row.hp} mark={row.hm} games={games} align="left" />
             <span className="font-mono text-[10px] tracking-wide text-subtle uppercase">{slotLabel(row.slot)}</span>
@@ -193,7 +200,8 @@ function SlotSide({
         )}
       >
         {align === "right" && <PosChip pos={player.pos} />}
-        <span className={cn(live ? "text-win" : done ? "text-fg" : "text-subtle")}>{fmtPts(mark.pts)}</span>
+        {live && <LiveDot />}
+        <span className={cn(live ? "text-live" : done ? "text-fg" : "text-subtle")}>{fmtPts(mark.pts)}</span>
         <span className="text-subtle">/{fmtPts(mark.proj)}</span>
         {align === "left" && <PosChip pos={player.pos} />}
       </p>

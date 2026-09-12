@@ -1,4 +1,4 @@
-/** Sleeper player ids for the Night League pool. Public stats only. */
+/** Sleeper player ids for the Dream Football pool. Public stats only. */
 export const SLEEPER_IDS: Record<string, string> = {
   "qb-allen": "4984",
   "qb-hurts": "6904",

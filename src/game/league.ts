@@ -17,15 +17,16 @@ import {
 } from "./types";
 import { getPlayer } from "./players";
 import { shuffle } from "./rng";
+import { CITIES, cityByName } from "./cities";
 
 export const CPU_TEAMS: Array<Omit<LeagueTeam, "id" | "human">> = [
-  { name: "Harbor Wolves", short: "HRB", jersey: "harbor" },
-  { name: "Iron Ridge", short: "IRN", jersey: "steel" },
-  { name: "Dust Devils", short: "DST", jersey: "ember" },
-  { name: "Lake Effect", short: "LKE", jersey: "midnight" },
-  { name: "Redline", short: "RED", jersey: "ember" },
-  { name: "North Pine", short: "PIN", jersey: "pine" },
-  { name: "Metro Kings", short: "MTR", jersey: "bone" },
+  { name: "Harbor Wolves", short: "HRB", jersey: "harbor", city: "Seattle", stadium: "Elliott Field", nfl: "SEA" },
+  { name: "Iron Ridge", short: "IRN", jersey: "steel", city: "Pittsburgh", stadium: "The Point", nfl: "PIT" },
+  { name: "Dust Devils", short: "DST", jersey: "ember", city: "Phoenix", stadium: "South Mountain", nfl: "ARI" },
+  { name: "Lake Effect", short: "LKE", jersey: "midnight", city: "Buffalo", stadium: "The Falls", nfl: "BUF" },
+  { name: "Redline", short: "RED", jersey: "ember", city: "Kansas City", stadium: "West Bottoms", nfl: "KC" },
+  { name: "North Pine", short: "PIN", jersey: "pine", city: "Green Bay", stadium: "Titletown Field", nfl: "GB" },
+  { name: "Metro Kings", short: "MTR", jersey: "bone", city: "Chicago", stadium: "Grant Park", nfl: "CHI" },
 ];
 
 export const JERSEYS: Array<{ id: JerseyId; label: string }> = [
@@ -202,44 +203,93 @@ export function buildLeague(
   humanShort: string,
   jersey: JerseyId,
   rand: () => number,
+  humanCity = "Dallas",
+  humanStadium = "Trinity Field",
 ): LeagueTeam[] {
-  const cpus = shuffle(CPU_TEAMS, rand).slice(0, TEAM_COUNT - 1);
+  const twin = cityByName(humanCity);
   const human: LeagueTeam = {
     id: "you",
-    name: humanName.trim() || "Night Hawks",
-    short: (humanShort.trim() || "NGT").slice(0, 4).toUpperCase(),
+    name: humanName.trim() || "Dream",
+    short: (humanShort.trim() || "DRM").slice(0, 4).toUpperCase(),
     jersey,
+    city: humanCity.trim() || "Dallas",
+    stadium: humanStadium.trim() || twin?.stadium || "Trinity Field",
+    nfl: twin?.tag ?? "DAL",
     human: true,
   };
-  const others: LeagueTeam[] = cpus.map((t, i) => ({
-    ...t,
+  const rest = shuffle(
+    CITIES.filter((c) => c.tag !== human.nfl),
+    rand,
+  ).slice(0, TEAM_COUNT - 1);
+  const others: LeagueTeam[] = rest.map((c, i) => ({
     id: `cpu-${i}`,
+    name: CPU_TEAMS[i]?.name ?? c.city,
+    short: CPU_TEAMS[i]?.short ?? c.tag.slice(0, 3),
+    jersey: c.jersey,
+    city: c.city,
+    stadium: c.stadium,
+    nfl: c.tag,
     human: false,
   }));
   return [human, ...others];
 }
 
 export function buildOnlineLeague(
-  humans: Array<{ peerId: string; name: string; short: string; jersey: JerseyId }>,
+  humans: Array<{ peerId: string; name: string; short: string; jersey: JerseyId; city?: string; stadium?: string }>,
   rand: () => number,
 ): LeagueTeam[] {
-  const seats = humans.slice(0, TEAM_COUNT).map((h) => ({
-    id: `h-${h.peerId}`,
-    name: h.name.trim() || "Night Hawks",
-    short: (h.short.trim() || "NGT").slice(0, 4).toUpperCase(),
-    jersey: h.jersey,
-    human: true,
-    peerId: h.peerId,
-  }));
+  const taken = new Set<string>();
+  const seats = humans.slice(0, TEAM_COUNT).map((h) => {
+    const city = (h.city ?? "").trim() || "Dallas";
+    const twin = cityByName(city);
+    const nfl = twin?.tag ?? "DAL";
+    taken.add(nfl);
+    return {
+      id: `h-${h.peerId}`,
+      name: h.name.trim() || "Dream",
+      short: (h.short.trim() || "DRM").slice(0, 4).toUpperCase(),
+      jersey: h.jersey,
+      city,
+      stadium: (h.stadium ?? "").trim() || twin?.stadium || "Trinity Field",
+      nfl,
+      human: true,
+      peerId: h.peerId,
+    };
+  });
+  const rest = shuffle(
+    CITIES.filter((c) => !taken.has(c.tag)),
+    rand,
+  );
   const cpuNeed = Math.max(0, TEAM_COUNT - seats.length);
-  const cpus = shuffle(CPU_TEAMS, rand)
-    .slice(0, cpuNeed)
-    .map((t, i) => ({
-      ...t,
-      id: `cpu-${i}`,
-      human: false,
-    }));
+  const cpus = rest.slice(0, cpuNeed).map((c, i) => ({
+    id: `cpu-${i}`,
+    name: CPU_TEAMS[i]?.name ?? c.city,
+    short: CPU_TEAMS[i]?.short ?? c.tag.slice(0, 3),
+    jersey: c.jersey,
+    city: c.city,
+    stadium: c.stadium,
+    nfl: c.tag,
+    human: false,
+  }));
   return [...seats, ...cpus];
+}
+
+export function clubLine(t: Pick<LeagueTeam, "city" | "stadium" | "name">) {
+  if (t.city && t.stadium) return `${t.city} · ${t.stadium}`;
+  return t.city || t.name;
+}
+
+export function ensureClubHomes(teams: LeagueTeam[]): LeagueTeam[] {
+  return teams.map((t) => {
+    const known = CPU_TEAMS.find((c) => c.short === t.short || c.name === t.name);
+    const twin = cityByName(t.city || known?.city || "");
+    return {
+      ...t,
+      city: t.city || known?.city || t.name,
+      stadium: t.stadium || known?.stadium || twin?.stadium || "Home Field",
+      nfl: t.nfl || twin?.tag || known?.nfl || "DAL",
+    };
+  });
 }
 
 export function slotLabel(slot: Slot): string {

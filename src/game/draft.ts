@@ -2,11 +2,11 @@ import { getPlayer, PLAYERS } from "./players";
 import { placePlayer, preferredSlot, rosterPlayerIds, slotAccepts } from "./league";
 import { ownedSet, projection } from "./simulate";
 import {
+  BID_STEP,
   MIN_BID,
   ROSTER_SIZE,
-  SALARY_CAP,
+  SKILL_RESERVE,
   STARTER_SLOTS,
-  TEAM_COUNT,
   type AuctionBlock,
   type Contract,
   type LeagueTeam,
@@ -24,60 +24,34 @@ const NEED_WEIGHT: Record<Position, number> = {
   DST: 0.95,
 };
 
-function replacement(pos: Position): number {
-  const sorted = PLAYERS.filter((pl) => pl.pos === pos).sort(
-    (a, b) => projection(b) - projection(a),
-  );
-  const idx = pos === "RB" || pos === "WR" ? Math.min(15, sorted.length - 1) : Math.min(7, sorted.length - 1);
-  return projection(sorted[idx]!);
+const CEIL: Record<Position, number> = {
+  QB: 64_000,
+  WR: 35_000,
+  RB: 20_000,
+  TE: 18_000,
+  K: 6_000,
+  DST: 4_000,
+};
+
+export function snapBid(n: number) {
+  if (n <= MIN_BID) return MIN_BID;
+  const steps = Math.round((n - MIN_BID) / BID_STEP);
+  return MIN_BID + Math.max(1, steps) * BID_STEP;
 }
 
-const REPL: Record<Position, number> = {
-  QB: replacement("QB"),
-  RB: replacement("RB"),
-  WR: replacement("WR"),
-  TE: replacement("TE"),
-  K: replacement("K"),
-  DST: replacement("DST"),
-};
-
-function vorp(player: Player): number {
-  return Math.max(0, projection(player) - REPL[player.pos] * 0.92);
+export function nextRaise(high: number) {
+  return high + BID_STEP;
 }
 
-const POS_BUDGET: Record<Position, number> = {
-  RB: 0.35,
-  WR: 0.31,
-  QB: 0.17,
-  TE: 0.11,
-  DST: 0.035,
-  K: 0.025,
-};
-
-const POS_DRAFTED: Record<Position, number> = {
-  QB: 8,
-  RB: 20,
-  WR: 20,
-  TE: 12,
-  K: 8,
-  DST: 8,
-};
+function marketOf(pl: Player): number {
+  const band = Math.max(0, Math.min(1, (pl.ovr - 68) / 30));
+  const shaped = band ** 1.45;
+  return snapBid(MIN_BID + shaped * (CEIL[pl.pos] - MIN_BID));
+}
 
 const MARKET: Record<string, number> = (() => {
   const map: Record<string, number> = {};
-  for (const pl of PLAYERS) map[pl.id] = MIN_BID;
-  const total = SALARY_CAP * TEAM_COUNT - TEAM_COUNT * ROSTER_SIZE;
-  (Object.keys(POS_BUDGET) as Position[]).forEach((pos) => {
-    const pool = total * POS_BUDGET[pos];
-    const ranked = PLAYERS.filter((pl) => pl.pos === pos)
-      .map((pl) => ({ id: pl.id, v: vorp(pl) }))
-      .sort((a, b) => b.v - a.v)
-      .slice(0, POS_DRAFTED[pos]);
-    const sum = ranked.reduce((s, x) => s + x.v, 0) || 1;
-    for (const row of ranked) {
-      map[row.id] = Math.max(MIN_BID, Math.round(MIN_BID + (row.v / sum) * pool));
-    }
-  });
+  for (const pl of PLAYERS) map[pl.id] = marketOf(pl);
   return map;
 })();
 
@@ -95,7 +69,7 @@ export function leftoverReserve(spots: number): number {
   if (rest <= 0) return 0;
   const cheap = Math.min(2, rest);
   const skill = rest - cheap;
-  return cheap * MIN_BID + skill * 8;
+  return cheap * MIN_BID + skill * SKILL_RESERVE;
 }
 
 export function maxAffordable(budget: number, spots: number): number {
@@ -148,8 +122,8 @@ export function cpuMaxBid(
     Math.min(1.1, 0.72 + need * 0.16 + (aggression - 1) * 0.28),
   );
   const raw = fair * stretch;
-  const late = spots <= 2 ? Math.min(cap, Math.max(fair * 0.35, 1)) : raw;
-  return Math.max(0, Math.min(cap, Math.round(late)));
+  const late = spots <= 2 ? Math.min(cap, Math.max(fair * 0.35, MIN_BID)) : raw;
+  return Math.max(0, Math.min(cap, snapBid(late)));
 }
 
 export function cpuNominate(
@@ -165,7 +139,7 @@ export function cpuNominate(
   for (const id of available) {
     const pl = getPlayer(id);
     const fair = marketValue(id);
-    if (fair > cap + 8 && spots > 1) continue;
+    if (fair > cap + SKILL_RESERVE && spots > 1) continue;
     const score = fair * needMultiplier(roster, pl.pos) * NEED_WEIGHT[pl.pos] * aggression;
     if (score > bestScore) {
       bestScore = score;
@@ -205,8 +179,8 @@ export function nextCpuRaise(
     nomHuman &&
     nomSpots > 0 &&
     block.highBidderId === block.nominatorId &&
-    block.highBid <= 2 &&
-    marketValue(block.playerId) <= 5;
+    block.highBid <= MIN_BID + BID_STEP &&
+    marketValue(block.playerId) <= 2_500;
   if (filling) return null;
 
   const passed = new Set(block.passed);
@@ -224,7 +198,11 @@ export function nextCpuRaise(
     if (max > block.highBid) {
       const gap = max - block.highBid;
       const bump =
-        gap >= 12 ? Math.min(9, Math.max(3, Math.round(gap * 0.22))) : gap >= 4 ? 2 : 1;
+        gap >= 12_000
+          ? Math.min(9_000, Math.max(1_000, Math.round((gap * 0.22) / BID_STEP) * BID_STEP))
+          : gap >= 4_000
+            ? 500
+            : BID_STEP;
       candidates.push({ teamId: team.id, amount: Math.min(max, block.highBid + bump) });
     }
   }
@@ -247,10 +225,10 @@ export function shouldPauseForHuman(
   const fair = marketValue(playerId);
   if (fair > cap) return false;
   if (pl.ovr >= 88) return true;
-  if (fair >= 22) return true;
+  if (fair >= 22_000) return true;
   const need = needMultiplier(roster, pl.pos);
-  if (need >= 1.2 && fair >= 6) return true;
-  if (fair <= cap * 0.4 && fair >= 10) return true;
+  if (need >= 1.2 && fair >= 6_000) return true;
+  if (fair <= cap * 0.4 && fair >= 10_000) return true;
   if (spots <= 3 && (pl.pos === "K" || pl.pos === "DST") && countPos(roster, pl.pos) === 0) return true;
   return false;
 }

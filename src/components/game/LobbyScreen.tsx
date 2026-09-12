@@ -24,8 +24,8 @@ function LobbyGate() {
   const setOnlineIdentity = useGame((s) => s.setOnlineIdentity);
   const setScreen = useGame((s) => s.setScreen);
   const pending = parseRoomCode(typeof search.room === "string" ? search.room : "");
-  const [name, setName] = useState("Night Hawks");
-  const [short, setShort] = useState("NGT");
+  const [name, setName] = useState("Dream");
+  const [short, setShort] = useState("DRM");
   const [jersey, setJersey] = useState<JerseyId>("pine");
   const [joinCode, setJoinCode] = useState(pending ?? "");
   const [error, setError] = useState("");
@@ -35,8 +35,8 @@ function LobbyGate() {
   }, [pending]);
 
   const ident = () => ({
-    name: name.trim() || "Night Hawks",
-    short: (short.trim() || "NGT").slice(0, 4).toUpperCase(),
+    name: name.trim() || "Dream",
+    short: (short.trim() || "DRM").slice(0, 4).toUpperCase(),
     jersey,
   });
 
@@ -79,10 +79,10 @@ function LobbyGate() {
         </h1>
         <p className="mt-2 text-sm text-muted">
           {pending
-            ? "Name your club, then sit. Same $200 board as everyone else."
+            ? "Name your club, then sit. Same eight-club board as everyone else."
             : isLiveShareHost()
               ? "Host gets a 4-letter code. Friend opens this same page and joins. Empty seats play themselves."
-              : "Cindy can’t join from this preview. Open the live Dream Football link on both phones, then host or join."}
+              : "Friends can't join from this preview. Open the live Dream Football link on both phones, then host or join."}
         </p>
 
         <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Team name</label>

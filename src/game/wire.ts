@@ -58,6 +58,7 @@ export type WireGame = {
 export type WireNews = {
   title: string;
   blurb: string;
+  source: "espn" | "yahoo";
 };
 
 export type WireStat = {

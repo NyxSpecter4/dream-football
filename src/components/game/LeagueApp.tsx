@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { House, ListOrdered, Swords, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Field, fmtPts, JerseyMark, PlayerRow, RoomBar, useLeaveRoom, WeekLabel } from "./chrome";
+import { Field, fmtMoney, fmtPts, JerseyMark, PlayerRow, RoomBar, useLeaveRoom, WeekLabel } from "./chrome";
 import { useGame } from "@/game/store";
 import { getPlayer } from "@/game/players";
-import { slotLabel, teamById, opponentOf } from "@/game/league";
+import { slotLabel, teamById, opponentOf, rosterPlayerIds, clubLine } from "@/game/league";
+import { conferenceOf } from "@/game/cities";
 import { freeAgents, ownedSet, remainingValue, scoreRosterLive, standings } from "@/game/simulate";
 import { NightBroadcast } from "./Broadcast";
 import { WireStrip } from "./Wire";
@@ -12,9 +13,12 @@ import { lineupIds } from "@/game/broadcast";
 import { STAKES } from "@/game/cash";
 import { cn } from "@/lib/utils";
 import { sfxWin, sfxLoss } from "@/game/audio";
-import { CHAMPIONSHIP_WEEK, PLAYOFF_WEEK, REGULAR_WEEKS, STARTER_SLOTS, type LeagueTeam, type Screen, type SideBet, type Slot } from "@/game/types";
+import { salaryOf } from "@/game/franchise";
+import { SALARY_CAP, ROSTER_SIZE, CHAMPIONSHIP_WEEK, PLAYOFF_WEEK, REGULAR_WEEKS, STARTER_SLOTS, type LeagueTeam, type Screen, type SideBet, type Slot } from "@/game/types";
 import { pickWireForOwned, useWire } from "@/game/wire";
 import { LiveScorePeek, MatchupBoard, ScoringCard } from "./MatchupBoard";
+import { BoardGuide, GuideLink } from "./BoardGuide";
+import { StadiumHero } from "./StadiumHero";
 import { nflContext, weekLocked } from "@/game/scoring";
 
 export function LeagueApp() {
@@ -26,7 +30,8 @@ export function LeagueApp() {
         {screen === "roster" && <RosterScreen />}
         {screen === "matchup" && <MatchupScreen />}
         {screen === "standings" && <StandingsScreen />}
-        <LeagueNav />
+        {screen === "offseason" && <OffseasonScreen />}
+        {screen !== "offseason" && <LeagueNav />}
       </div>
     </Field>
   );
@@ -53,8 +58,8 @@ function LeagueNav() {
                 type="button"
                 onClick={() => setScreen(item.id)}
                 className={cn(
-                  "flex min-h-14 w-full flex-col items-center justify-center gap-1 text-[11px]",
-                  on ? "text-fg" : "text-muted",
+                  "flex min-h-14 w-full flex-col items-center justify-center gap-1 text-[11px] transition-colors duration-150",
+                  on ? "nav-on" : "text-muted hover:text-fg",
                 )}
               >
                 <Icon className="size-4" strokeWidth={1.75} />
@@ -78,6 +83,7 @@ function HomeScreen() {
   const bracket = useGame((s) => s.playoffBracket);
   const playWeek = useGame((s) => s.playWeek);
   const resetSeason = useGame((s) => s.resetSeason);
+  const keepClub = useGame((s) => s.keepClub);
   const leave = useLeaveRoom();
   const online = useGame((s) => s.online);
   const setScreen = useGame((s) => s.setScreen);
@@ -85,6 +91,7 @@ function HomeScreen() {
   const roster = useGame((s) => s.rosters[s.playerTeamId]);
   const rosters = useGame((s) => s.rosters);
   const seasonSeed = useGame((s) => s.seasonSeed);
+  const seasonNo = useGame((s) => s.seasonNo ?? 1);
   const youTeam = teamById(teams, you);
   const cash = useGame((s) => s.cash?.[s.playerTeamId] ?? 0);
   const bets = useGame((s) => s.bets ?? []);
@@ -110,28 +117,46 @@ function HomeScreen() {
   return (
     <main className="px-5 pt-8">
       <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">
-        <WeekLabel week={week} phase={phase} />
+        Season {seasonNo} · <WeekLabel week={week} phase={phase} />
       </p>
       <h1 className="mt-1 flex items-center gap-2 font-display text-4xl font-semibold tracking-tight">
         <JerseyMark jersey={youTeam.jersey} className="size-3" />
         {youTeam.name}
       </h1>
+      <p className="mt-1 text-sm text-muted">
+        {clubLine(youTeam)} · {youTeam.nfl} {conferenceOf(youTeam.nfl)} twin
+      </p>
+      <div className="mt-4">
+        <StadiumHero
+          compact
+          city={youTeam.city}
+          stadium={youTeam.stadium}
+          jersey={youTeam.jersey}
+          club={youTeam.name}
+        />
+      </div>
       <p className="mt-2 font-mono text-sm tabular-nums text-muted">
         {youRow ? `${youRow.wins}–${youRow.losses}` : "0–0"}
         {rank ? ` · ${rank} of 8` : ""}
       </p>
       {online && <RoomBar className="mt-3" />}
-      <p className="mt-2 font-mono text-sm tabular-nums text-muted">House chips ${cash}</p>
+      <p className="mt-2 font-mono text-sm tabular-nums text-muted">House bank {fmtMoney(cash)}</p>
 
       {phase === "complete" && bracket?.championId && (
         <section className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
-          <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Season closed</p>
+          <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Title decided</p>
           <h2 className="mt-2 font-display text-3xl font-semibold">
-            {bracket.championId === you ? "You take the night." : `${teamById(teams, bracket.championId).name} win it.`}
+            {bracket.championId === you ? "You take the cup." : `${teamById(teams, bracket.championId).name} take the cup.`}
           </h2>
-          <Button className="mt-5" onClick={online ? leave : resetSeason}>
-            {online ? "Leave room" : "New season"}
-          </Button>
+          <p className="mt-2 text-sm text-muted">Keep the club and the payroll. Cut names. Fill holes in the next auction.</p>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+            {!online && (
+              <Button onClick={keepClub}>Keep the club</Button>
+            )}
+            <Button variant="secondary" onClick={online ? leave : resetSeason}>
+              {online ? "Leave room" : "Fold the club"}
+            </Button>
+          </div>
         </section>
       )}
 
@@ -140,7 +165,10 @@ function HomeScreen() {
           <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Next</p>
           {opponentId ? (
             <>
-              <h2 className="mt-2 font-display text-3xl font-semibold">{teamById(teams, opponentId).name}</h2>
+              <h2 className="mt-2 flex items-center gap-2 font-display text-3xl font-semibold">
+                <JerseyMark jersey={teamById(teams, opponentId).jersey} className="size-3" />
+                {teamById(teams, opponentId).name}
+              </h2>
               {roster && rosters[opponentId] && (
                 <div className="mt-4">
                   <LiveScorePeek
@@ -154,7 +182,9 @@ function HomeScreen() {
                 </div>
               )}
               <p className="mt-3 text-sm text-muted">
-                Live PPR on this NFL week — same math as ESPN and Sleeper. Names that haven't kicked sit at 0.0.
+                {nflLive
+                  ? "Games are on. Live PPR as they land. Names that haven't kicked sit at 0.0."
+                  : "Live PPR on this NFL week. Names that haven't kicked sit at 0.0."}
               </p>
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                 <Button disabled={Boolean(ticker)} onClick={() => setScreen("matchup")}>
@@ -367,6 +397,7 @@ function MatchupScreen() {
   const setScreen = useGame((s) => s.setScreen);
   const phase = useGame((s) => s.phase);
   const { data: wire } = useWire();
+  const [guide, setGuide] = useState(false);
 
   const opponentId = opponentOf(you, week, phase, schedule, bracket);
   const locking = Boolean(ticker);
@@ -413,6 +444,7 @@ function MatchupScreen() {
       <p className="mt-2 text-sm text-muted">
         Your board is live PPR. The field follows real downs when this week's card has them.
       </p>
+      <GuideLink onClick={() => setGuide(true)}>How to read the grass</GuideLink>
 
       <div className="mt-6">
         <MatchupBoard
@@ -460,6 +492,7 @@ function MatchupScreen() {
           {box.won ? "Win" : "Loss"} · {fmtPts(box.points)}–{fmtPts(box.opponentPoints)}
         </p>
       )}
+      <BoardGuide open={guide} tab="grass" onClose={() => setGuide(false)} />
     </main>
   );
 }
@@ -472,15 +505,16 @@ function StandingsScreen() {
   const you = useGame((s) => s.playerTeamId);
   const bracket = useGame((s) => s.playoffBracket);
   const resetSeason = useGame((s) => s.resetSeason);
+  const keepClub = useGame((s) => s.keepClub);
   const leave = useLeaveRoom();
   const online = useGame((s) => s.online);
   const rows = standings(teams, results, Math.min(Math.max(0, week - (phase === "regular" ? 1 : 0)), REGULAR_WEEKS));
 
   return (
     <main className="px-5 pt-8">
-      <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">League</p>
+      <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Dream Football</p>
       <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Table</h1>
-      <p className="mt-2 text-sm text-muted">Top four play after week {REGULAR_WEEKS}.</p>
+      <p className="mt-2 text-sm text-muted">Eight NFL twins. Top four play after week {REGULAR_WEEKS}.</p>
       <ol className="mt-6 divide-y divide-border rounded-xl bg-surface shadow-[var(--shadow-border)]">
         {rows.map((row, i) => {
           const team = teamById(teams, row.teamId);
@@ -495,7 +529,12 @@ function StandingsScreen() {
             >
               <span className="w-6 font-mono text-xs tabular-nums text-muted">{i + 1}</span>
               <JerseyMark jersey={team.jersey} />
-              <span className="min-w-0 flex-1 truncate text-sm">{team.name}</span>
+              <span className="min-w-0 flex-1 truncate text-sm">
+                {team.name}
+                <span className="ml-2 text-xs text-muted">
+                  {team.nfl} · {team.city}
+                </span>
+              </span>
               <span className="font-mono text-sm tabular-nums">
                 {row.wins}–{row.losses}
               </span>
@@ -530,10 +569,72 @@ function StandingsScreen() {
       )}
 
       {phase === "complete" && (
-        <Button className="mt-8" onClick={online ? leave : resetSeason}>
-          {online ? "Leave room" : "New season"}
-        </Button>
+        <div className="mt-8 flex flex-col gap-2 sm:flex-row">
+          {!online && (
+            <Button onClick={keepClub}>Keep the club</Button>
+          )}
+          <Button variant="secondary" onClick={online ? leave : resetSeason}>
+            {online ? "Leave room" : "Fold the club"}
+          </Button>
+        </div>
       )}
+    </main>
+  );
+}
+
+function OffseasonScreen() {
+  const you = useGame((s) => s.playerTeamId);
+  const roster = useGame((s) => s.rosters[s.playerTeamId]);
+  const contracts = useGame((s) => s.contracts);
+  const budget = useGame((s) => s.budgets[s.playerTeamId] ?? 0);
+  const seasonNo = useGame((s) => s.seasonNo ?? 1);
+  const teams = useGame((s) => s.teams);
+  const cutKeep = useGame((s) => s.cutKeep);
+  const openNextSeason = useGame((s) => s.openNextSeason);
+  const youTeam = teamById(teams, you);
+  if (!roster) return null;
+  const ids = rosterPlayerIds(roster);
+  const payroll = salaryOf(contracts, you);
+  const holes = ROSTER_SIZE - ids.length;
+
+  return (
+    <main className="px-5 pb-12 pt-8">
+      <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Offseason · year {seasonNo}</p>
+      <h1 className="mt-1 flex items-center gap-2 font-display text-4xl font-semibold tracking-tight">
+        <JerseyMark jersey={youTeam.jersey} className="size-3" />
+        {youTeam.name}
+      </h1>
+      <p className="mt-1 text-sm text-muted">
+        {clubLine(youTeam)} · {youTeam.nfl} {conferenceOf(youTeam.nfl)} twin
+      </p>
+      <p className="mt-2 text-sm text-muted">
+        You own this club. Payroll {fmtMoney(payroll)} of {fmtMoney(SALARY_CAP)}. Space {fmtMoney(budget)}.
+        Cut a name to free cap. CPU clubs already cut two.
+      </p>
+      <ul className="mt-6 flex flex-col gap-1.5">
+        {ids.map((id) => {
+          const deal = contracts.find((c) => c.playerId === id && c.teamId === you);
+          return (
+            <li key={id} className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <PlayerRow
+                  player={getPlayer(id)}
+                  trailing={<span className="font-mono text-sm tabular-nums">{fmtMoney(deal?.price ?? 0)}</span>}
+                />
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => cutKeep(id)}>
+                Cut
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-4 text-sm text-muted">
+        {holes > 0 ? `${holes} hole${holes === 1 ? "" : "s"} go to the auction.` : "Roster full. Skip the auction if you want."}
+      </p>
+      <Button className="mt-6" onClick={openNextSeason}>
+        {holes > 0 ? "Open the auction" : "Open the season"}
+      </Button>
     </main>
   );
 }
@@ -565,18 +666,18 @@ function StakePad({
     <section className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
       <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Stake</p>
       <h2 className="mt-2 font-display text-2xl font-semibold">House chips vs {opp.name}</h2>
-      <p className="mt-1 text-sm text-muted">Fake chips. Winner of the week takes both sides. Not real money.</p>
+      <p className="mt-1 text-sm text-muted">Franchise bank. Winner of the week takes both sides. Play money — not a sportsbook.</p>
       <div className="mt-4 flex flex-wrap gap-2">
         {STAKES.map((n) => (
           <Button key={n} variant="secondary" size="sm" disabled={cash < n} onClick={() => offerBet(opponentId, n)}>
-            ${n}
+            {fmtMoney(n)}
           </Button>
         ))}
       </div>
       {incoming.map((b) => (
         <div key={b.id} className="mt-4 flex flex-wrap items-center gap-2">
           <p className="text-sm">
-            {teamById(teams, b.fromId).name} staked ${b.stake}
+            {teamById(teams, b.fromId).name} staked {fmtMoney(b.stake)}
           </p>
           <Button size="sm" onClick={() => takeBet(b.id)}>
             Take
@@ -588,13 +689,13 @@ function StakePad({
       ))}
       {live.map((b) => (
         <p key={b.id} className="mt-3 font-mono text-xs text-muted">
-          Live ${b.stake} vs {teamById(teams, b.fromId === you ? b.toId : b.fromId).short}
+          Live {fmtMoney(b.stake)} vs {teamById(teams, b.fromId === you ? b.toId : b.fromId).short}
         </p>
       ))}
       {done.map((b) => (
         <p key={b.id} className="mt-2 text-sm text-muted">
-          {b.winnerId === you ? "You take" : b.winnerId ? `${teamById(teams, b.winnerId).short} takes` : "Push"} $
-          {b.stake * (b.winnerId ? 2 : 1)}
+          {b.winnerId === you ? "You take" : b.winnerId ? `${teamById(teams, b.winnerId).short} takes` : "Push"}{" "}
+          {fmtMoney(b.stake * (b.winnerId ? 2 : 1))}
         </p>
       ))}
     </section>

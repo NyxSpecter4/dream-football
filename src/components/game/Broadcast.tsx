@@ -3,6 +3,7 @@ import { buildNight, downLabel, lineupIds, nightFromWire, type NightPlay } from 
 import { getPlayer } from "@/game/players";
 import { sfxBid, sfxKick, sfxScore, sfxSnap, sfxTackle, sfxTd, setCrowd, startCrowd, stopCrowd } from "@/game/audio";
 import { fmtPts, JerseyMark, jerseyNum } from "./chrome";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { JerseyId, Roster } from "@/game/types";
 import { hasTape, type WireGame } from "@/game/wire";
@@ -182,7 +183,11 @@ export function NightBroadcast({
         <span
           className={cn(
             "rounded-sm px-1.5 py-0.5 font-mono text-[10px] tracking-[0.16em] uppercase",
-            taped ? "bg-win/15 text-win" : "bg-surface-2 text-muted",
+            taped && card?.state === "live"
+              ? "bg-live/15 text-live"
+              : taped
+                ? "bg-win/15 text-win"
+                : "bg-surface-2 text-muted",
           )}
         >
           {taped ? (card?.state === "live" ? "Live downs" : "Real downs") : "Sim"}
@@ -267,23 +272,13 @@ export function NightBroadcast({
 
       {live && !done && (
         <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setPaused((p) => !p)}
-            className="min-h-11 rounded-lg bg-surface px-4 text-sm shadow-[var(--shadow-border)]"
-          >
+          <Button variant="secondary" onClick={() => setPaused((p) => !p)}>
             {paused ? "Resume" : "Pause"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setFast((f) => !f)}
-            className="min-h-11 rounded-lg bg-surface px-4 text-sm shadow-[var(--shadow-border)]"
-          >
+          </Button>
+          <Button variant={fast ? "field" : "secondary"} onClick={() => setFast((f) => !f)}>
             {fast ? "Live pace" : "Faster"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
+          </Button>
+          <Button variant="ghost" onClick={() => {
               skipRef.current = true;
               vis.current.t = 1;
               setI(plays.length);
@@ -292,11 +287,9 @@ export function NightBroadcast({
                 doneRef.current = true;
                 onDoneRef.current();
               }
-            }}
-            className="min-h-11 rounded-lg bg-surface px-4 text-sm shadow-[var(--shadow-border)]"
-          >
+            }}>
             Skip
-          </button>
+          </Button>
         </div>
       )}
 
@@ -368,7 +361,9 @@ function NflScore({
         )}
       </p>
       <p className="font-mono text-[11px] tracking-[0.14em] text-subtle uppercase">{abbr}</p>
-      <p className="font-display text-4xl font-semibold tabular-nums tracking-tight">{pts}</p>
+      <p key={pts} className="pop-in font-display text-4xl font-semibold tabular-nums tracking-tight">
+        {pts}
+      </p>
     </div>
   );
 }
@@ -542,8 +537,8 @@ function draw(
   ctx.save();
   ctx.translate((Math.sin(time * 37) * 5 + Math.cos(time * 21) * 3) * shake, Math.sin(time * 29) * 4 * shake);
 
-  drawCrowd(ctx, w, pad, true, time);
-  drawCrowd(ctx, w, pad + fieldH, false, time);
+  drawCrowd(ctx, w, pad, true, time, home.primary, away.primary);
+  drawCrowd(ctx, w, pad + fieldH, false, time, home.primary, away.primary);
 
   ctx.fillStyle = c.turf;
   ctx.fillRect(0, pad, w, fieldH);
@@ -601,7 +596,7 @@ function draw(
 
   if (play && play.down > 0) {
     const stick = play.spot + play.toGo * (play.possession === "home" ? 1 : -1);
-    ctx.strokeStyle = "rgba(255, 196, 72, 0.85)";
+    ctx.strokeStyle = "rgba(232, 212, 77, 0.9)";
     ctx.lineWidth = Math.max(2, h * 0.007);
     ctx.beginPath();
     ctx.moveTo(sx(stick), pad);
@@ -646,7 +641,7 @@ function draw(
   for (const L of lights) {
     const x = (L.x / 100) * w;
     const y = pad + (L.y / 100) * fieldH;
-    const pulse = 0.1 + Math.sin(time * 1.4 + L.p) * 0.04;
+    const pulse = 0.18 + Math.sin(time * 1.4 + L.p) * 0.07;
     const g = ctx.createRadialGradient(x, y, 0, x, y, h * 0.28);
     g.addColorStop(0, `rgba(255,244,210,${pulse})`);
     g.addColorStop(1, "rgba(255,244,210,0)");
@@ -696,14 +691,23 @@ function hexA(hex: string, a: number) {
   return `rgba(${r},${g},${b},${a})`;
 }
 
-function drawCrowd(ctx: CanvasRenderingContext2D, w: number, y: number, top: boolean, time: number) {
+function drawCrowd(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  y: number,
+  top: boolean,
+  time: number,
+  homeHex: string,
+  awayHex: string,
+) {
   const rows = 3;
   for (let r = 0; r < rows; r++) {
     const yy = top ? y - 6 - r * 5 : y + 6 + r * 5;
     for (let i = 0; i < 40; i++) {
       const x = ((i + r * 0.4) / 40) * w;
       const pulse = 0.12 + Math.sin(time * 2.2 + i * 0.4 + r) * 0.05;
-      ctx.fillStyle = `rgba(18, 22, 18, ${0.55 + pulse})`;
+      const tone = i % 7 === 0 ? hexA(homeHex, 0.42) : i % 7 === 3 ? hexA(awayHex, 0.36) : `rgba(18, 22, 18, ${0.55 + pulse})`;
+      ctx.fillStyle = tone;
       ctx.beginPath();
       ctx.arc(x, yy, 3.2 + (i % 3) * 0.6, 0, Math.PI * 2);
       ctx.fill();
@@ -753,8 +757,14 @@ function drawBall(
   ctx.beginPath();
   ctx.ellipse(0, 0, br * 1.45, br * 0.82, 0, 0, Math.PI * 2);
   ctx.fill();
+  ctx.fillStyle = "rgba(243,239,228,0.28)";
+  ctx.beginPath();
+  ctx.ellipse(-br * 0.28, -br * 0.22, br * 0.55, br * 0.28, -0.4, 0, Math.PI * 2);
+  ctx.fill();
   ctx.strokeStyle = "rgba(40,24,12,0.55)";
   ctx.lineWidth = Math.max(1, h * 0.004);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, br * 1.45, br * 0.82, 0, 0, Math.PI * 2);
   ctx.stroke();
   ctx.strokeStyle = "#f3efe4";
   ctx.lineWidth = Math.max(1.2, h * 0.005);
