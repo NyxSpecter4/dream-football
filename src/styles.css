@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0c0f0c;
+  --color-surface: #151a16;
+  --color-surface-2: #1c231e;
+  --color-fg: #eef2ec;
+  --color-muted: #8b9488;
+  --color-subtle: #6a7368;
+  --color-accent: #e8ece6;
+  --color-accent-fg: #0c0f0c;
+  --color-field: #3d6b4f;
+  --color-win: #7dba8e;
+  --color-loss: #c46b6b;
+  --color-border: color-mix(in oklab, #eef2ec 12%, transparent);
+  --color-border-strong: color-mix(in oklab, #eef2ec 22%, transparent);
+
+  --color-jersey-pine: #2f5a43;
+  --color-jersey-steel: #4a5c6a;
+  --color-jersey-ember: #8f3d3d;
+  --color-jersey-midnight: #2a3344;
+  --color-jersey-bone: #d7d2c8;
+  --color-jersey-harbor: #3d5c5a;
+
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-sans: "Barlow", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-border: 0 0 0 1px color-mix(in oklab, #eef2ec 8%, transparent);
+  --shadow-border-hover: 0 0 0 1px color-mix(in oklab, #eef2ec 14%, transparent);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100dvh;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-field) 55%, transparent);
+    color: var(--color-fg);
+  }
+}
+
+.field-stripes {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 46px,
+      color-mix(in oklab, var(--color-fg) 5.5%, transparent) 46px,
+      color-mix(in oklab, var(--color-fg) 5.5%, transparent) 47px
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-field) 16%, var(--color-bg)) 0%,
+      var(--color-bg) 42%,
+      var(--color-bg) 100%
+    );
+}
+
+.jersey-pine {
+  background: var(--color-jersey-pine);
+  color: var(--color-fg);
+}
+.jersey-steel {
+  background: var(--color-jersey-steel);
+  color: var(--color-fg);
+}
+.jersey-ember {
+  background: var(--color-jersey-ember);
+  color: var(--color-fg);
+}
+.jersey-midnight {
+  background: var(--color-jersey-midnight);
+  color: var(--color-fg);
+}
+.jersey-bone {
+  background: var(--color-jersey-bone);
+  color: #1a1c19;
+}
+.jersey-harbor {
+  background: var(--color-jersey-harbor);
+  color: var(--color-fg);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes number-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.stagger-in > * {
+  opacity: 0;
+  animation: rise-in 400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.stagger-in > *:nth-child(1) {
+  animation-delay: 40ms;
+}
+.stagger-in > *:nth-child(2) {
+  animation-delay: 80ms;
+}
+.stagger-in > *:nth-child(3) {
+  animation-delay: 120ms;
+}
+.stagger-in > *:nth-child(4) {
+  animation-delay: 160ms;
+}
+.stagger-in > *:nth-child(5) {
+  animation-delay: 200ms;
+}
+
+.pop-in {
+  animation: number-pop 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger-in > *,
+  .pop-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
