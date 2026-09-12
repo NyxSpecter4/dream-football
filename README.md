@@ -1,17 +1,23 @@
 # Night League
 
-$200 auction-draft fantasy football. Eight clubs, seven weeks, then the field of four.
+$200 auction fantasy football. You and a friend bid on a roster. Seven weeks. Then four teams play for the title.
 
-## Play with friends
+Live: [nightleague-makothoth.vercel.app](https://nightleague-makothoth.vercel.app)
 
-1. Open the live site (same URL for everyone).
-2. **Play with friends** → name your club → **Host a room**.
-3. Send the 4-letter code.
-4. Friends open the same URL → **Play with friends** → paste the code → **Join room**.
-5. Host taps **Start auction**. Keep the tabs open.
+## Play together
 
-Empty seats fill with CPU clubs. No accounts.
+1. Both open the live link.
+2. Host: **Play with friends** → name your club → **Host a room**.
+3. Text the 4-letter code.
+4. Friend: **Play with friends** → paste the code → **Join**.
+5. Host taps **Start auction**. Keep both pages open.
+
+Empty seats play themselves. No accounts.
 
 ## Solo
 
-**New season** on the title screen. Same auction, you vs seven CPU clubs.
+**New season** on the title screen. Same auction, you vs seven clubs.
+
+## Repo
+
+Dedicated home for this game: [NyxSpecter4/night-league](https://github.com/NyxSpecter4/night-league).
