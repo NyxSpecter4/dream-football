@@ -24,8 +24,8 @@ function LobbyGate() {
   const setOnlineIdentity = useGame((s) => s.setOnlineIdentity);
   const setScreen = useGame((s) => s.setScreen);
   const pending = parseRoomCode(typeof search.room === "string" ? search.room : "");
-  const [name, setName] = useState("Dream");
-  const [short, setShort] = useState("DRM");
+  const [name, setName] = useState("");
+  const [short, setShort] = useState("PLY");
   const [jersey, setJersey] = useState<JerseyId>("pine");
   const [joinCode, setJoinCode] = useState(pending ?? "");
   const [error, setError] = useState("");
@@ -35,8 +35,8 @@ function LobbyGate() {
   }, [pending]);
 
   const ident = () => ({
-    name: name.trim() || "Dream",
-    short: (short.trim() || "DRM").slice(0, 4).toUpperCase(),
+    name: name.trim() || "Player",
+    short: (short.trim() || name.trim().slice(0, 3) || "PLY").slice(0, 4).toUpperCase(),
     jersey,
   });
 
@@ -79,29 +79,55 @@ function LobbyGate() {
         </h1>
         <p className="mt-2 text-sm text-muted">
           {pending
-            ? "Name your team, then join. Same league as the host."
+            ? "Type your name. Tap Join. Stay on this page."
             : isLiveShareHost()
-              ? "Host a room. Text the 4-letter code. Friend opens this same site and joins."
-              : "This preview can't reach a friend. Both of you open nl-play.vercel.app, then host or join."}
+              ? "You host. She opens this same site, types your 4-letter code, taps Join."
+              : "Both of you must use nl-play.vercel.app — this preview will not reach her phone."}
         </p>
 
-        <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Team name</label>
+        <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Your name</label>
         <input
           value={name}
           maxLength={22}
+          placeholder="Your name"
           onChange={(e) => setName(e.target.value)}
           className="mt-2 h-12 rounded-lg bg-surface px-4 text-base text-fg shadow-[var(--shadow-border)] outline-none focus:ring-2 focus:ring-accent/40"
         />
 
-        <label className="mt-5 text-xs font-medium tracking-wide text-muted uppercase">Tag</label>
-        <input
-          value={short}
-          maxLength={4}
-          onChange={(e) => setShort(e.target.value.toUpperCase())}
-          className="mt-2 h-12 w-28 rounded-lg bg-surface px-4 font-display text-xl tracking-wide text-fg shadow-[var(--shadow-border)] outline-none focus:ring-2 focus:ring-accent/40"
-        />
+        {!pending && (
+          <>
+            <Button size="lg" className="mt-8" onClick={hostRoom}>
+              Host a room
+            </Button>
+            <p className="mt-8 text-center text-xs tracking-wide text-muted uppercase">or join</p>
+          </>
+        )}
 
-        <p className="mt-6 text-xs font-medium tracking-wide text-muted uppercase">Jersey</p>
+        <label className="mt-6 text-xs font-medium tracking-wide text-muted uppercase">4-letter code</label>
+        <input
+          value={joinCode}
+          maxLength={8}
+          placeholder="K7MQ"
+          autoCapitalize="characters"
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck={false}
+          enterKeyHint="go"
+          onChange={(e) => {
+            setJoinCode(e.target.value.toUpperCase());
+            setError("");
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") joinRoom();
+          }}
+          className="mt-2 h-16 w-full rounded-lg bg-surface px-4 font-display text-4xl tracking-[0.28em] text-fg shadow-[var(--shadow-border)] outline-none focus:ring-2 focus:ring-accent/40"
+        />
+        {error && <p className="mt-2 text-sm text-loss">{error}</p>}
+        <Button size="lg" variant={pending ? "primary" : "secondary"} className="mt-4" onClick={joinRoom}>
+          Join room
+        </Button>
+
+        <p className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Jersey</p>
         <div className="mt-3 grid grid-cols-3 gap-2">
           {JERSEYS.map((j) => (
             <button
@@ -118,28 +144,6 @@ function LobbyGate() {
             </button>
           ))}
         </div>
-
-        {!pending && (
-          <Button size="lg" className="mt-10" onClick={hostRoom}>
-            Host a room
-          </Button>
-        )}
-
-        <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Room code</label>
-        <input
-          value={joinCode}
-          maxLength={8}
-          placeholder="K7MQ"
-          onChange={(e) => {
-            setJoinCode(e.target.value.toUpperCase());
-            setError("");
-          }}
-          className="mt-2 h-12 w-40 rounded-lg bg-surface px-4 font-display text-2xl tracking-[0.3em] text-fg shadow-[var(--shadow-border)] outline-none focus:ring-2 focus:ring-accent/40"
-        />
-        {error && <p className="mt-2 text-sm text-loss">{error}</p>}
-        <Button size="lg" variant={pending ? "primary" : "secondary"} className="mt-4" onClick={joinRoom}>
-          Join room
-        </Button>
       </main>
     </Field>
   );
@@ -203,14 +207,30 @@ function WaitingRoom() {
   const shareLink = roomShareUrl(roomCode);
 
   const copy = async (kind: "code" | "link") => {
-    const text = kind === "link" && shareLink ? shareLink : roomCode;
+    const url = shareLink || (typeof window !== "undefined" ? `${window.location.origin}/?room=${roomCode}` : "");
+    const text = kind === "link" ? `Dream Football room ${roomCode}\n${url}` : roomCode;
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(kind === "link" ? url : roomCode);
     } catch {
       /* ignore */
     }
     setCopied(kind);
     window.setTimeout(() => setCopied(null), 1400);
+    return text;
+  };
+
+  const share = async () => {
+    const url = shareLink || `${window.location.origin}/?room=${roomCode}`;
+    const text = `Join my Dream Football room ${roomCode}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Dream Football", text, url });
+        return;
+      }
+    } catch {
+      /* user cancelled */
+    }
+    await copy("link");
   };
 
   const start = () => {
@@ -241,27 +261,36 @@ function WaitingRoom() {
             : !liveShare
               ? "This preview is only you. Open the live link on each phone, then use this code."
               : isHost
-                ? "Text the code to your friend. They open this same site, tap Play with a friend, and join."
-                : "Waiting on the host. Stay on this page."}
+                ? "Text her the code OR the link. She stays on this site. Both stay on this page."
+                : "You're in. Wait for the host. Don't leave this page."}
         </p>
 
         <div className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
           <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Room code</p>
-          <p className="mt-2 font-display text-5xl font-semibold tracking-[0.28em]">{roomCode}</p>
+          <p className="mt-2 select-all font-display text-5xl font-semibold tracking-[0.28em]">{roomCode}</p>
+          {shareLink && (
+            <p className="mt-3 break-all font-mono text-[11px] text-muted select-all">{shareLink}</p>
+          )}
           <div className="mt-4 flex flex-wrap gap-2">
+            <Button size="sm" onClick={() => void share()}>
+              Text her the link
+            </Button>
             <Button size="sm" variant="secondary" onClick={() => void copy("code")}>
               {copied === "code" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
               {copied === "code" ? "Copied" : "Copy code"}
             </Button>
             {shareLink && (
               <Button size="sm" variant="ghost" onClick={() => void copy("link")}>
-                {copied === "link" ? "Link copied" : "Copy join link"}
+                {copied === "link" ? "Link copied" : "Copy link"}
               </Button>
             )}
           </div>
         </div>
 
-        {!mesh.joined && <p className="mt-5 text-sm text-muted">Linking to the room…</p>}
+        {!mesh.joined && <p className="mt-5 text-sm text-muted">Connecting… keep this page open.</p>}
+        {mesh.joined && liveCount < 2 && isHost && (
+          <p className="mt-5 text-sm text-muted">Waiting for her to join. Wi-Fi is more reliable than cell.</p>
+        )}
         {hostMissing && !lateJoinBlocked && (
           <p className="mt-5 text-sm text-loss">Host left. Leave and host a new room.</p>
         )}
