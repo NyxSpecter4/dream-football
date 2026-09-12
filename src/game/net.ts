@@ -9,7 +9,10 @@ export type RemoteAct =
   | { k: "playWeek" }
   | { k: "closeTicker" }
   | { k: "claimWaiver"; addId: string; dropId: string }
-  | { k: "skipWaiver" };
+  | { k: "skipWaiver" }
+  | { k: "bet"; toId: string; stake: number }
+  | { k: "takeBet"; id: string }
+  | { k: "passBet"; id: string };
 
 export type NetMsg =
   | { t: "hello"; name: string; short: string; jersey: JerseyId; host?: boolean }
@@ -78,6 +81,8 @@ export function pickSave(s: SaveState): SaveState {
     playoffBracket: s.playoffBracket,
     waiverUsedWeek: s.waiverUsedWeek,
     waiverClaims: s.waiverClaims,
+    cash: s.cash,
+    bets: s.bets,
     mode: s.mode,
     peerTeams: s.peerTeams,
     hostPeerId: s.hostPeerId,

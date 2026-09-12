@@ -19,6 +19,18 @@ export const FLEX_POSITIONS: Position[] = ["RB", "WR", "TE"];
 export const ROSTER_SIZE = 10;
 export const TEAM_COUNT = 8;
 export const SALARY_CAP = 200;
+export const HOUSE_CASH = 100;
+
+export type SideBet = {
+  id: string;
+  week: number;
+  fromId: string;
+  toId: string;
+  stake: number;
+  status: "open" | "live" | "done" | "dead";
+  winnerId: string | null;
+};
+
 export const MIN_BID = 1;
 export const REGULAR_WEEKS = 7;
 export const PLAYOFF_WEEK = 8;
@@ -146,6 +158,8 @@ export type SaveState = {
   } | null;
   waiverUsedWeek: number;
   waiverClaims: string[];
+  cash: Record<string, number>;
+  bets: SideBet[];
   mode: "solo" | "online";
   peerTeams: Record<string, string>;
   hostPeerId: string;

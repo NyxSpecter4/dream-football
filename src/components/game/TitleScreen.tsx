@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "./chrome";
 import { NightBroadcast } from "./Broadcast";
+import { WireStrip, WireTicker } from "./Wire";
 import { useGame } from "@/game/store";
 import { unlockAudio } from "@/game/audio";
 
@@ -42,11 +43,14 @@ export function TitleScreen() {
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            Sit the night. Watch a stadium sim of the week with real names, then play it with your friend on a $200 board.
+            Sit the night. Watch a stadium sim. Bid $200. Stake house chips with your friend.
           </p>
           <p className="mt-3 max-w-sm text-sm text-subtle">
-            Not a scoreboard. Not a league feed. A game you can actually watch.
+            The wire is real scores. The field is the night you sit. Not a scoreboard app.
           </p>
+          <div className="mt-5">
+            <WireTicker />
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 pb-8">
@@ -124,6 +128,9 @@ function WatchNightScreen() {
         <p className="mt-2 max-w-md text-sm text-muted">
           Same night, same game — anyone who sits down tonight sees this board.
         </p>
+        <div className="mt-6">
+          <WireStrip compact />
+        </div>
 
         <div className="mt-6">
           <NightBroadcast

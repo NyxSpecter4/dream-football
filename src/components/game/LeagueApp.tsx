@@ -7,9 +7,12 @@ import { getPlayer } from "@/game/players";
 import { slotLabel, teamById } from "@/game/league";
 import { freeAgents, ownedSet, remainingValue, standings } from "@/game/simulate";
 import { NightBroadcast } from "./Broadcast";
+import { WireStrip } from "./Wire";
+import { lineupIds } from "@/game/broadcast";
+import { STAKES } from "@/game/cash";
 import { cn } from "@/lib/utils";
 import { sfxWin, sfxLoss } from "@/game/audio";
-import { REGULAR_WEEKS, STARTER_SLOTS, type Screen, type Slot } from "@/game/types";
+import { REGULAR_WEEKS, STARTER_SLOTS, type LeagueTeam, type Screen, type SideBet, type Slot } from "@/game/types";
 
 export function LeagueApp() {
   const screen = useGame((s) => s.screen);
@@ -76,7 +79,13 @@ function HomeScreen() {
   const online = useGame((s) => s.online);
   const setScreen = useGame((s) => s.setScreen);
   const ticker = useGame((s) => s.ticker);
+  const roster = useGame((s) => s.rosters[s.playerTeamId]);
   const youTeam = teamById(teams, you);
+  const cash = useGame((s) => s.cash?.[s.playerTeamId] ?? 0);
+  const bets = useGame((s) => s.bets ?? []);
+  const offerBet = useGame((s) => s.offerBet);
+  const takeBet = useGame((s) => s.takeBet);
+  const passBet = useGame((s) => s.passBet);
   const rows = standings(teams, results, Math.min(week - 1, REGULAR_WEEKS));
   const youRow = rows.find((r) => r.teamId === you);
   const rank = rows.findIndex((r) => r.teamId === you) + 1;
@@ -120,6 +129,7 @@ function HomeScreen() {
         {rank ? ` · ${rank} of 8` : ""}
       </p>
       {online && <RoomBar className="mt-3" />}
+      <p className="mt-2 font-mono text-sm tabular-nums text-muted">House chips ${cash}</p>
 
       {phase === "complete" && bracket?.championId && (
         <section className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
@@ -165,6 +175,23 @@ function HomeScreen() {
           )}
         </section>
       )}
+
+      {phase !== "complete" && opponentId && (
+        <StakePad
+          opponentId={opponentId}
+          you={you}
+          cash={cash}
+          bets={bets.filter((b) => b.week === week)}
+          teams={teams}
+          offerBet={offerBet}
+          takeBet={takeBet}
+          passBet={passBet}
+        />
+      )}
+
+      <div className="mt-8">
+        <WireStrip owned={lineupIds(roster)} />
+      </div>
 
       {week > 1 && results[week - 1]?.[you] && (
         <p className="mt-6 text-sm text-muted">
@@ -338,6 +365,9 @@ function MatchupScreen() {
       </p>
       <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Tonight</h1>
       <p className="mt-2 text-sm text-muted">The game, then your board. Sit with it.</p>
+      <div className="mt-4">
+        <WireStrip compact owned={lineupIds(rosters[you])} />
+      </div>
 
       <div className="mt-6">
         {homeBox && awayBox && rosters[home] && rosters[away] && (
@@ -444,5 +474,68 @@ function StandingsScreen() {
         </Button>
       )}
     </main>
+  );
+}
+
+function StakePad({
+  opponentId,
+  you,
+  cash,
+  bets,
+  teams,
+  offerBet,
+  takeBet,
+  passBet,
+}: {
+  opponentId: string;
+  you: string;
+  cash: number;
+  bets: SideBet[];
+  teams: LeagueTeam[];
+  offerBet: (toId: string, stake: number) => void;
+  takeBet: (id: string) => void;
+  passBet: (id: string) => void;
+}) {
+  const opp = teamById(teams, opponentId);
+  const incoming = bets.filter((b) => b.toId === you && b.status === "open");
+  const live = bets.filter((b) => b.status === "live" && (b.fromId === you || b.toId === you));
+  const done = bets.filter((b) => b.status === "done" && (b.fromId === you || b.toId === you));
+  return (
+    <section className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+      <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Stake</p>
+      <h2 className="mt-2 font-display text-2xl font-semibold">House chips vs {opp.name}</h2>
+      <p className="mt-1 text-sm text-muted">Fake chips. Winner of the week takes both sides. Not real money.</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {STAKES.map((n) => (
+          <Button key={n} variant="secondary" size="sm" disabled={cash < n} onClick={() => offerBet(opponentId, n)}>
+            ${n}
+          </Button>
+        ))}
+      </div>
+      {incoming.map((b) => (
+        <div key={b.id} className="mt-4 flex flex-wrap items-center gap-2">
+          <p className="text-sm">
+            {teamById(teams, b.fromId).name} staked ${b.stake}
+          </p>
+          <Button size="sm" onClick={() => takeBet(b.id)}>
+            Take
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => passBet(b.id)}>
+            Pass
+          </Button>
+        </div>
+      ))}
+      {live.map((b) => (
+        <p key={b.id} className="mt-3 font-mono text-xs text-muted">
+          Live ${b.stake} vs {teamById(teams, b.fromId === you ? b.toId : b.fromId).short}
+        </p>
+      ))}
+      {done.map((b) => (
+        <p key={b.id} className="mt-2 text-sm text-muted">
+          {b.winnerId === you ? "You take" : b.winnerId ? `${teamById(teams, b.winnerId).short} takes` : "Push"} $
+          {b.stake * (b.winnerId ? 2 : 1)}
+        </p>
+      ))}
+    </section>
   );
 }

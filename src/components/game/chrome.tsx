@@ -23,6 +23,26 @@ export function JerseyMark({ jersey, className }: { jersey: JerseyId; className?
   return <span className={cn("inline-block size-2.5 rounded-full jersey-" + jersey, className)} aria-hidden />;
 }
 
+export function jerseyNum(id: string) {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return 1 + (h >>> 0) % 99;
+}
+
+export function PlayerMark({ player }: { player: Player }) {
+  return (
+    <span
+      className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-surface-2 font-display text-sm font-semibold tabular-nums text-fg"
+      aria-hidden
+    >
+      {jerseyNum(player.id)}
+    </span>
+  );
+}
+
 export function PosChip({ pos }: { pos: Position }) {
   return (
     <span className="inline-flex min-w-8 items-center justify-center rounded-sm bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-wide text-muted">
@@ -53,7 +73,7 @@ export function PlayerRow({
         active ? "bg-surface-2 shadow-[var(--shadow-border-hover)]" : "shadow-[var(--shadow-border)]",
       )}
     >
-      <PosChip pos={player.pos} />
+      <PlayerMark player={player} />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium text-fg">{player.name}</span>
         <span className="block font-mono text-[11px] text-muted">

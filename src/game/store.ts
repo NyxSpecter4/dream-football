@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
   CHAMPIONSHIP_WEEK,
+  HOUSE_CASH,
   MIN_BID,
   PLAYOFF_WEEK,
   REGULAR_WEEKS,
@@ -42,9 +43,10 @@ import {
 } from "./simulate";
 import { getPlayer } from "./players";
 import { calendarNight } from "./nfl";
+import { autoTakeCpu, canStake, newBetId, settleWeek } from "./cash";
 import { anyHumanCanBid, type LobbyIdentity, type MeshPeer, type RemoteAct } from "./net";
 
-const SAVE_VERSION = 4;
+const SAVE_VERSION = 5;
 const CAREER_KEY = "night-league-career";
 let remoteApplying = false;
 let lastSoloPersist: Record<string, unknown> | null = null;
@@ -95,6 +97,8 @@ function emptySave(): SaveState {
     playoffBracket: null,
     waiverUsedWeek: 0,
     waiverClaims: [],
+    cash: {},
+    bets: [],
     mode: "solo",
     peerTeams: {},
     hostPeerId: "",
@@ -165,6 +169,9 @@ type GameStore = SaveState & {
   closeTicker: () => void;
   claimWaiver: (addId: string, dropId: string, teamId?: string) => void;
   skipWaiver: (teamId?: string) => void;
+  offerBet: (toId: string, stake: number, teamId?: string) => void;
+  takeBet: (id: string, teamId?: string) => void;
+  passBet: (id: string, teamId?: string) => void;
   resetSeason: () => void;
   enterOnline: (roomCode: string, localPeerId: string, isHost: boolean) => void;
   leaveOnline: () => void;
@@ -267,9 +274,11 @@ export const useGame = create<GameStore>()(
         const teams = buildLeague(name, short, jersey, rand);
         const rosters: SaveState["rosters"] = {};
         const budgets: Record<string, number> = {};
+        const cash: Record<string, number> = {};
         for (const t of teams) {
           rosters[t.id] = emptyRoster();
           budgets[t.id] = SALARY_CAP;
+          cash[t.id] = HOUSE_CASH;
         }
         set({
           ...emptySave(),
@@ -277,6 +286,7 @@ export const useGame = create<GameStore>()(
           teams,
           rosters,
           budgets,
+          cash,
           screen: "draft",
           phase: "draft",
           career: get().career,
@@ -296,9 +306,11 @@ export const useGame = create<GameStore>()(
         }
         const rosters: SaveState["rosters"] = {};
         const budgets: Record<string, number> = {};
+        const cash: Record<string, number> = {};
         for (const t of teams) {
           rosters[t.id] = emptyRoster();
           budgets[t.id] = SALARY_CAP;
+          cash[t.id] = HOUSE_CASH;
         }
         const myTeam = peerTeams[localPeerId] ?? teams[0]!.id;
         set({
@@ -307,6 +319,7 @@ export const useGame = create<GameStore>()(
           teams,
           rosters,
           budgets,
+          cash,
           screen: "draft",
           phase: "draft",
           playerTeamId: myTeam,
@@ -582,6 +595,8 @@ export const useGame = create<GameStore>()(
           rankPlayer,
         );
         const nextResults = { ...s.results, [week]: results };
+        const taken = autoTakeCpu(s.bets ?? [], s.cash ?? {}, s.teams);
+        const settled = settleWeek(taken.bets, taken.cash, results, week);
 
         let playoffBracket = s.playoffBracket;
         let phase: Phase = s.phase;
@@ -653,6 +668,8 @@ export const useGame = create<GameStore>()(
             ticker: null,
             week: nextWeek,
             screen: "standings",
+            cash: settled.cash,
+            bets: settled.bets,
           });
           return;
         }
@@ -663,6 +680,8 @@ export const useGame = create<GameStore>()(
           playoffBracket,
           phase,
           screen: "matchup",
+          cash: settled.cash,
+          bets: settled.bets,
           ticker: yourBox
             ? {
                 week,
@@ -781,6 +800,63 @@ export const useGame = create<GameStore>()(
         const who = teamId ?? s.playerTeamId;
         const claims = s.waiverClaims.includes(who) ? s.waiverClaims : [...s.waiverClaims, who];
         set({ waiverClaims: claims, waiverUsedWeek: s.week, screen: "home" });
+      },
+
+      offerBet: (toId, stake, teamId) => {
+        if (guestSend(get, { k: "bet", toId, stake })) return;
+        const s = get();
+        const who = teamId ?? s.playerTeamId;
+        if (who === toId) return;
+        if (s.phase !== "regular" && s.phase !== "playoffs") return;
+        const cash = { ...(s.cash ?? {}) };
+        if (!canStake(cash[who] ?? 0, stake)) return;
+        const open = (s.bets ?? []).some(
+          (b) => b.week === s.week && b.fromId === who && b.toId === toId && (b.status === "open" || b.status === "live"),
+        );
+        if (open) return;
+        cash[who] = (cash[who] ?? 0) - stake;
+        const bet = {
+          id: newBetId(),
+          week: s.week,
+          fromId: who,
+          toId,
+          stake,
+          status: "open" as const,
+          winnerId: null,
+        };
+        const taken = autoTakeCpu([...(s.bets ?? []), bet], cash, s.teams);
+        set({ cash: taken.cash, bets: taken.bets });
+      },
+
+      takeBet: (id, teamId) => {
+        if (guestSend(get, { k: "takeBet", id })) return;
+        const s = get();
+        const who = teamId ?? s.playerTeamId;
+        const bets = (s.bets ?? []).slice();
+        const i = bets.findIndex((b) => b.id === id);
+        if (i < 0) return;
+        const bet = bets[i]!;
+        if (bet.status !== "open" || bet.toId !== who) return;
+        const cash = { ...(s.cash ?? {}) };
+        if ((cash[who] ?? 0) < bet.stake) return;
+        cash[who] = (cash[who] ?? 0) - bet.stake;
+        bets[i] = { ...bet, status: "live" };
+        set({ cash, bets });
+      },
+
+      passBet: (id, teamId) => {
+        if (guestSend(get, { k: "passBet", id })) return;
+        const s = get();
+        const who = teamId ?? s.playerTeamId;
+        const bets = (s.bets ?? []).slice();
+        const i = bets.findIndex((b) => b.id === id);
+        if (i < 0) return;
+        const bet = bets[i]!;
+        if (bet.status !== "open" || (bet.toId !== who && bet.fromId !== who)) return;
+        const cash = { ...(s.cash ?? {}) };
+        cash[bet.fromId] = (cash[bet.fromId] ?? 0) + bet.stake;
+        bets[i] = { ...bet, status: "dead" };
+        set({ cash, bets });
       },
 
       resetSeason: () =>
@@ -918,6 +994,9 @@ export const useGame = create<GameStore>()(
           else if (act.k === "closeTicker") get().closeTicker();
           else if (act.k === "claimWaiver") get().claimWaiver(act.addId, act.dropId, teamId);
           else if (act.k === "skipWaiver") get().skipWaiver(teamId);
+          else if (act.k === "bet") get().offerBet(act.toId, act.stake, teamId);
+          else if (act.k === "takeBet") get().takeBet(act.id, teamId);
+          else if (act.k === "passBet") get().passBet(act.id, teamId);
         } finally {
           remoteApplying = false;
         }
@@ -953,6 +1032,8 @@ export const useGame = create<GameStore>()(
           playoffBracket: null,
           waiverUsedWeek: 0,
           waiverClaims: [] as string[],
+          cash: {} as Record<string, number>,
+          bets: [] as SaveState["bets"],
           mode: "solo" as const,
           peerTeams: {} as Record<string, string>,
           hostPeerId: "",
@@ -981,6 +1062,8 @@ export const useGame = create<GameStore>()(
           playoffBracket: s.playoffBracket,
           waiverUsedWeek: s.waiverUsedWeek,
           waiverClaims: s.waiverClaims ?? [],
+          cash: s.cash ?? {},
+          bets: s.bets ?? [],
           mode: "solo" as const,
           peerTeams: {},
           hostPeerId: "",
