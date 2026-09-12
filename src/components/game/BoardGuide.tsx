@@ -40,7 +40,7 @@ export function BoardGuide({
     <div className="fixed inset-0 z-[80] overflow-y-auto bg-bg">
       <div className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center px-5 py-10">
         <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Layout</p>
-        <h2 className="mt-1 font-display text-4xl font-semibold tracking-tight">How the board sits</h2>
+        <h2 className="mt-1 font-display text-4xl font-semibold tracking-tight">How this works</h2>
         <div className="mt-4 flex gap-1.5">
           {(
             [
@@ -68,12 +68,12 @@ export function BoardGuide({
 
         <p className="mt-4 text-sm text-muted">
           {pane === "auction"
-            ? "Eight bags. One name on the block. Ten holes. Floor $885K. Leave enough to fill."
-            : "End zones are city paint. Yellow stick is first down. The ball follows public downs when they exist."}
+            ? "Eight teams. One player up for bid. Ten roster spots. Floor $885K. Don't spend the whole cap on one name."
+            : "Yellow line is first down. The ball follows real plays when the game is live."}
         </p>
 
         <Button className="mt-6" onClick={onClose}>
-          Sit
+          Got it
         </Button>
       </div>
     </div>,
@@ -83,7 +83,7 @@ export function BoardGuide({
 
 export function GuideLink({
   onClick,
-  children = "How the board sits",
+  children = "Help",
 }: {
   onClick: () => void;
   children?: string;

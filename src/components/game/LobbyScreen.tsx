@@ -301,7 +301,7 @@ function WaitingRoom() {
           </Button>
         ) : (
           <p className="mt-8 text-sm text-muted">
-            {lateJoinBlocked ? "The board is already live." : "The host starts. Stay on this page."}
+            {lateJoinBlocked ? "This draft already started." : "The host starts the draft. Stay on this page."}
           </p>
         )}
         <p className="mt-3 font-mono text-xs tabular-nums text-subtle">

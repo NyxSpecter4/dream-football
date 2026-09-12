@@ -164,7 +164,7 @@ function WatchNightScreen() {
         <p className="mt-2 max-w-md text-sm text-muted">
           This week's card. Real downs when they exist. Bid $301.2M for your own board.
         </p>
-        <GuideLink onClick={() => setGuide(true)}>How to read the grass</GuideLink>
+        <GuideLink onClick={() => setGuide(true)}>Help</GuideLink>
 
         <div className="mt-6">
           {card ? (

@@ -124,7 +124,7 @@ function HomeScreen() {
         {youTeam.name}
       </h1>
       <p className="mt-1 text-sm text-muted">
-        {clubLine(youTeam)} · {youTeam.nfl} {conferenceOf(youTeam.nfl)} twin
+        {clubLine(youTeam)} · {youTeam.nfl} {conferenceOf(youTeam.nfl)}
       </p>
       <div className="mt-4">
         <StadiumHero
@@ -146,15 +146,15 @@ function HomeScreen() {
         <section className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
           <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Title decided</p>
           <h2 className="mt-2 font-display text-3xl font-semibold">
-            {bracket.championId === you ? "You take the cup." : `${teamById(teams, bracket.championId).name} take the cup.`}
+            {bracket.championId === you ? "You won." : `${teamById(teams, bracket.championId).name} won.`}
           </h2>
-          <p className="mt-2 text-sm text-muted">Keep the club and the payroll. Cut names. Fill holes in the next auction.</p>
+          <p className="mt-2 text-sm text-muted">Keep this team for next season, or start over.</p>
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
             {!online && (
-              <Button onClick={keepClub}>Keep the club</Button>
+              <Button onClick={keepClub}>Keep this team</Button>
             )}
             <Button variant="secondary" onClick={online ? leave : resetSeason}>
-              {online ? "Leave room" : "Fold the club"}
+              {online ? "Leave room" : "Start over"}
             </Button>
           </div>
         </section>
@@ -188,13 +188,13 @@ function HomeScreen() {
               </p>
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                 <Button disabled={Boolean(ticker)} onClick={() => setScreen("matchup")}>
-                  Sit this week
+                  This week's matchup
                 </Button>
                 <Button variant="secondary" onClick={() => setScreen("roster")}>
                   Set lineup
                 </Button>
                 <Button variant="secondary" disabled={Boolean(ticker)} onClick={playWeek}>
-                  {nflLive ? "Lock week" : "Lock · sim the rest"}
+                  {nflLive ? "Score this week" : "Play the week"}
                 </Button>
               </div>
             </>
@@ -444,7 +444,7 @@ function MatchupScreen() {
       <p className="mt-2 text-sm text-muted">
         Your board is live PPR. The field follows real downs when this week's card has them.
       </p>
-      <GuideLink onClick={() => setGuide(true)}>How to read the grass</GuideLink>
+      <GuideLink onClick={() => setGuide(true)}>Help</GuideLink>
 
       <div className="mt-6">
         <MatchupBoard
@@ -514,7 +514,7 @@ function StandingsScreen() {
     <main className="px-5 pt-8">
       <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Dream Football</p>
       <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Table</h1>
-      <p className="mt-2 text-sm text-muted">Eight NFL twins. Top four play after week {REGULAR_WEEKS}.</p>
+      <p className="mt-2 text-sm text-muted">Eight teams. Top four make the playoffs after week {REGULAR_WEEKS}.</p>
       <ol className="mt-6 divide-y divide-border rounded-xl bg-surface shadow-[var(--shadow-border)]">
         {rows.map((row, i) => {
           const team = teamById(teams, row.teamId);
@@ -605,7 +605,7 @@ function OffseasonScreen() {
         {youTeam.name}
       </h1>
       <p className="mt-1 text-sm text-muted">
-        {clubLine(youTeam)} · {youTeam.nfl} {conferenceOf(youTeam.nfl)} twin
+        {clubLine(youTeam)} · {youTeam.nfl} {conferenceOf(youTeam.nfl)}
       </p>
       <p className="mt-2 text-sm text-muted">
         You own this club. Payroll {fmtMoney(payroll)} of {fmtMoney(SALARY_CAP)}. Space {fmtMoney(budget)}.

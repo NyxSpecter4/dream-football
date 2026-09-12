@@ -10,7 +10,7 @@ import { rosterPlayerIds, slotLabel, teamById } from "@/game/league";
 import { canTeamBid } from "@/game/net";
 import { sfxBid, sfxSold, sfxTick } from "@/game/audio";
 import { MIN_BID, ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
-import { BoardGuide, GuideLink, markGuideSeen, shouldShowGuide } from "./BoardGuide";
+import { BoardGuide, GuideLink } from "./BoardGuide";
 import { cn } from "@/lib/utils";
 
 const POS_FILTERS: Array<Position | "ALL"> = ["ALL", "QB", "RB", "WR", "TE", "K", "DST"];
@@ -41,10 +41,6 @@ export function AuctionScreen() {
   const [guide, setGuide] = useState(false);
   const guideRef = useRef(false);
   guideRef.current = guide;
-
-  useEffect(() => {
-    if (shouldShowGuide()) setGuide(true);
-  }, []);
 
   const yourRoster = rosters[you];
   const spots = yourRoster ? spotsLeft(yourRoster) : 10;
@@ -121,8 +117,8 @@ export function AuctionScreen() {
         <header className="flex items-end justify-between gap-4">
           <div className="min-w-0">
             <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Auction</p>
-            <h1 className="font-display text-3xl font-semibold tracking-tight">The board</h1>
-            <GuideLink onClick={() => setGuide(true)} />
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Draft</h1>
+            <GuideLink onClick={() => setGuide(true)}>Help</GuideLink>
           </div>
           <div className="shrink-0 text-right">
             <p className="font-mono text-2xl tabular-nums leading-none">{fmtMoney(budget)}</p>
@@ -307,7 +303,7 @@ export function AuctionScreen() {
                 variant={autoFill ? "primary" : "secondary"}
                 onClick={() => setAutoFill(autoFill ? false : true)}
               >
-                {autoFill ? "Stop auto" : "Sit the rest"}
+                {autoFill ? "Stop auto" : "Fill the rest"}
               </Button>
             </>
           )}
@@ -316,10 +312,7 @@ export function AuctionScreen() {
       <BoardGuide
         open={guide}
         tab="auction"
-        onClose={() => {
-          markGuideSeen();
-          setGuide(false);
-        }}
+        onClose={() => setGuide(false)}
       />
     </Field>
   );
