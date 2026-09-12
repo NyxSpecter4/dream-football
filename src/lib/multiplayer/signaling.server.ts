@@ -107,6 +107,9 @@ function json(body: unknown, status = 200): Response {
 }
 
 async function db(): Promise<Sql> {
+  if (process.env.VERCEL && !(process.env.DATABASE_URL && process.env.DATABASE_URL.trim())) {
+    throw new Error("NO_SHARED_DB");
+  }
   const { getSql } = await import("@/lib/db");
   return getSql();
 }
@@ -189,6 +192,10 @@ export async function handleSignaling(request: Request): Promise<Response> {
     if (request.method === "POST") return await handlePost(request);
     return json({ error: "method not allowed" }, 405);
   } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (message === "NO_SHARED_DB") {
+      return json({ peers: [], signals: [] });
+    }
     console.error("[rtc] signaling error:", error);
     return json({ error: "signaling failed" }, 500);
   }

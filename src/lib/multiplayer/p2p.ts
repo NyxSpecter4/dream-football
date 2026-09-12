@@ -9,6 +9,8 @@
  * rolls back and accepts, so pairs converge without wedging.
  */
 
+import { getSignaling, type Signaling } from "./signaling-client";
+
 export type SignalKind = "offer" | "answer" | "ice";
 
 /**
@@ -106,6 +108,7 @@ export class P2PRoom {
   private closed = false;
   private everPolled = false;
   private lastPeersFingerprint = "";
+  private readonly signaling: Signaling = getSignaling();
 
   constructor(opts: P2PRoomOptions) {
     this.opts = opts;
@@ -138,12 +141,7 @@ export class P2PRoom {
     this.peers.clear();
     // Leaving the roster is the teardown broadcast: everyone's next poll
     // drops this peer and closes their side of the pair.
-    void fetch("/api/rtc", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ op: "leave", room: this.opts.room, peer: this.opts.selfId }),
-      keepalive: true,
-    }).catch(() => {});
+    void this.signaling.leave({ room: this.opts.room, peer: this.opts.selfId }).catch(() => {});
   }
 
   /** Send on the unreliable game-state channel (drops stale packets). */
@@ -186,16 +184,12 @@ export class P2PRoom {
   }
 
   private async pollOnce(): Promise<void> {
-    const params = new URLSearchParams({
+    const body = await this.signaling.poll({
       room: this.opts.room,
       peer: this.opts.selfId,
       name: this.opts.name ?? "",
-      since: String(this.cursor),
+      since: this.cursor,
     });
-    const res = await fetch(`/api/rtc?${params}`);
-    if (this.closed) return;
-    if (!res.ok) throw new Error(`signaling poll failed: ${res.status}`);
-    const body = (await res.json()) as RtcPollResponse;
     if (this.closed) return;
     if (!this.everPolled) {
       this.everPolled = true;
@@ -448,20 +442,14 @@ export class P2PRoom {
     for (let attempt = 0; ; attempt++) {
       if (this.closed) return;
       try {
-        const res = await fetch("/api/rtc", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            op: "signal",
-            room: this.opts.room,
-            from: this.opts.selfId,
-            to,
-            kind,
-            payload,
-          }),
+        await this.signaling.signal({
+          room: this.opts.room,
+          from: this.opts.selfId,
+          to,
+          kind,
+          payload,
         });
-        if (res.ok) return;
-        throw new Error(`signal POST failed: ${res.status}`);
+        return;
       } catch (err) {
         if (attempt >= SIGNAL_RETRY_DELAYS_MS.length) {
           // Delivery gave up; the pair converges on the next offer cycle (or
