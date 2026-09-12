@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { PLAYOFF_WEEK, CHAMPIONSHIP_WEEK, type JerseyId, type Player, type Position } from "@/game/types";
 import { marketValue } from "@/game/draft";
 import { fmtMoney } from "@/game/money";
-import { projection } from "@/game/simulate";
+import { dreamProj } from "@/game/project";
 import { nflContext } from "@/game/scoring";
 import { useGame } from "@/game/store";
 import { useWire } from "@/game/wire";
@@ -41,12 +41,12 @@ export function LiveDot({ className }: { className?: string }) {
   return <span className={cn("live-dot", className)} aria-hidden />;
 }
 
-export function PlayerMark({ player }: { player: Player }) {
+export function PlayerMark({ player, live }: { player: Player; live?: boolean }) {
   return (
     <span
       className={cn(
-        "nfl-" + player.nfl,
-        "inline-flex size-9 shrink-0 items-center justify-center rounded-md font-display text-sm font-semibold tabular-nums",
+        "player-mark nfl-" + player.nfl,
+        live && "player-mark-live",
       )}
       aria-hidden
     >
@@ -76,8 +76,9 @@ export function PlayerRow({
 }) {
   const { data } = useWire();
   const st = data?.stats[player.id];
-  const proj = st?.proj || projection(player);
   const ctx = nflContext(player.nfl, data?.games);
+  const d = dreamProj(player, { sleeper: st?.proj, home: ctx ? ctx.home : null });
+  const live = st?.state === "live";
   const Comp = onClick ? "button" : "div";
   return (
     <Comp
@@ -87,17 +88,18 @@ export function PlayerRow({
         "flex w-full min-h-12 items-center gap-3 rounded-lg px-3 py-2 text-left transition-[background-color,box-shadow,transform] duration-150 ease-out",
         onClick && "hover:bg-surface-2 hover:-translate-y-px active:scale-[0.99]",
         active ? "bg-surface-2 shadow-[var(--shadow-border-hover)]" : "shadow-[var(--shadow-border)]",
+        live && "ring-1 ring-live/35",
       )}
     >
-      <PlayerMark player={player} />
+      <PlayerMark player={player} live={live} />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium text-fg">{player.name}</span>
         <span className="block font-mono text-[11px] text-muted">
           {player.nfl}
           {ctx ? ` · ${ctx.line}` : ` · bye ${player.bye}`}
           {st && (st.state === "final" || st.state === "live")
-            ? ` · ${st.pts.toFixed(1)}/${proj.toFixed(1)} PPR`
-            : ` · ${proj.toFixed(1)} proj`}
+            ? ` · ${st.pts.toFixed(1)}/${d.mid.toFixed(1)} PPR`
+            : ` · ${d.mid.toFixed(1)} proj · ${d.floor.toFixed(0)}–${d.ceil.toFixed(0)}`}
         </span>
       </span>
       {trailing ?? (

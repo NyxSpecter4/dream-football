@@ -187,6 +187,11 @@ export function sfxPick() {
 let bedOsc: OscillatorNode[] = [];
 let bedGain: GainNode | null = null;
 
+export function sfxWhoosh() {
+  noiseBurst(0.18, 0.045, 280);
+  tone(180, 0.12, "sine", 0.03);
+}
+
 export function startBed() {
   const c = context();
   const out = bus();
@@ -195,19 +200,19 @@ export function startBed() {
   const g = c.createGain();
   g.gain.value = 0.0001;
   g.connect(out);
-  const freqs = [110, 164.81, 196];
+  const freqs = [82.41, 123.47, 164.81, 196];
   bedOsc = freqs.map((f, i) => {
     const o = c.createOscillator();
-    o.type = i === 0 ? "sine" : "triangle";
+    o.type = i === 0 ? "sine" : i === 3 ? "triangle" : "sine";
     o.frequency.value = f;
     const og = c.createGain();
-    og.gain.value = i === 0 ? 0.35 : 0.12;
+    og.gain.value = i === 0 ? 0.4 : i === 3 ? 0.08 : 0.14;
     o.connect(og);
     og.connect(g);
     o.start();
     return o;
   });
-  g.gain.setTargetAtTime(0.028, c.currentTime, 0.4);
+  g.gain.setTargetAtTime(0.034, c.currentTime, 0.45);
   bedGain = g;
 }
 

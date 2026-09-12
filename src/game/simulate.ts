@@ -12,22 +12,12 @@ import {
 } from "./types";
 import { autoSetLineup } from "./league";
 import { gameForTeam } from "./scoring";
+import { dreamMid } from "./project";
+import { normAbbr } from "./nfl";
 import type { WireGame, WireStat } from "./wire";
 
-export function projection(player: Player): number {
-  const base =
-    player.pos === "QB"
-      ? 14
-      : player.pos === "RB"
-        ? 10
-        : player.pos === "WR"
-          ? 9.5
-          : player.pos === "TE"
-            ? 7
-            : player.pos === "K"
-              ? 7.5
-              : 8;
-  return Math.round((base + (player.ovr - 70) * 0.42) * 10) / 10;
+export function projection(player: Player, sleeper?: number): number {
+  return dreamMid(player, sleeper);
 }
 
 export function simulatePlayerWeek(player: Player, week: number, seasonSeed: number): number {
@@ -93,7 +83,8 @@ export function liveMark(
   const st = stats?.[player.id];
   const game = games ? gameForTeam(games, player.nfl) : null;
   const state: WireStat["state"] = st?.state ?? (game ? game.state : "soon");
-  const proj = st?.proj || projection(player);
+  const home = game ? normAbbr(game.homeAbbr) === normAbbr(player.nfl) : null;
+  const proj = dreamMid(player, st?.proj, home);
   if (state === "final" || state === "live") {
     return {
       pts: st?.pts ?? 0,

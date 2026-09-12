@@ -5,11 +5,12 @@ import { useGame } from "@/game/store";
 import { availablePlayers, marketValue, maxAffordable, nextNominator, nextRaise, spotsLeft } from "@/game/draft";
 import { AUCTION_PLANS, leftoverAfter, nomAdvice, planMax, type AuctionPlan } from "@/game/plans";
 import { adoptBoard, getPlayer } from "@/game/players";
+import { dreamProj } from "@/game/project";
 import { useWire } from "@/game/wire";
 import { ownedSet } from "@/game/simulate";
 import { rosterPlayerIds, slotLabel, teamById } from "@/game/league";
 import { canTeamBid } from "@/game/net";
-import { sfxBid, sfxSold, sfxTick } from "@/game/audio";
+import { sfxBid, sfxSold, sfxTick, sfxWhoosh } from "@/game/audio";
 import { MIN_BID, ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
 import { BoardGuide, GuideLink } from "./BoardGuide";
 import { cn } from "@/lib/utils";
@@ -262,11 +263,13 @@ export function AuctionScreen() {
                 <div className="mx-auto flex max-w-5xl items-center gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{getPlayer(selected).name}</p>
-                    <p className="font-mono text-xs text-muted">Opens at {fmtMoney(MIN_BID)} · value {fmtMoney(marketValue(selected))}</p>
+                    <p className="font-mono text-xs text-muted">
+                      Opens at {fmtMoney(MIN_BID)} · {dreamProj(getPlayer(selected)).mid.toFixed(1)} proj · {fmtMoney(marketValue(selected))}
+                    </p>
                   </div>
                   <Button
                     onClick={() => {
-                      sfxTick();
+                      sfxWhoosh();
                       nominate(selected);
                       setSelected(null);
                     }}

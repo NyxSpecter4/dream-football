@@ -229,6 +229,7 @@ export function NightBroadcast({
           : "Kickoff"}
       </p>
 
+      <div className="field-glow mt-3">
       <StadiumCanvas
         play={current}
         vis={vis}
@@ -237,6 +238,7 @@ export function NightBroadcast({
         homeAbbr={game.featured.home.abbr}
         awayAbbr={game.featured.away.abbr}
       />
+      </div>
 
       {current && (
         <div
@@ -304,8 +306,8 @@ export function NightBroadcast({
 
       <p className="mt-4 text-[11px] leading-relaxed text-subtle">
         {taped
-          ? "Ball on the grass follows the public play-by-play. Names and box-score facts. Not an NFL broadcast."
-          : "Night sim of this week's card. Scores on the grass are the sim. Real scores sit on the wire. Names and public box-score facts. Not an NFL broadcast."}
+          ? "Ball follows public play-by-play. Not an NFL broadcast."
+          : "Sim of this week's card. Real scores sit on the wire. Not an NFL broadcast."}
       </p>
     </div>
   );
