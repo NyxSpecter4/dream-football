@@ -4,7 +4,8 @@ import { Field, JerseyMark, PlayerRow, PosChip, RoomBar, fmtMoney } from "./chro
 import { useGame } from "@/game/store";
 import { availablePlayers, marketValue, maxAffordable, nextNominator, nextRaise, spotsLeft } from "@/game/draft";
 import { AUCTION_PLANS, leftoverAfter, nomAdvice, planMax, type AuctionPlan } from "@/game/plans";
-import { getPlayer } from "@/game/players";
+import { adoptBoard, getPlayer } from "@/game/players";
+import { useWire } from "@/game/wire";
 import { ownedSet } from "@/game/simulate";
 import { rosterPlayerIds, slotLabel, teamById } from "@/game/league";
 import { canTeamBid } from "@/game/net";
@@ -34,6 +35,7 @@ export function AuctionScreen() {
   const setPauseEvery = useGame((s) => s.setPauseEvery);
   const setAutoFill = useGame((s) => s.setAutoFill);
   const fillRest = useGame((s) => s.fillRest);
+  const { data: wire } = useWire();
   const [plan, setPlan] = useState<AuctionPlan>("balanced");
   const [filter, setFilter] = useState<Position | "ALL">("ALL");
   const [selected, setSelected] = useState<string | null>(null);
@@ -56,11 +58,12 @@ export function AuctionScreen() {
 
   const owned = useMemo(() => ownedSet(rosters), [rosters]);
   const pool = useMemo(() => {
+    if (wire?.board?.length) adoptBoard(wire.board);
     const ids = availablePlayers(owned);
     return ids
       .map(getPlayer)
       .filter((p) => (filter === "ALL" ? true : p.pos === filter));
-  }, [owned, filter]);
+  }, [owned, filter, wire?.board]);
 
   useEffect(() => {
     let raf = 0;

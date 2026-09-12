@@ -43,7 +43,7 @@ import {
   simulateMatchups,
   standings,
 } from "./simulate";
-import { getPlayer } from "./players";
+import { adoptBoard, getPlayer } from "./players";
 import { calendarNight } from "./nfl";
 import { autoTakeCpu, canStake, newBetId, settleWeek } from "./cash";
 import { capSpace, cpuRefresh, cutPlayerFromClub } from "./franchise";
@@ -354,7 +354,8 @@ export const useGame = create<GameStore>()(
         boot();
         void fetch("/api/nfl", { cache: "no-store" })
           .then((r) => r.json())
-          .then((d: { week?: number }) => {
+          .then((d: { week?: number; board?: import("./types").Player[] }) => {
+            if (d.board?.length) adoptBoard(d.board);
             if (d.week) set({ nflWeekStart: d.week });
           })
           .catch(() => undefined);
@@ -407,7 +408,8 @@ export const useGame = create<GameStore>()(
         boot();
         void fetch("/api/nfl", { cache: "no-store" })
           .then((r) => r.json())
-          .then((d: { week?: number }) => {
+          .then((d: { week?: number; board?: import("./types").Player[] }) => {
+            if (d.board?.length) adoptBoard(d.board);
             if (d.week) set({ nflWeekStart: d.week });
           })
           .catch(() => undefined);
@@ -1065,7 +1067,8 @@ export const useGame = create<GameStore>()(
         boot();
         void fetch("/api/nfl", { cache: "no-store" })
           .then((r) => r.json())
-          .then((d: { week?: number }) => {
+          .then((d: { week?: number; board?: import("./types").Player[] }) => {
+            if (d.board?.length) adoptBoard(d.board);
             if (d.week) set({ nflWeekStart: d.week });
           })
           .catch(() => undefined);

@@ -1,4 +1,4 @@
-import { getPlayer, PLAYERS } from "./players";
+import { allPlayers, getPlayer, PLAYERS } from "./players";
 import { placePlayer, preferredSlot, rosterPlayerIds, slotAccepts } from "./league";
 import { ownedSet, projection } from "./simulate";
 import {
@@ -56,7 +56,10 @@ const MARKET: Record<string, number> = (() => {
 })();
 
 export function marketValue(playerId: string): number {
-  return MARKET[playerId] ?? MIN_BID;
+  if (MARKET[playerId] != null) return MARKET[playerId]!;
+  const pl = getPlayer(playerId);
+  if (!pl.name || pl.name === "Unsigned") return MIN_BID;
+  return marketOf(pl);
 }
 
 export function spotsLeft(roster: Roster): number {
@@ -234,7 +237,8 @@ export function shouldPauseForHuman(
 }
 
 export function availablePlayers(owned: Set<string>): string[] {
-  return PLAYERS.filter((pl) => !owned.has(pl.id))
+  return allPlayers()
+    .filter((pl) => !owned.has(pl.id))
     .sort((a, b) => marketValue(b.id) - marketValue(a.id) || b.ovr - a.ovr)
     .map((pl) => pl.id);
 }

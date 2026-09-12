@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PLAYERS } from "@/game/players";
 import { SLEEPER_IDS } from "@/game/sleeper-ids";
+import { expandBoard, loadSleeperPlayers, sleeperIdFor } from "@/game/sleeper-board";
 import { normAbbr } from "@/game/nfl";
 import { parseEspnSummary } from "@/game/pbp";
 import type { WireGame } from "@/game/wire";
+import type { Player } from "@/game/types";
 
 type Cache = { at: number; body: string; key: string };
 
@@ -231,8 +233,21 @@ async function build(weekHint = 0) {
     string,
     { pts: number; proj: number; line: string; done: boolean; state: "live" | "final" | "soon" | "bye" }
   > = {};
-  for (const pl of PLAYERS) {
-    const sid = SLEEPER_IDS[pl.id];
+
+  let extra: Player[] = [];
+  let sleeperRows: Awaited<ReturnType<typeof loadSleeperPlayers>> | null = null;
+  try {
+    sleeperRows = await loadSleeperPlayers();
+    extra = expandBoard(sleeperRows, projs);
+  } catch {
+    extra = [];
+  }
+
+  const pool = extra.length ? [...PLAYERS, ...extra] : PLAYERS;
+  for (const pl of pool) {
+    const sid = sleeperRows
+      ? sleeperIdFor(pl, sleeperRows) ?? SLEEPER_IDS[pl.id]
+      : SLEEPER_IDS[pl.id];
     if (!sid) continue;
     const st = pickStat(stats, sid) ?? {};
     const pj = pickStat(projs, sid) ?? {};
@@ -262,6 +277,7 @@ async function build(weekHint = 0) {
     games,
     news: news.slice(0, 10),
     stats: mapped,
+    board: extra,
     updated: Date.now(),
   };
 }
@@ -285,7 +301,7 @@ const handle = async ({ request }: { request: Request }) => {
     });
   } catch {
     return new Response(
-      JSON.stringify({ season: 2026, week: 1, games: [], news: [], stats: {}, updated: 0 }),
+      JSON.stringify({ season: 2026, week: 1, games: [], news: [], stats: {}, board: [], updated: 0 }),
       {
         status: 200,
         headers: { "content-type": "application/json" },

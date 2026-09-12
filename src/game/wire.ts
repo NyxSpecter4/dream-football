@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { getPlayer } from "./players";
+import { adoptBoard, getPlayer } from "./players";
+import type { Player } from "./types";
 import { normAbbr } from "./nfl";
 
 export type WireSnap = {
@@ -75,6 +76,7 @@ export type WirePayload = {
   games: WireGame[];
   news: WireNews[];
   stats: Record<string, WireStat>;
+  board?: Player[];
   updated: number;
 };
 
@@ -125,6 +127,7 @@ export function useWire() {
         if (!res.ok) throw new Error("wire");
         const json = (await res.json()) as WirePayload;
         if (!stop) {
+          if (json.board?.length) adoptBoard(json.board);
           setData(json);
           setFail(false);
           hotRef.current = json.games.some((g) => g.state === "live");

@@ -149,10 +149,30 @@ const UNSIGNED: Player = {
   durability: 0.8,
 };
 
+const extras: Player[] = [];
+const EXTRA_BY_ID: Record<string, Player> = {};
+
+export function adoptBoard(list: Player[]): number {
+  let n = 0;
+  for (const pl of list) {
+    if (PLAYER_BY_ID[pl.id] || EXTRA_BY_ID[pl.id]) continue;
+    extras.push(pl);
+    EXTRA_BY_ID[pl.id] = pl;
+    n += 1;
+  }
+  return n;
+}
+
+export function allPlayers(): Player[] {
+  return extras.length ? [...PLAYERS, ...extras] : PLAYERS;
+}
+
 export function getPlayer(id: string): Player {
-  return PLAYER_BY_ID[id] ?? { ...UNSIGNED, id };
+  return PLAYER_BY_ID[id] ?? EXTRA_BY_ID[id] ?? { ...UNSIGNED, id };
 }
 
 export function playersByPos(pos: Position): Player[] {
-  return PLAYERS.filter((pl) => pl.pos === pos).sort((a, b) => b.ovr - a.ovr);
+  return allPlayers()
+    .filter((pl) => pl.pos === pos)
+    .sort((a, b) => b.ovr - a.ovr);
 }
