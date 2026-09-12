@@ -179,20 +179,24 @@ export function NightBroadcast({
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <div className="mb-3">
         <span
           className={cn(
-            "rounded-sm px-1.5 py-0.5 font-mono text-[10px] tracking-[0.16em] uppercase",
+            "inline-block rounded-md px-2.5 py-1 font-display text-sm font-semibold tracking-wide uppercase",
             taped && card?.state === "live"
-              ? "bg-live/15 text-live"
+              ? "bg-live text-bg"
               : taped
-                ? "bg-win/15 text-win"
-                : "bg-surface-2 text-muted",
+                ? "bg-win text-bg"
+                : "bg-surface-2 text-fg",
           )}
         >
-          {taped ? (card?.state === "live" ? "Live downs" : "Real downs") : "Sim"}
+          {taped
+            ? card?.state === "live"
+              ? "LIVE · this week's NFL"
+              : "REAL · this week's NFL"
+            : "SIM · made-up snaps"}
         </span>
-        <p className="min-w-0 font-mono text-[11px] text-subtle">{wireNote(card, taped)}</p>
+        <p className="mt-2 min-w-0 font-mono text-[11px] text-subtle">{wireNote(card, taped)}</p>
       </div>
       <div className="flex items-end justify-between gap-3">
         <NflScore
@@ -205,7 +209,7 @@ export function NightBroadcast({
         <p className="pb-1 text-center font-mono text-[11px] tabular-nums text-muted">
           {current?.clock ?? "Q1 15:00"}
           <span className="mt-0.5 block tracking-[0.16em] uppercase text-subtle">
-            {taped ? (card?.state === "final" ? "Tape" : "Live") : "Sim"}
+            {taped ? (card?.state === "final" ? "NFL" : "LIVE") : "SIM"}
           </span>
         </p>
         <NflScore
@@ -306,8 +310,8 @@ export function NightBroadcast({
 
       <p className="mt-4 text-[11px] leading-relaxed text-subtle">
         {taped
-          ? "Ball follows public play-by-play. Not an NFL broadcast."
-          : "Sim of this week's card. Real scores sit on the wire. Not an NFL broadcast."}
+          ? "These downs are this week's public NFL play-by-play. Not an NFL broadcast."
+          : "These downs are made up. The real NFL score is on the ticker, not this grass."}
       </p>
     </div>
   );
