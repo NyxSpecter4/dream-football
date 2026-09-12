@@ -82,7 +82,7 @@ function LobbyGate() {
             ? "Name your club, then sit. Same $200 board as everyone else."
             : isLiveShareHost()
               ? "Host gets a 4-letter code. Friend opens this same page and joins. Empty seats play themselves."
-              : "Cindy can’t join from this preview. Open the live Night League link on both phones, then host or join."}
+              : "Cindy can’t join from this preview. Open the live Dream Football link on both phones, then host or join."}
         </p>
 
         <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Team name</label>
@@ -234,7 +234,7 @@ function WaitingRoom() {
           Leave
         </button>
         <p className="mt-8 font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Private room</p>
-        <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Night League</h1>
+        <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Dream Football</h1>
         <p className="mt-2 text-sm text-muted">
           {lateJoinBlocked
             ? "This game already started. Leave and host a new room."
