@@ -168,7 +168,7 @@ type GameStore = SaveState & {
   startSetup: () => void;
   startSeason: (name: string, short: string, jersey: JerseyId, city?: string, stadium?: string) => void;
   startOnlineSeason: (
-    humans: Array<{ peerId: string; name: string; short: string; jersey: JerseyId }>,
+    humans: Array<{ peerId: string; name: string; short: string; jersey: JerseyId; city?: string; stadium?: string }>,
     hostPeerId: string,
     localPeerId: string,
   ) => void;
@@ -183,7 +183,7 @@ type GameStore = SaveState & {
   cutKeep: (playerId: string) => void;
   openNextSeason: () => void;
   swapSlot: (slot: Slot, benchId: string, teamId?: string) => void;
-  playWeek: () => void;
+  playWeek: () => Promise<void>;
   tickReveal: () => void;
   skipTicker: () => void;
   closeTicker: () => void;
@@ -666,8 +666,8 @@ export const useGame = create<GameStore>()(
       },
 
       playWeek: () => {
-        if (guestSend(get, { k: "playWeek" })) return;
-        void (async () => {
+        if (guestSend(get, { k: "playWeek" })) return Promise.resolve();
+        return (async () => {
         const s = get();
         if (s.ticker) return;
         if (s.phase !== "regular" && s.phase !== "playoffs") return;

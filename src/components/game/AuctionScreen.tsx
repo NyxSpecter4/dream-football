@@ -302,8 +302,12 @@ export function AuctionScreen() {
                   {pauseEvery ? "Pausing every name" : "Pause on targets"}
                 </Button>
               )}
-              <Button size="sm" variant={autoFill ? "primary" : "secondary"} onClick={() => setAutoFill(!autoFill)}>
-                {autoFill ? "Auto-bidding" : "Sit the rest"}
+              <Button
+                size="sm"
+                variant={autoFill ? "primary" : "secondary"}
+                onClick={() => setAutoFill(autoFill ? false : true)}
+              >
+                {autoFill ? "Stop auto" : "Sit the rest"}
               </Button>
             </>
           )}
