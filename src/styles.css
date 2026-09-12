@@ -123,6 +123,39 @@
   color: var(--color-fg);
 }
 
+.nfl-ARI { background: #97233F; color: #eef2ec; }
+.nfl-ATL { background: #A71930; color: #eef2ec; }
+.nfl-BAL { background: #241773; color: #eef2ec; }
+.nfl-BUF { background: #00338D; color: #eef2ec; }
+.nfl-CAR { background: #0085CA; color: #eef2ec; }
+.nfl-CHI { background: #0B162A; color: #eef2ec; }
+.nfl-CIN { background: #FB4F14; color: #eef2ec; }
+.nfl-CLE { background: #311D00; color: #eef2ec; }
+.nfl-DAL { background: #041E42; color: #eef2ec; }
+.nfl-DEN { background: #FB4F14; color: #eef2ec; }
+.nfl-DET { background: #0076B6; color: #eef2ec; }
+.nfl-GB { background: #203731; color: #FFB612; }
+.nfl-HOU { background: #03202F; color: #eef2ec; }
+.nfl-IND { background: #002C5F; color: #eef2ec; }
+.nfl-JAX { background: #006778; color: #eef2ec; }
+.nfl-KC { background: #E31837; color: #eef2ec; }
+.nfl-LAC { background: #0080C6; color: #eef2ec; }
+.nfl-LAR { background: #003594; color: #eef2ec; }
+.nfl-LV { background: #000000; color: #A5ACAF; }
+.nfl-MIA { background: #008E97; color: #eef2ec; }
+.nfl-MIN { background: #4F2683; color: #eef2ec; }
+.nfl-NE { background: #002244; color: #eef2ec; }
+.nfl-NO { background: #D3BC8D; color: #0c0f0c; }
+.nfl-NYG { background: #0B2265; color: #eef2ec; }
+.nfl-NYJ { background: #125740; color: #eef2ec; }
+.nfl-PHI { background: #004C54; color: #eef2ec; }
+.nfl-PIT { background: #101820; color: #FFB612; }
+.nfl-SEA { background: #002244; color: #69BE28; }
+.nfl-SF { background: #AA0000; color: #eef2ec; }
+.nfl-TB { background: #D50A0A; color: #eef2ec; }
+.nfl-TEN { background: #0C2340; color: #eef2ec; }
+.nfl-WAS { background: #5A1414; color: #eef2ec; }
+
 @keyframes rise-in {
   from {
     opacity: 0;

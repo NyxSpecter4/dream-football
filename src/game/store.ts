@@ -19,11 +19,12 @@ import {
   type Slot,
   type TickerState,
 } from "./types";
-import { emptyRoster, placePlayer, dropPlayer, swapLineup, autoSetLineup, buildLeague, buildOnlineLeague, roundRobin, rosterPlayerIds } from "./league";
+import { emptyRoster, placePlayer, dropPlayer, swapLineup, autoSetLineup, buildLeague, buildOnlineLeague, seasonSchedule, rosterPlayerIds } from "./league";
 import {
   availablePlayers,
   cpuMaxBid,
   cpuNominate,
+  fillUnfinishedRosters,
   maxAffordable,
   nextCpuRaise,
   nextNominator,
@@ -45,8 +46,9 @@ import { getPlayer } from "./players";
 import { calendarNight } from "./nfl";
 import { autoTakeCpu, canStake, newBetId, settleWeek } from "./cash";
 import { anyHumanCanBid, type LobbyIdentity, type MeshPeer, type RemoteAct } from "./net";
+import type { WireGame, WireStat } from "./wire";
 
-const SAVE_VERSION = 5;
+const SAVE_VERSION = 6;
 const CAREER_KEY = "night-league-career";
 let remoteApplying = false;
 let lastSoloPersist: Record<string, unknown> | null = null;
@@ -102,6 +104,7 @@ function emptySave(): SaveState {
     mode: "solo",
     peerTeams: {},
     hostPeerId: "",
+    nflWeekStart: 1,
   };
 }
 
@@ -119,6 +122,7 @@ function ownedFromRosters(rosters: SaveState["rosters"]): Set<string> {
 }
 
 function finishDraft(s: SaveState): Partial<SaveState> {
+  const filled = fillUnfinishedRosters(s.teams, s.rosters, s.budgets, s.contracts);
   const ids = s.teams.map((t) => t.id);
   return {
     phase: "regular",
@@ -127,7 +131,10 @@ function finishDraft(s: SaveState): Partial<SaveState> {
     block: null,
     nominating: false,
     autoFill: false,
-    schedule: roundRobin(ids),
+    schedule: seasonSchedule(ids),
+    rosters: filled.rosters,
+    budgets: filled.budgets,
+    contracts: filled.contracts,
   };
 }
 
@@ -162,6 +169,7 @@ type GameStore = SaveState & {
   cpuStep: () => void;
   setPauseEvery: (v: boolean) => void;
   setAutoFill: (v: boolean) => void;
+  fillRest: (teamId?: string) => void;
   swapSlot: (slot: Slot, benchId: string, teamId?: string) => void;
   playWeek: () => void;
   tickReveal: () => void;
@@ -280,20 +288,28 @@ export const useGame = create<GameStore>()(
           budgets[t.id] = SALARY_CAP;
           cash[t.id] = HOUSE_CASH;
         }
-        set({
-          ...emptySave(),
-          seasonSeed,
-          teams,
-          rosters,
-          budgets,
-          cash,
-          screen: "draft",
-          phase: "draft",
-          career: get().career,
-          hydrated: true,
-          mode: "solo",
-          ...offlineFields(),
-        });
+        const boot = () =>
+          set({
+            ...emptySave(),
+            seasonSeed,
+            teams,
+            rosters,
+            budgets,
+            cash,
+            screen: "draft",
+            phase: "draft",
+            career: get().career,
+            hydrated: true,
+            mode: "solo",
+            ...offlineFields(),
+          });
+        boot();
+        void fetch("/api/nfl", { cache: "no-store" })
+          .then((r) => r.json())
+          .then((d: { week?: number }) => {
+            if (d.week) set({ nflWeekStart: d.week });
+          })
+          .catch(() => undefined);
       },
 
       startOnlineSeason: (humans, hostPeerId, localPeerId) => {
@@ -313,32 +329,40 @@ export const useGame = create<GameStore>()(
           cash[t.id] = HOUSE_CASH;
         }
         const myTeam = peerTeams[localPeerId] ?? teams[0]!.id;
-        set({
-          ...emptySave(),
-          seasonSeed,
-          teams,
-          rosters,
-          budgets,
-          cash,
-          screen: "draft",
-          phase: "draft",
-          playerTeamId: myTeam,
-          peerTeams,
-          hostPeerId,
-          mode: "online",
-          pauseEvery: true,
-          career: get().career,
-          hydrated: true,
-          online: true,
-          isHost: localPeerId === hostPeerId,
-          localPeerId,
-          roomCode: get().roomCode,
-          sendAction: get().sendAction,
-          onlineIdentity: get().onlineIdentity,
-          lobbySeats: get().lobbySeats,
-          mesh: get().mesh,
-          lateJoinBlocked: false,
-        });
+        const boot = () =>
+          set({
+            ...emptySave(),
+            seasonSeed,
+            teams,
+            rosters,
+            budgets,
+            cash,
+            screen: "draft",
+            phase: "draft",
+            playerTeamId: myTeam,
+            peerTeams,
+            hostPeerId,
+            mode: "online",
+            pauseEvery: true,
+            career: get().career,
+            hydrated: true,
+            online: true,
+            isHost: localPeerId === hostPeerId,
+            localPeerId,
+            roomCode: get().roomCode,
+            sendAction: get().sendAction,
+            onlineIdentity: get().onlineIdentity,
+            lobbySeats: get().lobbySeats,
+            mesh: get().mesh,
+            lateJoinBlocked: false,
+          });
+        boot();
+        void fetch("/api/nfl", { cache: "no-store" })
+          .then((r) => r.json())
+          .then((d: { week?: number }) => {
+            if (d.week) set({ nflWeekStart: d.week });
+          })
+          .catch(() => undefined);
       },
 
       nominate: (playerId, teamId) => {
@@ -426,9 +450,6 @@ export const useGame = create<GameStore>()(
           if (filled || !nom) {
             set({
               ...finishDraft({ ...s, rosters, budgets, contracts }),
-              rosters,
-              budgets,
-              contracts,
               lastSold: { playerId, teamId: winnerId, price },
             });
             return;
@@ -451,7 +472,10 @@ export const useGame = create<GameStore>()(
             return;
           }
           const skipHumanWait = Boolean(s.autoFill && nom.teamId === s.playerTeamId);
-          if (liveHumans.has(nom.teamId) && !skipHumanWait) {
+          const nomSpots = spotsLeft(s.rosters[nom.teamId]!);
+          const nomCap = maxAffordable(s.budgets[nom.teamId] ?? 0, nomSpots);
+          const brokeHuman = liveHumans.has(nom.teamId) && nomSpots > 0 && nomCap <= 2;
+          if (liveHumans.has(nom.teamId) && !skipHumanWait && !brokeHuman) {
             if (!s.nominating) set({ nominating: true, nominateIndex: nom.index });
             return;
           }
@@ -467,6 +491,7 @@ export const useGame = create<GameStore>()(
           );
           const youRoster = s.rosters[s.playerTeamId];
           const pause =
+            !brokeHuman &&
             !s.autoFill &&
             (s.mode === "online" ||
               (youRoster
@@ -544,6 +569,35 @@ export const useGame = create<GameStore>()(
 
       setPauseEvery: (v) => set({ pauseEvery: v }),
       setAutoFill: (v) => set({ autoFill: v, nominating: v ? false : get().nominating }),
+      fillRest: (teamId) => {
+        if (guestSend(get, { k: "fillRest" })) return;
+        const s = get();
+        if (s.phase !== "draft") return;
+        const who = teamId ?? s.playerTeamId;
+        if (spotsLeft(s.rosters[who] ?? emptyRoster()) <= 0) return;
+        const skip = new Set(s.block ? [s.block.playerId] : []);
+        const filled = fillUnfinishedRosters(s.teams, s.rosters, s.budgets, s.contracts, skip, who);
+        const teamIds = s.teams.map((t) => t.id);
+        const allFull = teamIds.every((id) => spotsLeft(filled.rosters[id]!) <= 0);
+        if (allFull) {
+          set({
+            ...finishDraft({ ...s, ...filled }),
+            lastSold: s.lastSold,
+          });
+          return;
+        }
+        const nom = nextNominator(teamIds, filled.rosters, s.nominateIndex);
+        const liveHumans = liveHumanTeamIds({ ...s, rosters: filled.rosters });
+        const hurry = s.mode !== "online";
+        set({
+          rosters: filled.rosters,
+          budgets: filled.budgets,
+          contracts: filled.contracts,
+          nominateIndex: nom?.index ?? s.nominateIndex,
+          autoFill: hurry ? true : s.autoFill,
+          nominating: Boolean(nom && liveHumans.has(nom.teamId) && !(hurry || s.autoFill) && !s.block),
+        });
+      },
 
       startWatchNight: () => set({ watchNight: calendarNight() }),
       reshuffleWatchNight: () => {
@@ -565,6 +619,7 @@ export const useGame = create<GameStore>()(
 
       playWeek: () => {
         if (guestSend(get, { k: "playWeek" })) return;
+        void (async () => {
         const s = get();
         if (s.ticker) return;
         if (s.phase !== "regular" && s.phase !== "playoffs") return;
@@ -586,6 +641,23 @@ export const useGame = create<GameStore>()(
           }
         }
 
+        const nflWeek = (s.nflWeekStart || 1) + week - 1;
+        let live: { stats?: Record<string, WireStat>; games?: WireGame[]; lockUnplayed: boolean } = {
+          lockUnplayed: true,
+        };
+        try {
+          const res = await fetch(`/api/nfl?week=${nflWeek}`, { cache: "no-store" });
+          if (res.ok) {
+            const data = (await res.json()) as {
+              stats?: Record<string, WireStat>;
+              games?: WireGame[];
+            };
+            live = { stats: data.stats, games: data.games, lockUnplayed: true };
+          }
+        } catch {
+          /* sim fallback */
+        }
+
         const results = simulateMatchups(
           matchups,
           s.teams,
@@ -593,6 +665,7 @@ export const useGame = create<GameStore>()(
           week,
           s.seasonSeed,
           rankPlayer,
+          live,
         );
         const nextResults = { ...s.results, [week]: results };
         const taken = autoTakeCpu(s.bets ?? [], s.cash ?? {}, s.teams);
@@ -694,6 +767,7 @@ export const useGame = create<GameStore>()(
               }
             : null,
         });
+        })();
       },
 
       tickReveal: () => {
@@ -989,6 +1063,7 @@ export const useGame = create<GameStore>()(
           if (act.k === "nominate") get().nominate(act.playerId, teamId);
           else if (act.k === "bid") get().bid(act.amount, teamId);
           else if (act.k === "pass") get().pass(teamId);
+          else if (act.k === "fillRest") get().fillRest(teamId);
           else if (act.k === "swap") get().swapSlot(act.slot, act.benchId, teamId);
           else if (act.k === "playWeek") get().playWeek();
           else if (act.k === "closeTicker") get().closeTicker();

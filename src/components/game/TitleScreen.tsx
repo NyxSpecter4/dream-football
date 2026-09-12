@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "./chrome";
 import { NightBroadcast } from "./Broadcast";
 import { WireStrip, WireTicker } from "./Wire";
 import { useGame } from "@/game/store";
 import { unlockAudio } from "@/game/audio";
+import { pickWireFeatured, useWire, watchPool } from "@/game/wire";
 
 export function TitleScreen() {
   const career = useGame((s) => s.career);
@@ -37,16 +38,16 @@ export function TitleScreen() {
             <circle cx="24" cy="3" r="1.6" fill="currentColor" />
           </svg>
           <p className="mb-3 font-mono text-[11px] tracking-[0.22em] text-muted uppercase">
-            No Netflix. No Amazon. No Peacock.
+            On this week's NFL
           </p>
           <h1 className="font-display text-6xl font-semibold tracking-tight text-fg sm:text-7xl">
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            Sit the night. Watch a stadium sim. Bid $200. Stake house chips with your friend.
+            Live PPR on your names. A night you can sit when the game isn't on TV. Bid $200. Stake house chips.
           </p>
           <p className="mt-3 max-w-sm text-sm text-subtle">
-            The wire is real scores. The field is the night you sit. Not a scoreboard app.
+            The board is real points from this NFL week. The field follows real downs when the card has them.
           </p>
           <div className="mt-5">
             <WireTicker />
@@ -117,36 +118,64 @@ function WatchNightScreen() {
   const startSetup = useGame((s) => s.startSetup);
   const setScreen = useGame((s) => s.setScreen);
   const [done, setDone] = useState(false);
+  const [cardI, setCardI] = useState(0);
+  const { data, fail } = useWire();
+
+  const pool = useMemo(() => (data ? watchPool(data.games) : []), [data]);
+  const card = pool.length > 0 ? pool[cardI % pool.length]! : pickWireFeatured(data?.games ?? []);
 
   if (!night) return null;
 
   return (
     <Field>
       <main className="mx-auto min-h-dvh max-w-3xl px-5 pb-16 pt-8">
-        <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Tonight · week {night.week}</p>
+        <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">
+          Tonight · week {data?.week ?? night.week}
+        </p>
         <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">The night</h1>
         <p className="mt-2 max-w-md text-sm text-muted">
-          Same night, same game — anyone who sits down tonight sees this board.
+          Real card. Real downs when they exist. Your league board sits on this week when you bid $200.
         </p>
-        <div className="mt-6">
-          <WireStrip compact />
-        </div>
 
         <div className="mt-6">
-          <NightBroadcast
-            key={`${night.seed}-${night.week}`}
-            week={night.week}
-            seed={night.seed}
-            homeName="Home"
-            awayName="Away"
-            homeJersey="pine"
-            awayJersey="bone"
-            homePts={{}}
-            awayPts={{}}
-            live={!done}
-            board={false}
-            onDone={() => setDone(true)}
-          />
+          {card ? (
+            <NightBroadcast
+              key={`${night.seed}-${card.id}`}
+              week={data?.week ?? night.week}
+              seed={night.seed}
+              homeName="Home"
+              awayName="Away"
+              homeJersey="pine"
+              awayJersey="bone"
+              homePts={{}}
+              awayPts={{}}
+              live={!done}
+              board={false}
+              card={card}
+              onDone={() => setDone(true)}
+            />
+          ) : fail ? (
+            <NightBroadcast
+              key={`${night.seed}-${night.week}`}
+              week={data?.week ?? night.week}
+              seed={night.seed}
+              homeName="Home"
+              awayName="Away"
+              homeJersey="pine"
+              awayJersey="bone"
+              homePts={{}}
+              awayPts={{}}
+              live={!done}
+              board={false}
+              onDone={() => setDone(true)}
+            />
+          ) : (
+            <p className="font-mono text-[11px] text-subtle">Pulling this week's card…</p>
+          )}
+        </div>
+
+        <div className="mt-8">
+          <WireStrip compact />
         </div>
 
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
@@ -154,6 +183,7 @@ function WatchNightScreen() {
             <Button
               onClick={() => {
                 setDone(false);
+                setCardI((i) => i + 1);
                 reshuffleWatchNight();
               }}
             >

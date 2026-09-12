@@ -1,16 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PLAYERS } from "@/game/players";
 import { SLEEPER_IDS } from "@/game/sleeper-ids";
+import { normAbbr } from "@/game/nfl";
+import { parseEspnSummary } from "@/game/pbp";
+import type { WireGame } from "@/game/wire";
 
-type Cache = { at: number; body: string };
+type Cache = { at: number; body: string; key: string };
 
 let cache: Cache | null = null;
-const TTL = 30_000;
 
-async function getJson(url: string) {
+async function getJson(url: string, ms = 8000) {
   const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(8000),
+    headers: {
+      Accept: "application/json",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    },
+    signal: AbortSignal.timeout(ms),
   });
   if (!res.ok) throw new Error(url);
   return res.json() as Promise<unknown>;
@@ -45,17 +51,46 @@ function flavor(st: Record<string, unknown>) {
   return "";
 }
 
-async function build() {
-  const [board, newsRaw, state, statsRaw] = await Promise.allSettled([
+function pickStat(file: Record<string, Record<string, unknown>>, sid: string) {
+  return file[sid] ?? file[sid.replace(/^TEAM_/, "")] ?? file[`TEAM_${sid}`];
+}
+
+function tapeTargets(games: WireGame[]): WireGame[] {
+  const live = games.filter((g) => g.state === "live");
+  const finals = games.filter((g) => g.state === "final");
+  return [...live, ...finals].slice(0, 4);
+}
+
+async function attachTape(games: WireGame[]) {
+  const targets = tapeTargets(games);
+  if (targets.length === 0) return;
+  const results = await Promise.allSettled(
+    targets.map((g) =>
+      getJson(
+        `https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${encodeURIComponent(g.id)}`,
+        10000,
+      ),
+    ),
+  );
+  results.forEach((res, i) => {
+    const game = targets[i];
+    if (!game || res.status !== "fulfilled") return;
+    const parsed = parseEspnSummary(res.value, game.homeAbbr, game.awayAbbr);
+    if (parsed.plays.length >= 2) game.plays = parsed.plays;
+    if (parsed.injuries.length > 0) game.injuries = parsed.injuries;
+  });
+}
+
+async function build(weekHint = 0) {
+  const [board, newsRaw, state] = await Promise.allSettled([
     getJson("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"),
     getJson("https://site.api.espn.com/apis/site/v2/sports/football/nfl/news?limit=8"),
     getJson("https://api.sleeper.app/v1/state/nfl"),
-    getJson("https://api.sleeper.app/v1/stats/nfl/regular/2026/1"),
   ]);
 
   const boardJ = board.status === "fulfilled" ? asRec(board.value) : {};
   const events = Array.isArray(boardJ.events) ? boardJ.events : [];
-  const games = events.map((ev) => {
+  const games: WireGame[] = events.map((ev) => {
     const e = asRec(ev);
     const comps = Array.isArray(e.competitions) ? e.competitions : [];
     const c = asRec(comps[0]);
@@ -88,43 +123,63 @@ async function build() {
     return rank[a.state] - rank[b.state];
   });
 
+  await attachTape(games);
+
   const newsJ = newsRaw.status === "fulfilled" ? asRec(newsRaw.value) : {};
   const articles = Array.isArray(newsJ.articles) ? newsJ.articles : [];
-  const news = articles.slice(0, 6).map((a) => {
-    const r = asRec(a);
-    return { title: str(r.headline), blurb: str(r.description).slice(0, 180) };
-  }).filter((n) => n.title);
+  const news = articles
+    .slice(0, 6)
+    .map((a) => {
+      const r = asRec(a);
+      return { title: str(r.headline), blurb: str(r.description).slice(0, 180) };
+    })
+    .filter((n) => n.title);
 
   const stateJ = state.status === "fulfilled" ? asRec(state.value) : {};
-  const week = num(stateJ.week) || num(asRec(boardJ.week).number) || 1;
+  const liveWeek = num(stateJ.week) || num(asRec(boardJ.week).number) || 1;
   const season = num(stateJ.season) || 2026;
+  const week = weekHint > 0 ? weekHint : liveWeek;
 
-  const statsFile =
+  const [statsRaw, projRaw] = await Promise.allSettled([
+    getJson(`https://api.sleeper.app/v1/stats/nfl/regular/${season}/${week}`),
+    getJson(`https://api.sleeper.app/v1/projections/nfl/regular/${season}/${week}`),
+  ]);
+  const stats =
     statsRaw.status === "fulfilled"
       ? (statsRaw.value as Record<string, Record<string, unknown>>)
       : {};
-  // If sleeper week mismatches, try the live week.
-  let stats = statsFile;
-  if (week !== 1) {
-    try {
-      stats = (await getJson(
-        `https://api.sleeper.app/v1/stats/nfl/regular/${season}/${week}`,
-      )) as Record<string, Record<string, unknown>>;
-    } catch {
-      stats = statsFile;
-    }
-  }
+  const projs =
+    projRaw.status === "fulfilled"
+      ? (projRaw.value as Record<string, Record<string, unknown>>)
+      : {};
 
-  const mapped: Record<string, { pts: number; line: string; done: boolean }> = {};
+  const mapped: Record<
+    string,
+    { pts: number; proj: number; line: string; done: boolean; state: "live" | "final" | "soon" | "bye" }
+  > = {};
   for (const pl of PLAYERS) {
     const sid = SLEEPER_IDS[pl.id];
     if (!sid) continue;
-    const st = stats[sid];
-    if (!st) continue;
+    const st = pickStat(stats, sid) ?? {};
+    const pj = pickStat(projs, sid) ?? {};
     const pts = num(st.pts_ppr) || num(st.pts_std);
-    const line = flavor(st);
-    if (pts <= 0 && !line) continue;
-    mapped[pl.id] = { pts: Math.round(pts * 10) / 10, line, done: true };
+    const proj = num(pj.pts_ppr) || num(pj.pts_std);
+    const game = games.find(
+      (g) => normAbbr(g.homeAbbr) === pl.nfl || normAbbr(g.awayAbbr) === pl.nfl,
+    );
+    const gState: "live" | "final" | "soon" | "bye" = game
+      ? game.state
+      : pl.bye === week
+        ? "bye"
+        : "soon";
+    const line = gState === "live" || gState === "final" ? flavor(st) : "";
+    mapped[pl.id] = {
+      pts: Math.round(pts * 10) / 10,
+      proj: Math.round(proj * 10) / 10,
+      line,
+      done: gState === "final",
+      state: gState,
+    };
   }
 
   return {
@@ -137,24 +192,31 @@ async function build() {
   };
 }
 
-const handle = async () => {
+const handle = async ({ request }: { request: Request }) => {
   try {
-    if (cache && Date.now() - cache.at < TTL) {
+    const weekQ = Number(new URL(request.url).searchParams.get("week") || 0);
+    const key = String(weekQ || "live");
+    const hot = cache?.body.includes('"state":"live"');
+    const ttl = hot ? 10_000 : 30_000;
+    if (cache && cache.key === key && Date.now() - cache.at < ttl) {
       return new Response(cache.body, {
-        headers: { "content-type": "application/json", "cache-control": "public, max-age=20" },
+        headers: { "content-type": "application/json", "cache-control": "public, max-age=8" },
       });
     }
-    const payload = await build();
+    const payload = await build(weekQ);
     const body = JSON.stringify(payload);
-    cache = { at: Date.now(), body };
+    cache = { at: Date.now(), body, key };
     return new Response(body, {
-      headers: { "content-type": "application/json", "cache-control": "public, max-age=20" },
+      headers: { "content-type": "application/json", "cache-control": "public, max-age=8" },
     });
   } catch {
-    return new Response(JSON.stringify({ season: 2026, week: 1, games: [], news: [], stats: {}, updated: 0 }), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ season: 2026, week: 1, games: [], news: [], stats: {}, updated: 0 }),
+      {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      },
+    );
   }
 };
 

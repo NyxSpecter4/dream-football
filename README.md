@@ -1,10 +1,10 @@
 # Night League
 
-$200 auction fantasy football — a night you sit with friends when you can’t get the game on TV.
+A fantasy overlay on this week's NFL — live PPR, a night you can sit when the game isn't on TV, $200 auction with friends.
 
-**Watch tonight** is a stadium sim: downs, a ball, real names. **The wire** is public NFL scores and reports (the actual week). House chips are fake money you stake on your matchup. Auction is a real $200 season.
+**Sit this week** is your live board: slot vs slot, real points as they land, projections until they kick. **Lock week** writes the result — real where they played, a sim for names that haven't. **Watch tonight** follows real downs from the public play-by-play when a card has them, and a night sim when it doesn't. House chips are fake money you stake on your matchup.
 
-Not ESPN. Not Yahoo. Not Sleeper. No player photos, no league logos.
+Same PPR math as ESPN / Yahoo / Sleeper. Real names. No player photos, no league logos. Not a Chrome plugin — this is the overlay.
 
 ## Play together
 
@@ -13,7 +13,7 @@ Not ESPN. Not Yahoo. Not Sleeper. No player photos, no league logos.
 3. Text the 4-letter code.
 4. Friend: **Play with friends** → paste the code → **Join**.
 5. Host taps **Start auction**. Keep both pages open.
-6. After the draft, stake house chips, then **Watch tonight**.
+6. After the draft, sit the live board, stake house chips, then lock the week.
 
 Empty seats play themselves. No accounts.
 

@@ -11,6 +11,8 @@ import {
   type Roster,
 } from "./types";
 import { autoSetLineup } from "./league";
+import { gameForTeam } from "./scoring";
+import type { WireGame, WireStat } from "./wire";
 
 export function projection(player: Player): number {
   const base =
@@ -70,24 +72,95 @@ export function flavorLine(player: Player, pts: number, week: number, seed: numb
   return `${sacks} sack · ${to} TO`;
 }
 
+export type LiveMark = {
+  pts: number;
+  proj: number;
+  line: string;
+  state: WireStat["state"];
+};
+
+export function liveMark(
+  player: Player,
+  week: number,
+  seasonSeed: number,
+  stats: Record<string, WireStat> | undefined,
+  games: WireGame[] | undefined,
+  lockUnplayed: boolean,
+): LiveMark {
+  if (player.bye === week) {
+    return { pts: 0, proj: 0, line: "Bye", state: "bye" };
+  }
+  const st = stats?.[player.id];
+  const game = games ? gameForTeam(games, player.nfl) : null;
+  const state: WireStat["state"] = st?.state ?? (game ? game.state : "soon");
+  const proj = st?.proj || projection(player);
+  if (state === "final" || state === "live") {
+    return {
+      pts: st?.pts ?? 0,
+      proj,
+      line: st?.line || (state === "live" ? "Live" : ""),
+      state,
+    };
+  }
+  if (lockUnplayed) {
+    const sim = simulatePlayerWeek(player, week, seasonSeed);
+    return { pts: sim, proj, line: st?.line || "Sim · yet to play", state: "soon" };
+  }
+  return { pts: 0, proj, line: game?.clock || "Yet to play", state: "soon" };
+}
+
+export function scoreRosterLive(
+  roster: Roster,
+  week: number,
+  seasonSeed: number,
+  stats: Record<string, WireStat> | undefined,
+  games: WireGame[] | undefined,
+  lockUnplayed: boolean,
+): {
+  points: number;
+  proj: number;
+  playerPoints: Record<string, number>;
+  marks: Record<string, LiveMark>;
+} {
+  const playerPoints: Record<string, number> = {};
+  const marks: Record<string, LiveMark> = {};
+  let points = 0;
+  let projTotal = 0;
+  const starterIds = STARTER_SLOTS.map((s) => roster.lineup[s]).filter((id): id is string => Boolean(id));
+  const ids = [...starterIds, ...roster.bench];
+  const starters = new Set(starterIds);
+  for (const id of ids) {
+    const mark = liveMark(getPlayer(id), week, seasonSeed, stats, games, lockUnplayed);
+    marks[id] = mark;
+    playerPoints[id] = mark.pts;
+    if (starters.has(id)) {
+      points += mark.pts;
+      projTotal += mark.proj;
+    }
+  }
+  return {
+    points: Math.round(points * 10) / 10,
+    proj: Math.round(projTotal * 10) / 10,
+    playerPoints,
+    marks,
+  };
+}
+
 export function scoreRoster(
   roster: Roster,
   week: number,
   seasonSeed: number,
+  live?: { stats?: Record<string, WireStat>; games?: WireGame[]; lockUnplayed?: boolean },
 ): { points: number; playerPoints: Record<string, number> } {
-  const playerPoints: Record<string, number> = {};
-  let points = 0;
-  for (const slot of STARTER_SLOTS) {
-    const id = roster.lineup[slot];
-    if (!id) continue;
-    const pts = simulatePlayerWeek(getPlayer(id), week, seasonSeed);
-    playerPoints[id] = pts;
-    points += pts;
-  }
-  for (const id of roster.bench) {
-    playerPoints[id] = simulatePlayerWeek(getPlayer(id), week, seasonSeed);
-  }
-  return { points: Math.round(points * 10) / 10, playerPoints };
+  const scored = scoreRosterLive(
+    roster,
+    week,
+    seasonSeed,
+    live?.stats,
+    live?.games,
+    live?.lockUnplayed ?? true,
+  );
+  return { points: scored.points, playerPoints: scored.playerPoints };
 }
 
 export function simulateMatchups(
@@ -97,6 +170,7 @@ export function simulateMatchups(
   week: number,
   seasonSeed: number,
   rank: (id: string) => number,
+  live?: { stats?: Record<string, WireStat>; games?: WireGame[]; lockUnplayed?: boolean },
 ): Record<string, BoxScore> {
   const byId = Object.fromEntries(teams.map((t) => [t.id, t]));
   const results: Record<string, BoxScore> = {};
@@ -109,8 +183,8 @@ export function simulateMatchups(
     const awayRoster = awayTeam.human
       ? rosters[m.awayId]!
       : autoSetLineup(rosters[m.awayId]!, week, rank);
-    const home = scoreRoster(homeRoster, week, seasonSeed);
-    const away = scoreRoster(awayRoster, week, seasonSeed);
+    const home = scoreRoster(homeRoster, week, seasonSeed, live);
+    const away = scoreRoster(awayRoster, week, seasonSeed, live);
     const homeWon =
       home.points > away.points || (home.points === away.points && m.homeId < m.awayId);
     results[m.homeId] = {

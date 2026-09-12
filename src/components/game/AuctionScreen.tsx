@@ -5,10 +5,10 @@ import { useGame } from "@/game/store";
 import { availablePlayers, marketValue, maxAffordable, nextNominator, spotsLeft } from "@/game/draft";
 import { getPlayer } from "@/game/players";
 import { ownedSet } from "@/game/simulate";
-import { rosterPlayerIds, teamById } from "@/game/league";
+import { rosterPlayerIds, slotLabel, teamById } from "@/game/league";
 import { canTeamBid } from "@/game/net";
 import { sfxBid, sfxSold, sfxTick } from "@/game/audio";
-import type { Position } from "@/game/types";
+import { ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
 import { cn } from "@/lib/utils";
 
 const POS_FILTERS: Array<Position | "ALL"> = ["ALL", "QB", "RB", "WR", "TE", "K", "DST"];
@@ -31,6 +31,7 @@ export function AuctionScreen() {
   const pass = useGame((s) => s.pass);
   const setPauseEvery = useGame((s) => s.setPauseEvery);
   const setAutoFill = useGame((s) => s.setAutoFill);
+  const fillRest = useGame((s) => s.fillRest);
 
   const [filter, setFilter] = useState<Position | "ALL">("ALL");
   const [selected, setSelected] = useState<string | null>(null);
@@ -75,7 +76,9 @@ export function AuctionScreen() {
         const humanNom = st.nominating && !st.block && !st.autoFill;
         if (!waiting && !humanNom) {
           acc += dt;
-          const delay = reduced || st.autoFill ? 0.04 : st.block ? 0.32 : 0.22;
+          const youRoster = st.rosters[st.playerTeamId];
+          const youDone = youRoster ? spotsLeft(youRoster) <= 0 : false;
+          const delay = reduced || st.autoFill || youDone ? 0.045 : st.block ? 0.32 : 0.22;
           if (acc >= delay) {
             acc = 0;
             st.cpuStep();
@@ -110,8 +113,11 @@ export function AuctionScreen() {
           <div className="shrink-0 text-right">
             <p className="font-mono text-2xl tabular-nums leading-none">${budget}</p>
             <p className="mt-1 text-xs text-muted">
-              {spots} spots · max ${cap}
+              {spots} of {ROSTER_SIZE} open · max ${cap} on one name
             </p>
+            {spots > 1 && (
+              <p className="mt-0.5 text-[11px] text-subtle">Leave ${budget - cap} to fill the rest</p>
+            )}
           </div>
         </header>
 
@@ -142,7 +148,7 @@ export function AuctionScreen() {
         ) : myNomination ? (
           <div className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
             <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Your nomination</p>
-            <p className="mt-1 text-sm text-muted">Put a name on the block at $1. Everyone can bid.</p>
+            <p className="mt-1 text-sm text-muted">Put a name on the block at $1. You still need {spots}.</p>
           </div>
         ) : waitingOn ? (
           <div className="mt-6 rounded-xl bg-surface p-4 text-sm text-muted shadow-[var(--shadow-border)]">
@@ -220,16 +226,32 @@ export function AuctionScreen() {
 
         <YourRoster />
 
-        {!online && (
-          <div className="mt-8 flex flex-wrap gap-2 pb-4">
-            <Button size="sm" variant={pauseEvery ? "primary" : "secondary"} onClick={() => setPauseEvery(!pauseEvery)}>
-              {pauseEvery ? "Pausing every name" : "Pause on targets"}
+        <div className="mt-8 flex flex-wrap gap-2 pb-4">
+          {spots > 0 && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                sfxTick();
+                fillRest();
+              }}
+            >
+              Fill my last {spots} at $1
             </Button>
-            <Button size="sm" variant={autoFill ? "primary" : "secondary"} onClick={() => setAutoFill(!autoFill)}>
-              {autoFill ? "Auto-bidding" : "Auto-fill remaining"}
-            </Button>
-          </div>
-        )}
+          )}
+          {!online && (
+            <>
+              {spots > 0 && (
+                <Button size="sm" variant={pauseEvery ? "primary" : "secondary"} onClick={() => setPauseEvery(!pauseEvery)}>
+                  {pauseEvery ? "Pausing every name" : "Pause on targets"}
+                </Button>
+              )}
+              <Button size="sm" variant={autoFill ? "primary" : "secondary"} onClick={() => setAutoFill(!autoFill)}>
+                {autoFill ? "Auto-bidding" : "Sit the rest"}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </Field>
   );
@@ -253,6 +275,7 @@ function BlockCard({
   const nextBid = block.highBid + 1;
   const going =
     block.going === 1 ? "Going once" : block.going === 2 ? "Going twice" : "On the block";
+  const valueBid = Math.min(cap, Math.max(nextBid, marketValue(player.id)));
 
   return (
     <section className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)] sm:p-5">
@@ -297,8 +320,12 @@ function BlockCard({
           >
             +$5
           </Button>
-          <Button variant="secondary" disabled={!canBid} onClick={() => onBid(cap)}>
-            Max ${cap}
+          <Button
+            variant="secondary"
+            disabled={!canBid || valueBid <= block.highBid}
+            onClick={() => onBid(valueBid)}
+          >
+            Value ${valueBid}
           </Button>
         </div>
       )}
@@ -322,24 +349,53 @@ function YourRoster() {
   const contracts = useGame((s) => s.contracts);
   if (!roster) return null;
   const ids = rosterPlayerIds(roster);
+  const open = ROSTER_SIZE - ids.length;
   const price = (id: string) => contracts.find((c) => c.playerId === id && c.teamId === you)?.price ?? 0;
   return (
     <section className="mt-8">
       <h2 className="font-display text-xl font-semibold">Your roster</h2>
-      {ids.length === 0 ? (
-        <p className="mt-2 text-sm text-muted">No contracts yet.</p>
-      ) : (
-        <ul className="mt-3 flex flex-col gap-1.5">
-          {ids.map((id) => (
-            <li key={id}>
+      <p className="mt-1 text-sm text-muted">
+        {ids.length} of {ROSTER_SIZE} signed
+        {open > 0 ? ` · ${open} still open` : ""}
+      </p>
+      <ul className="mt-3 flex flex-col gap-1.5">
+        {STARTER_SLOTS.map((slot) => {
+          const id = roster.lineup[slot];
+          if (!id) {
+            return (
+              <li
+                key={slot}
+                className="flex min-h-12 items-center justify-between rounded-lg bg-surface px-3 text-sm text-subtle shadow-[var(--shadow-border)]"
+              >
+                <span>Open</span>
+                <span className="font-mono text-[11px] tracking-wide uppercase">{slotLabel(slot)}</span>
+              </li>
+            );
+          }
+          return (
+            <li key={slot}>
               <PlayerRow
                 player={getPlayer(id)}
                 trailing={<span className="font-mono text-sm tabular-nums">${price(id)}</span>}
               />
             </li>
-          ))}
-        </ul>
-      )}
+          );
+        })}
+        {roster.bench.map((id) => (
+          <li key={id}>
+            <PlayerRow
+              player={getPlayer(id)}
+              trailing={<span className="font-mono text-sm tabular-nums">${price(id)}</span>}
+            />
+          </li>
+        ))}
+        {roster.bench.length === 0 && (
+          <li className="flex min-h-12 items-center justify-between rounded-lg bg-surface px-3 text-sm text-subtle shadow-[var(--shadow-border)]">
+            <span>Open</span>
+            <span className="font-mono text-[11px] tracking-wide uppercase">Bench</span>
+          </li>
+        )}
+      </ul>
     </section>
   );
 }

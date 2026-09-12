@@ -25,7 +25,9 @@ export function SetupScreen() {
           Back
         </button>
         <h1 className="mt-8 font-display text-4xl font-semibold tracking-tight">Name the club</h1>
-        <p className="mt-2 text-sm text-muted">You walk into a $200 auction. Same board as everyone else.</p>
+        <p className="mt-2 text-sm text-muted">
+          $200. Ten names. Standard PPR on this week's NFL — same math as ESPN and Sleeper.
+        </p>
 
         <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Team name</label>
         <input

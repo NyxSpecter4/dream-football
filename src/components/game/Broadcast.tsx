@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { buildNight, downLabel, lineupIds, type NightPlay } from "@/game/broadcast";
+import { buildNight, downLabel, lineupIds, nightFromWire, type NightPlay } from "@/game/broadcast";
 import { getPlayer } from "@/game/players";
 import { sfxBid, sfxKick, sfxScore, sfxSnap, sfxTackle, sfxTd, setCrowd, startCrowd, stopCrowd } from "@/game/audio";
-import { fmtPts, JerseyMark } from "./chrome";
+import { fmtPts, JerseyMark, jerseyNum } from "./chrome";
 import { cn } from "@/lib/utils";
 import type { JerseyId, Roster } from "@/game/types";
+import { hasTape, type WireGame } from "@/game/wire";
+import { teamOf } from "@/game/nfl";
 
 export function NightBroadcast({
   week,
@@ -20,6 +22,7 @@ export function NightBroadcast({
   live,
   onDone,
   board = true,
+  card,
 }: {
   week: number;
   seed: number;
@@ -34,24 +37,55 @@ export function NightBroadcast({
   live: boolean;
   onDone: () => void;
   board?: boolean;
+  card?: WireGame | null;
 }) {
   const ownedHome = useMemo(() => lineupIds(homeRoster), [homeRoster]);
   const ownedAway = useMemo(() => lineupIds(awayRoster), [awayRoster]);
-  const game = useMemo(
-    () =>
-      buildNight({
-        week,
-        seed,
-        ownedHome,
-        ownedAway,
-        homePts,
-        awayPts,
-      }),
-    [week, seed, ownedHome, ownedAway, homePts, awayPts],
-  );
+  const taped = hasTape(card);
+  const game = useMemo(() => {
+    if (card && taped) {
+      return (
+        nightFromWire({
+          card,
+          ownedHome,
+          ownedAway,
+          homePts,
+          awayPts,
+          week,
+        }) ??
+        buildNight({
+          week,
+          seed,
+          ownedHome,
+          ownedAway,
+          homePts,
+          awayPts,
+          homeAbbr: card.homeAbbr,
+          awayAbbr: card.awayAbbr,
+        })
+      );
+    }
+    return buildNight({
+      week,
+      seed,
+      ownedHome,
+      ownedAway,
+      homePts,
+      awayPts,
+      homeAbbr: card?.homeAbbr,
+      awayAbbr: card?.awayAbbr,
+    });
+  }, [week, seed, ownedHome, ownedAway, homePts, awayPts, card, taped]);
   const plays = game.plays;
+  const playsRef = useRef(plays);
+  playsRef.current = plays;
+  const cardStateRef = useRef(card?.state);
+  cardStateRef.current = card?.state;
+  const tapedRef = useRef(taped);
+  tapedRef.current = taped;
   const reduced =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const resetKey = `${seed}-${card?.id ?? "sim"}-${taped ? "tape" : "sim"}`;
   const [i, setI] = useState(() => (live && !reduced ? 0 : plays.length));
   const [paused, setPaused] = useState(false);
   const [fast, setFast] = useState(false);
@@ -66,11 +100,11 @@ export function NightBroadcast({
   onDoneRef.current = onDone;
 
   useEffect(() => {
-    setI(live && !reduced ? 0 : plays.length);
+    setI(live && !reduced ? 0 : playsRef.current.length);
     doneRef.current = !(live && !reduced);
     skipRef.current = false;
     vis.current = { t: live && !reduced ? 0 : 1, trauma: 0 };
-  }, [live, plays, reduced]);
+  }, [live, reduced, resetKey]);
 
   useEffect(() => {
     if (!live || reduced) {
@@ -87,31 +121,40 @@ export function NightBroadcast({
     let idx = 0;
     const loop = (now: number) => {
       if (skipRef.current) return;
+      const list = playsRef.current;
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       if (!pausedRef.current) {
         acc += dt * (fastRef.current ? 1.85 : 1);
         vis.current.trauma = Math.max(0, vis.current.trauma - dt * 2.4);
-        const play = plays[idx];
+        const play = list[idx];
         const hold = (play?.hold ?? 1) / (fastRef.current ? 1.35 : 1);
         vis.current.t = play ? Math.min(1, acc / Math.max(0.2, hold)) : 1;
         if (acc >= hold) {
-          acc = 0;
-          vis.current.t = 0;
-          if (play) hitSfx(play);
-          if (play?.kind === "td") vis.current.trauma = Math.min(1, vis.current.trauma + 0.72);
-          else if (play && play.ticks.some((tk) => tk.pts >= 3))
-            vis.current.trauma = Math.min(1, vis.current.trauma + 0.28);
-          idx += 1;
-          setI(idx);
-          if (idx >= plays.length) {
+          const more = idx + 1 < list.length;
+          const canEnd = !(tapedRef.current && cardStateRef.current === "live");
+          if (!more && !canEnd) {
+            acc = 0;
             vis.current.t = 1;
-            stopCrowd();
-            if (!doneRef.current) {
-              doneRef.current = true;
-              onDoneRef.current();
+            setI(list.length);
+          } else {
+            acc = 0;
+            vis.current.t = 0;
+            if (play) hitSfx(play);
+            if (play?.kind === "td") vis.current.trauma = Math.min(1, vis.current.trauma + 0.72);
+            else if (play && play.ticks.some((tk) => tk.pts >= 3))
+              vis.current.trauma = Math.min(1, vis.current.trauma + 0.28);
+            idx += 1;
+            setI(idx);
+            if (idx >= list.length) {
+              vis.current.t = 1;
+              stopCrowd();
+              if (!doneRef.current) {
+                doneRef.current = true;
+                onDoneRef.current();
+              }
+              return;
             }
-            return;
           }
         }
         const swell = play?.kind === "td" ? 0.55 : play?.kind === "catch" ? 0.32 : 0.22;
@@ -124,7 +167,7 @@ export function NightBroadcast({
       cancelAnimationFrame(raf);
       stopCrowd();
     };
-  }, [live, plays, reduced]);
+  }, [live, reduced, resetKey]);
 
   const done = i >= plays.length;
   const current = plays[Math.min(Math.max(0, done ? plays.length - 1 : i), Math.max(0, plays.length - 1))];
@@ -135,6 +178,17 @@ export function NightBroadcast({
 
   return (
     <div>
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span
+          className={cn(
+            "rounded-sm px-1.5 py-0.5 font-mono text-[10px] tracking-[0.16em] uppercase",
+            taped ? "bg-win/15 text-win" : "bg-surface-2 text-muted",
+          )}
+        >
+          {taped ? (card?.state === "live" ? "Live downs" : "Real downs") : "Sim"}
+        </span>
+        <p className="min-w-0 font-mono text-[11px] text-subtle">{wireNote(card, taped)}</p>
+      </div>
       <div className="flex items-end justify-between gap-3">
         <NflScore
           city={game.featured.home.city}
@@ -145,6 +199,9 @@ export function NightBroadcast({
         />
         <p className="pb-1 text-center font-mono text-[11px] tabular-nums text-muted">
           {current?.clock ?? "Q1 15:00"}
+          <span className="mt-0.5 block tracking-[0.16em] uppercase text-subtle">
+            {taped ? (card?.state === "final" ? "Tape" : "Live") : "Sim"}
+          </span>
         </p>
         <NflScore
           city={game.featured.away.city}
@@ -243,11 +300,37 @@ export function NightBroadcast({
         </div>
       )}
 
+      {taped && card?.injuries && card.injuries.length > 0 && (
+        <p className="mt-2 font-mono text-[11px] text-subtle">
+          {card.injuries
+            .slice(0, 4)
+            .map((inj) => `${inj.name} ${inj.status}`)
+            .join(" · ")}
+        </p>
+      )}
+
       <p className="mt-4 text-[11px] leading-relaxed text-subtle">
-        Simulated night. Names and public box-score facts. Not an NFL broadcast, and not a league feed.
+        {taped
+          ? "Ball on the grass follows the public play-by-play. Names and box-score facts. Not an NFL broadcast."
+          : "Night sim of this week's card. Scores on the grass are the sim. Real scores sit on the wire. Names and public box-score facts. Not an NFL broadcast."}
       </p>
     </div>
   );
+}
+
+function wireNote(card?: WireGame | null, taped = false) {
+  if (!card) return "Scores on the field are the sim — not the live score.";
+  if (card.state === "soon") return `This week's card · kicks ${card.clock}`;
+  if (taped && card.state === "final") {
+    return `Real downs · ${card.awayAbbr} ${card.awayScore} · ${card.homeAbbr} ${card.homeScore} Final`;
+  }
+  if (taped && card.state === "live") {
+    return `Live downs · ${card.awayAbbr} ${card.awayScore} · ${card.homeAbbr} ${card.homeScore} ${card.clock}`;
+  }
+  if (card.state === "final") {
+    return `Real score ${card.awayAbbr} ${card.awayScore} · ${card.homeAbbr} ${card.homeScore} Final`;
+  }
+  return `Real score ${card.awayAbbr} ${card.awayScore} · ${card.homeAbbr} ${card.homeScore} ${card.clock}`;
 }
 
 function hitSfx(play: NightPlay) {
@@ -272,9 +355,18 @@ function NflScore({
   align: "left" | "right";
   on: boolean;
 }) {
+  const tone = teamOf(abbr);
   return (
     <div className={cn("min-w-0 flex-1", align === "right" && "text-right")}>
-      <p className={cn("truncate text-sm", on ? "text-fg" : "text-muted")}>{city}</p>
+      <p className={cn("flex items-center gap-2 truncate text-sm", on ? "text-fg" : "text-muted", align === "right" && "justify-end")}>
+        {align === "left" && (
+          <span className="size-2.5 shrink-0 rounded-full" style={{ background: tone.primary }} aria-hidden />
+        )}
+        {city}
+        {align === "right" && (
+          <span className="size-2.5 shrink-0 rounded-full" style={{ background: tone.primary }} aria-hidden />
+        )}
+      </p>
       <p className="font-mono text-[11px] tracking-[0.14em] text-subtle uppercase">{abbr}</p>
       <p className="font-display text-4xl font-semibold tabular-nums tracking-tight">{pts}</p>
     </div>
@@ -402,7 +494,7 @@ function StadiumCanvas({
   return (
     <canvas
       ref={ref}
-      className="mt-3 h-56 w-full rounded-xl bg-turf sm:h-72"
+      className="mt-3 h-72 w-full rounded-xl bg-turf sm:h-96"
       aria-hidden
     />
   );
@@ -437,39 +529,87 @@ function draw(
   ctx.fillStyle = c.bg;
   ctx.fillRect(0, 0, w, h);
 
-  const pad = h * 0.07;
+  const pad = h * 0.11;
   const fieldH = h - pad * 2;
   const fieldW = w;
-  const visible = 52;
+  const visible = 48;
   const origin = cam - visible / 2;
   const sx = (yd: number) => ((yd - origin) / visible) * fieldW;
   const sy = (lane: number) => pad + fieldH * lane;
+  const home = teamOf(labels.homeAbbr);
+  const away = teamOf(labels.awayAbbr);
 
   ctx.save();
   ctx.translate((Math.sin(time * 37) * 5 + Math.cos(time * 21) * 3) * shake, Math.sin(time * 29) * 4 * shake);
 
+  drawCrowd(ctx, w, pad, true, time);
+  drawCrowd(ctx, w, pad + fieldH, false, time);
+
   ctx.fillStyle = c.turf;
   ctx.fillRect(0, pad, w, fieldH);
-  ctx.fillStyle = c.end;
+  for (let y = -10; y < 110; y += 5) {
+    if (Math.floor((y + 10) / 5) % 2 === 0) continue;
+    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.fillRect(sx(y), pad, sx(y + 5) - sx(y), fieldH);
+  }
+
+  ctx.fillStyle = hexA(home.primary, 0.72);
   ctx.fillRect(sx(-10), pad, sx(0) - sx(-10), fieldH);
+  ctx.fillStyle = hexA(away.primary, 0.72);
   ctx.fillRect(sx(100), pad, sx(110) - sx(100), fieldH);
 
-  ctx.strokeStyle = "rgba(238,242,236,0.22)";
-  ctx.lineWidth = Math.max(1, h * 0.004);
-  for (let y = 0; y <= 100; y += 10) {
+  ctx.strokeStyle = "rgba(238,242,236,0.16)";
+  ctx.lineWidth = Math.max(1, h * 0.003);
+  for (let y = 0; y <= 100; y += 5) {
     const x = sx(y);
     ctx.beginPath();
     ctx.moveTo(x, pad);
     ctx.lineTo(x, pad + fieldH);
     ctx.stroke();
   }
-  ctx.strokeStyle = "rgba(238,242,236,0.4)";
+  ctx.strokeStyle = "rgba(238,242,236,0.55)";
+  ctx.lineWidth = Math.max(1.5, h * 0.005);
   ctx.beginPath();
   ctx.moveTo(sx(50), pad);
   ctx.lineTo(sx(50), pad + fieldH);
   ctx.stroke();
 
-  ctx.fillStyle = "rgba(238,242,236,0.28)";
+  ctx.strokeStyle = "rgba(238,242,236,0.28)";
+  ctx.lineWidth = Math.max(1, h * 0.003);
+  const hashTop = pad + fieldH * 0.32;
+  const hashBot = pad + fieldH * 0.68;
+  const tick = fieldH * 0.035;
+  for (let y = 1; y < 100; y++) {
+    if (y % 5 === 0) continue;
+    const x = sx(y);
+    ctx.beginPath();
+    ctx.moveTo(x, hashTop - tick);
+    ctx.lineTo(x, hashTop);
+    ctx.moveTo(x, hashBot);
+    ctx.lineTo(x, hashBot + tick);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "rgba(238,242,236,0.5)";
+  ctx.lineWidth = Math.max(2, h * 0.008);
+  ctx.beginPath();
+  ctx.moveTo(0, pad);
+  ctx.lineTo(w, pad);
+  ctx.moveTo(0, pad + fieldH);
+  ctx.lineTo(w, pad + fieldH);
+  ctx.stroke();
+
+  if (play && play.down > 0) {
+    const stick = play.spot + play.toGo * (play.possession === "home" ? 1 : -1);
+    ctx.strokeStyle = "rgba(255, 196, 72, 0.85)";
+    ctx.lineWidth = Math.max(2, h * 0.007);
+    ctx.beginPath();
+    ctx.moveTo(sx(stick), pad);
+    ctx.lineTo(sx(stick), pad + fieldH);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(238,242,236,0.34)";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   const marks = [
@@ -483,72 +623,163 @@ function draw(
     [80, "20"],
     [90, "10"],
   ] as const;
-  ctx.font = `${Math.floor(h * 0.06)}px "Barlow Condensed", sans-serif`;
+  ctx.font = `600 ${Math.floor(h * 0.055)}px "Barlow Condensed", sans-serif`;
   for (const [yd, label] of marks) {
     ctx.fillText(label, sx(yd), pad + fieldH * 0.14);
     ctx.fillText(label, sx(yd), pad + fieldH * 0.86);
   }
 
-  ctx.fillStyle = "rgba(238,242,236,0.34)";
-  ctx.font = `${Math.floor(h * 0.075)}px "Barlow Condensed", sans-serif`;
+  ctx.font = `700 ${Math.floor(h * 0.08)}px "Barlow Condensed", sans-serif`;
+  ctx.fillStyle = home.ink;
   ctx.save();
   ctx.translate((sx(-10) + sx(0)) / 2, pad + fieldH / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText(labels.homeAbbr, 0, 0);
+  ctx.fillText(home.city.toUpperCase(), 0, 0);
   ctx.restore();
+  ctx.fillStyle = away.ink;
   ctx.save();
   ctx.translate((sx(100) + sx(110)) / 2, pad + fieldH / 2);
   ctx.rotate(Math.PI / 2);
-  ctx.fillText(labels.awayAbbr, 0, 0);
+  ctx.fillText(away.city.toUpperCase(), 0, 0);
   ctx.restore();
 
   for (const L of lights) {
     const x = (L.x / 100) * w;
     const y = pad + (L.y / 100) * fieldH;
-    const pulse = 0.12 + Math.sin(time + L.p) * 0.03;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, h * 0.24);
-    g.addColorStop(0, `rgba(238,242,236,${pulse})`);
-    g.addColorStop(1, "rgba(238,242,236,0)");
+    const pulse = 0.1 + Math.sin(time * 1.4 + L.p) * 0.04;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, h * 0.28);
+    g.addColorStop(0, `rgba(255,244,210,${pulse})`);
+    g.addColorStop(1, "rgba(255,244,210,0)");
     ctx.fillStyle = g;
-    ctx.fillRect(x - h * 0.24, y - h * 0.24, h * 0.48, h * 0.48);
+    ctx.fillRect(x - h * 0.28, y - h * 0.28, h * 0.56, h * 0.56);
   }
 
   const poss = play?.possession ?? "home";
   const dir = poss === "home" ? 1 : -1;
+  const offClub = poss === "home" ? home : away;
+  const defClub = poss === "home" ? away : home;
   const form = formation(ball, dir, t, play);
   for (const u of form) {
     const x = sx(u.yd);
     const y = sy(u.lane);
     const mine = u.id ? owned.has(u.id) : false;
-    drawMan(
-      ctx,
-      x,
-      y,
-      h,
-      u.side === "off" ? c.bone : c.midnight,
-      u.side === "off" ? c.bg : c.fg,
-      mine ? c.win : null,
-      u.tag,
-    );
+    const club = u.side === "off" ? offClub : defClub;
+    const pl = u.id ? getPlayer(u.id) : null;
+    drawMan(ctx, x, y, h, club.primary, club.ink, club.secondary, mine ? c.win : null, u.tag, pl?.name.split(" ").pop() ?? "");
   }
 
+  const air = play?.kind === "pass" || play?.kind === "catch" || play?.kind === "incomplete";
   const bx = sx(ball);
-  const by = sy(play?.kind === "pass" || play?.kind === "catch" || play?.kind === "incomplete" ? 0.38 + (1 - t) * 0.18 : 0.5);
-  const br = h * (play?.kind === "td" ? 0.032 : 0.022);
-  ctx.fillStyle = play?.kind === "td" ? c.win : c.fg;
-  ctx.beginPath();
-  ctx.ellipse(bx, by, br * (1.35 + t * 0.2), br, dir * 0.4, 0, Math.PI * 2);
-  ctx.fill();
+  const by = sy(air ? 0.38 + (1 - t) * 0.2 : 0.5);
+  drawBall(ctx, bx, by, h, t, dir, play?.kind === "td", play?.from, ball, sx, air ? 0.38 + (1 - t) * 0.2 : 0.5, sy);
 
+  if (play?.kind === "td" || play?.kind === "fg") {
+    const n = play.kind === "td" ? 18 : 8;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + time * 3;
+      const d = (0.15 + (t % 1) * 0.7) * h * 0.12;
+      ctx.fillStyle = play.kind === "td" ? `rgba(125,186,142,${0.7 - t * 0.3})` : "rgba(255,196,72,0.55)";
+      ctx.beginPath();
+      ctx.arc(bx + Math.cos(a) * d, by + Math.sin(a) * d * 0.55, Math.max(1.2, h * 0.008), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+}
+
+function hexA(hex: string, a: number) {
+  const n = hex.replace("#", "");
+  const r = Number.parseInt(n.slice(0, 2), 16);
+  const g = Number.parseInt(n.slice(2, 4), 16);
+  const b = Number.parseInt(n.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function drawCrowd(ctx: CanvasRenderingContext2D, w: number, y: number, top: boolean, time: number) {
+  const rows = 3;
+  for (let r = 0; r < rows; r++) {
+    const yy = top ? y - 6 - r * 5 : y + 6 + r * 5;
+    for (let i = 0; i < 40; i++) {
+      const x = ((i + r * 0.4) / 40) * w;
+      const pulse = 0.12 + Math.sin(time * 2.2 + i * 0.4 + r) * 0.05;
+      ctx.fillStyle = `rgba(18, 22, 18, ${0.55 + pulse})`;
+      ctx.beginPath();
+      ctx.arc(x, yy, 3.2 + (i % 3) * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawBall(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  h: number,
+  t: number,
+  dir: number,
+  td: boolean,
+  from: number | undefined,
+  ball: number,
+  sx: (yd: number) => number,
+  lane: number,
+  sy: (lane: number) => number,
+) {
+  if (from != null) {
+    for (let i = 3; i >= 1; i--) {
+      const p = Math.max(0, t - i * 0.08);
+      const gx = sx(from + (ball - from) * p);
+      const gy = sy(lane);
+      ctx.fillStyle = `rgba(196, 154, 90, ${0.12 * i})`;
+      ctx.beginPath();
+      ctx.ellipse(gx, gy, h * 0.03, h * 0.016, dir * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  const br = h * (td ? 0.034 : 0.026);
+  ctx.save();
+  ctx.translate(x, y + br * 0.9);
+  ctx.scale(1, 0.35);
+  ctx.fillStyle = "rgba(0,0,0,0.35)";
+  ctx.beginPath();
+  ctx.arc(0, 0, br * 1.4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(dir * 0.45 + t * 0.4 * dir);
+  ctx.fillStyle = td ? "#d7c48a" : "#b08a4a";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, br * 1.45, br * 0.82, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(40,24,12,0.55)";
+  ctx.lineWidth = Math.max(1, h * 0.004);
+  ctx.stroke();
+  ctx.strokeStyle = "#f3efe4";
+  ctx.lineWidth = Math.max(1.2, h * 0.005);
+  ctx.beginPath();
+  ctx.moveTo(-br * 0.55, 0);
+  ctx.lineTo(br * 0.55, 0);
+  ctx.stroke();
+  ctx.lineWidth = Math.max(1, h * 0.0035);
+  for (let i = -2; i <= 2; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * br * 0.18, -br * 0.22);
+    ctx.lineTo(i * br * 0.18, br * 0.22);
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
 function formation(ball: number, dir: number, t: number, play: NightPlay | undefined) {
   const shift = (play?.yards ?? 0) * t * 0.35 * dir;
+  const qbId = play?.playerId ?? null;
+  const tgtId = play?.targetId ?? null;
   const off = [
-    { yd: ball - dir * 7, lane: 0.5, tag: "", id: play?.playerId ?? null, side: "off" as const },
+    { yd: ball - dir * 7, lane: 0.5, tag: qbId ? String(jerseyNum(qbId)) : "", id: qbId, side: "off" as const },
     { yd: ball - dir * 2, lane: 0.5, tag: "", id: null, side: "off" as const },
-    { yd: ball + dir * (8 + shift), lane: 0.22, tag: "", id: play?.targetId ?? null, side: "off" as const },
+    { yd: ball + dir * (8 + shift), lane: 0.22, tag: tgtId ? String(jerseyNum(tgtId)) : "", id: tgtId, side: "off" as const },
     { yd: ball + dir * (6 + shift), lane: 0.78, tag: "", id: null, side: "off" as const },
     { yd: ball - dir * 1, lane: 0.36, tag: "", id: null, side: "off" as const },
     { yd: ball + dir * 2, lane: 0.64, tag: "", id: null, side: "off" as const },
@@ -562,7 +793,7 @@ function formation(ball: number, dir: number, t: number, play: NightPlay | undef
   ];
   const carrier = play?.targetId ?? play?.playerId;
   if (carrier && (play?.kind === "run" || play?.kind === "scramble" || play?.kind === "td" || play?.kind === "catch")) {
-    off[0] = { yd: ball, lane: 0.5, tag: "", id: carrier, side: "off" };
+    off[0] = { yd: ball, lane: 0.5, tag: String(jerseyNum(carrier)), id: carrier, side: "off" };
   }
   return [...off, ...def];
 }
@@ -574,29 +805,50 @@ function drawMan(
   h: number,
   fill: string,
   ink: string,
+  helmet: string,
   ring: string | null,
   tag: string,
+  last: string,
 ) {
-  const r = h * 0.038;
+  const r = h * 0.04;
+  ctx.fillStyle = "rgba(0,0,0,0.28)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + r * 1.15, r * 0.7, r * 0.22, 0, 0, Math.PI * 2);
+  ctx.fill();
+
   ctx.fillStyle = fill;
-  roundRect(ctx, x - r * 0.7, y - r * 1.1, r * 1.4, r * 2.1, r * 0.45);
+  roundRect(ctx, x - r * 0.72, y - r * 1.05, r * 1.44, r * 2.05, r * 0.4);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(x, y - r * 1.28, r * 0.52, 0, Math.PI * 2);
+  ctx.fillStyle = helmet;
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(x, y - r * 1.25, r * 0.55, 0, Math.PI * 2);
+  ctx.arc(x, y - r * 1.28, r * 0.28, 0, Math.PI * 2);
   ctx.fillStyle = ink;
   ctx.fill();
-  if (ring) {
-    ctx.strokeStyle = ring;
-    ctx.lineWidth = Math.max(1.5, h * 0.006);
-    ctx.beginPath();
-    ctx.arc(x, y, r * 1.55, 0, Math.PI * 2);
-    ctx.stroke();
-  }
+
   if (tag) {
     ctx.fillStyle = ink;
-    ctx.font = `${Math.floor(h * 0.04)}px "IBM Plex Mono", monospace`;
+    ctx.font = `700 ${Math.floor(h * 0.038)}px "Barlow Condensed", sans-serif`;
     ctx.textAlign = "center";
-    ctx.fillText(tag, x, y + r * 2.4);
+    ctx.textBaseline = "middle";
+    ctx.fillText(tag, x, y - r * 0.15);
+  }
+  if (ring) {
+    ctx.strokeStyle = ring;
+    ctx.lineWidth = Math.max(1.6, h * 0.007);
+    ctx.beginPath();
+    ctx.arc(x, y - r * 0.15, r * 1.55, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  if (last && ring) {
+    ctx.fillStyle = ring;
+    ctx.font = `600 ${Math.floor(h * 0.032)}px "Barlow Condensed", sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText(last, x, y + r * 1.25);
   }
 }
 

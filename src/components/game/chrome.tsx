@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import type { JerseyId, Player, Position } from "@/game/types";
+import { PLAYOFF_WEEK, CHAMPIONSHIP_WEEK, type JerseyId, type Player, type Position } from "@/game/types";
 import { marketValue } from "@/game/draft";
 import { projection } from "@/game/simulate";
+import { nflContext } from "@/game/scoring";
 import { useGame } from "@/game/store";
+import { useWire } from "@/game/wire";
 
 export function fmtPts(n: number) {
   return (Math.round(n * 10) / 10).toFixed(1);
@@ -35,7 +37,10 @@ export function jerseyNum(id: string) {
 export function PlayerMark({ player }: { player: Player }) {
   return (
     <span
-      className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-surface-2 font-display text-sm font-semibold tabular-nums text-fg"
+      className={cn(
+        "nfl-" + player.nfl,
+        "inline-flex size-9 shrink-0 items-center justify-center rounded-md font-display text-sm font-semibold tabular-nums",
+      )}
       aria-hidden
     >
       {jerseyNum(player.id)}
@@ -62,6 +67,10 @@ export function PlayerRow({
   onClick?: () => void;
   active?: boolean;
 }) {
+  const { data } = useWire();
+  const st = data?.stats[player.id];
+  const proj = st?.proj || projection(player);
+  const ctx = nflContext(player.nfl, data?.games);
   const Comp = onClick ? "button" : "div";
   return (
     <Comp
@@ -77,7 +86,11 @@ export function PlayerRow({
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium text-fg">{player.name}</span>
         <span className="block font-mono text-[11px] text-muted">
-          {player.nfl} · bye {player.bye} · {projection(player).toFixed(1)} proj
+          {player.nfl}
+          {ctx ? ` · ${ctx.line}` : ` · bye ${player.bye}`}
+          {st && (st.state === "final" || st.state === "live")
+            ? ` · ${st.pts.toFixed(1)}/${proj.toFixed(1)} PPR`
+            : ` · ${proj.toFixed(1)} proj`}
         </span>
       </span>
       {trailing ?? (
@@ -89,8 +102,8 @@ export function PlayerRow({
 
 export function WeekLabel({ week, phase }: { week: number; phase: string }) {
   if (phase === "complete") return "Final";
-  if (week === 8) return "Semifinals";
-  if (week === 9) return "Championship";
+  if (week === PLAYOFF_WEEK) return "Semifinals";
+  if (week === CHAMPIONSHIP_WEEK) return "Championship";
   return `Week ${week}`;
 }
 

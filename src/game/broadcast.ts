@@ -1,7 +1,8 @@
 import { getPlayer } from "./players";
-import { pickFeaturedGame, playersOnTeam, teamCity, type NflTeam } from "./nfl";
+import { pickFeaturedGame, playersOnTeam, teamCity, teamOf, type NflTeam } from "./nfl";
 import { hashSeed, mulberry32 } from "./rng";
 import { STARTER_SLOTS, type Player, type Position, type Roster } from "./types";
+import type { WireGame } from "./wire";
 
 export type PlayKind =
   | "kickoff"
@@ -152,9 +153,14 @@ export function buildNight(opts: {
   ownedAway: string[];
   homePts: Record<string, number>;
   awayPts: Record<string, number>;
+  homeAbbr?: string;
+  awayAbbr?: string;
 }): NightGame {
   const ownedAll = [...opts.ownedHome, ...opts.ownedAway];
-  const featured = pickFeaturedGame(opts.week, opts.seed, ownedAll);
+  const featured =
+    opts.homeAbbr && opts.awayAbbr
+      ? { home: teamOf(opts.homeAbbr), away: teamOf(opts.awayAbbr) }
+      : pickFeaturedGame(opts.week, opts.seed, ownedAll);
   const prefer = new Set(ownedAll);
   const rand = mulberry32(hashSeed(opts.seed, "night", opts.week, featured.home.abbr, featured.away.abbr));
   const used = new Set<string>();
@@ -696,6 +702,149 @@ export function buildNight(opts: {
     ticks: [],
     also: null,
   });
+
+  return { featured, plays };
+}
+
+export function nightFromWire(opts: {
+  card: WireGame;
+  ownedHome: string[];
+  ownedAway: string[];
+  homePts: Record<string, number>;
+  awayPts: Record<string, number>;
+  week: number;
+}): NightGame | null {
+  const snaps = opts.card.plays;
+  if (!snaps || snaps.length < 2) return null;
+  const featured = { home: teamOf(opts.card.homeAbbr), away: teamOf(opts.card.awayAbbr) };
+  const ownedAll = [...opts.ownedHome, ...opts.ownedAway];
+  const remain: Record<string, number> = {};
+  const boardOf = new Map<string, "home" | "away">();
+  for (const id of opts.ownedHome) {
+    remain[id] = opts.homePts[id] ?? 0;
+    boardOf.set(id, "home");
+  }
+  for (const id of opts.ownedAway) {
+    remain[id] = opts.awayPts[id] ?? 0;
+    boardOf.set(id, "away");
+  }
+  const featuredIds = new Set(
+    [...playersOnTeam(featured.home.abbr), ...playersOnTeam(featured.away.abbr)].map((p) => p.id),
+  );
+  const alsoQueue: Array<{ playerId: string; board: "home" | "away"; pts: number }> = [];
+  for (const id of ownedAll) {
+    if (featuredIds.has(id)) continue;
+    const pts = remain[id] ?? 0;
+    if (pts <= 0) continue;
+    alsoQueue.push({ playerId: id, board: boardOf.get(id) ?? "home", pts });
+    remain[id] = 0;
+  }
+  alsoQueue.sort((a, b) => b.pts - a.pts);
+
+  const tick = (ids: Array<string | null>, kind: PlayKind, yards: number): FantasyTick[] => {
+    const out: FantasyTick[] = [];
+    for (const id of ids) {
+      if (!id || remain[id] == null) continue;
+      const left = remain[id]!;
+      if (left <= 0) continue;
+      const board = boardOf.get(id);
+      if (!board) continue;
+      const pl = getPlayer(id);
+      let chunk = 0.4 + Math.abs(yards) * (pl.pos === "QB" ? 0.04 : 0.1);
+      if (kind === "td") chunk += pl.pos === "QB" ? 4 : 6;
+      if (kind === "int" || kind === "sack") chunk = Math.min(left, 1.2);
+      if (kind === "fg") chunk = Math.min(left, 3);
+      if (kind === "xp") chunk = Math.min(left, 1);
+      chunk = Math.min(left, Math.max(0.3, chunk));
+      remain[id] = Math.round((left - chunk) * 10) / 10;
+      out.push({ playerId: id, pts: Math.round(chunk * 10) / 10, board });
+    }
+    return out;
+  };
+
+  const plays: NightPlay[] = snaps.map((snap, i) => {
+    const alsoRaw = alsoQueue.length > 0 && i > 4 && i % 9 === 3 ? alsoQueue.shift() : null;
+    const also = alsoRaw
+      ? {
+          playerId: alsoRaw.playerId,
+          pts: alsoRaw.pts,
+          board: alsoRaw.board,
+          call: alsoCall(alsoRaw.playerId, alsoRaw.pts, opts.week),
+        }
+      : null;
+    return {
+      kind: snap.kind,
+      call: snap.call,
+      clock: snap.clock,
+      quarter: snap.quarter,
+      down: snap.down,
+      toGo: snap.toGo,
+      spot: snap.spot,
+      from: snap.from,
+      to: snap.to,
+      yards: snap.yards,
+      possession: snap.possession,
+      playerId: snap.playerId,
+      targetId: snap.targetId,
+      homeScore: snap.homeScore,
+      awayScore: snap.awayScore,
+      hold: holdFor(snap.kind) * 0.82 + (also ? 0.2 : 0),
+      ticks: tick([snap.playerId, snap.targetId], snap.kind, snap.yards),
+      also,
+    };
+  });
+
+  const lastSnap = snaps[snaps.length - 1]!;
+  if (opts.card.state !== "live") {
+    for (const id of ownedAll) {
+      const left = remain[id] ?? 0;
+      if (left <= 0.2) continue;
+      const pl = getPlayer(id);
+      const board = boardOf.get(id) ?? "home";
+      const last = plays[plays.length - 1]!;
+      plays.push({
+        kind: "also",
+        call: alsoCall(id, left, opts.week),
+        clock: last.clock,
+        quarter: last.quarter,
+        down: 1,
+        toGo: 10,
+        spot: 50,
+        from: 50,
+        to: 50,
+        yards: 0,
+        possession: "home",
+        playerId: id,
+        targetId: null,
+        homeScore: last.homeScore,
+        awayScore: last.awayScore,
+        hold: 1,
+        ticks: [{ playerId: id, pts: left, board }],
+        also: { playerId: id, call: `${pl.name} · rest of the night`, pts: left, board },
+      });
+      remain[id] = 0;
+    }
+    plays.push({
+      kind: "kneel",
+      call: `${featured.away.city} ${lastSnap.awayScore}, ${featured.home.city} ${lastSnap.homeScore}.`,
+      clock: "Final",
+      quarter: 4,
+      down: 1,
+      toGo: 10,
+      spot: 50,
+      from: 50,
+      to: 50,
+      yards: 0,
+      possession: "home",
+      playerId: null,
+      targetId: null,
+      homeScore: lastSnap.homeScore,
+      awayScore: lastSnap.awayScore,
+      hold: 1.4,
+      ticks: [],
+      also: null,
+    });
+  }
 
   return { featured, plays };
 }

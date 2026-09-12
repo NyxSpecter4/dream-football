@@ -32,10 +32,10 @@ export type SideBet = {
 };
 
 export const MIN_BID = 1;
-export const REGULAR_WEEKS = 7;
-export const PLAYOFF_WEEK = 8;
-export const CHAMPIONSHIP_WEEK = 9;
-export const TOTAL_WEEKS = 9;
+export const REGULAR_WEEKS = 14;
+export const PLAYOFF_WEEK = 15;
+export const CHAMPIONSHIP_WEEK = 16;
+export const TOTAL_WEEKS = 16;
 
 export type Player = {
   id: string;
@@ -163,4 +163,5 @@ export type SaveState = {
   mode: "solo" | "online";
   peerTeams: Record<string, string>;
   hostPeerId: string;
+  nflWeekStart: number;
 };

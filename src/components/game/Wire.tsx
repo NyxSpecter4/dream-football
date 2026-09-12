@@ -1,5 +1,6 @@
 import { useWire } from "@/game/wire";
 import { getPlayer } from "@/game/players";
+import { normAbbr } from "@/game/nfl";
 import { cn } from "@/lib/utils";
 import { fmtPts } from "./chrome";
 
@@ -50,11 +51,11 @@ export function WireStrip({
   return (
     <section>
       <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">
-        The wire · week {data.week}
+        The wire · real week {data.week}
       </p>
       <ul className="mt-2 flex flex-col gap-1">
         {games.map((g) => {
-          const hot = myNfl.has(g.homeAbbr) || myNfl.has(g.awayAbbr);
+          const hot = myNfl.has(normAbbr(g.homeAbbr)) || myNfl.has(normAbbr(g.awayAbbr));
           return (
             <li
               key={g.id}
@@ -84,7 +85,14 @@ export function WireStrip({
                 {getPlayer(id).name}
                 {st!.line ? <span className="text-muted"> · {st!.line}</span> : null}
               </span>
-              <span className="font-mono tabular-nums text-win">{fmtPts(st!.pts)}</span>
+              <span
+                className={cn(
+                  "font-mono tabular-nums",
+                  st!.state === "live" ? "text-win" : st!.state === "soon" ? "text-subtle" : "text-fg",
+                )}
+              >
+                {st!.state === "soon" ? `proj ${fmtPts(st!.proj)}` : fmtPts(st!.pts)}
+              </span>
             </li>
           ))}
         </ul>
@@ -102,7 +110,7 @@ export function WireStrip({
       )}
 
       <p className="mt-3 text-[11px] leading-relaxed text-subtle">
-        Public scores and reports. Not a league feed. Not ESPN.
+        Public scores and PPR from this NFL week. Same math as ESPN and Sleeper. Not a league feed.
       </p>
     </section>
   );

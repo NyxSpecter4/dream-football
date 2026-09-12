@@ -1,11 +1,15 @@
 import {
+  CHAMPIONSHIP_WEEK,
   FLEX_POSITIONS,
+  PLAYOFF_WEEK,
+  REGULAR_WEEKS,
   STARTER_SLOTS,
   TEAM_COUNT,
   type JerseyId,
   type LeagueTeam,
   type Lineup,
   type Matchup,
+  type Phase,
   type Player,
   type Position,
   type Roster,
@@ -184,6 +188,15 @@ export function roundRobin(teamIds: string[]): Matchup[][] {
   return weeks;
 }
 
+/** 8 clubs, each other twice — 14 regular weeks. */
+export function seasonSchedule(teamIds: string[]): Matchup[][] {
+  const first = roundRobin(teamIds);
+  const second = first.map((week) =>
+    week.map((m) => ({ homeId: m.awayId, awayId: m.homeId })),
+  );
+  return [...first, ...second];
+}
+
 export function buildLeague(
   humanName: string,
   humanShort: string,
@@ -239,4 +252,32 @@ export function teamById(teams: LeagueTeam[], id: string): LeagueTeam {
   const t = teams.find((x) => x.id === id);
   if (!t) throw new Error(`Unknown team ${id}`);
   return t;
+}
+
+export function opponentOf(
+  you: string,
+  week: number,
+  phase: Phase,
+  schedule: Matchup[][],
+  bracket: {
+    semiA: Matchup;
+    semiB: Matchup;
+    final: Matchup | null;
+    championId: string | null;
+  } | null,
+): string | null {
+  if (phase === "complete") return null;
+  if (week <= REGULAR_WEEKS) {
+    const m = (schedule[week - 1] ?? []).find((x) => x.homeId === you || x.awayId === you);
+    return m ? (m.homeId === you ? m.awayId : m.homeId) : null;
+  }
+  if (week === PLAYOFF_WEEK && bracket) {
+    const m = [bracket.semiA, bracket.semiB].find((x) => x.homeId === you || x.awayId === you);
+    return m ? (m.homeId === you ? m.awayId : m.homeId) : null;
+  }
+  if (week === CHAMPIONSHIP_WEEK && bracket?.final) {
+    const m = bracket.final;
+    if (m.homeId === you || m.awayId === you) return m.homeId === you ? m.awayId : m.homeId;
+  }
+  return null;
 }

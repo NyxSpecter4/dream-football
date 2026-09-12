@@ -5,6 +5,7 @@ export type RemoteAct =
   | { k: "nominate"; playerId: string }
   | { k: "bid"; amount: number }
   | { k: "pass" }
+  | { k: "fillRest" }
   | { k: "swap"; slot: Slot; benchId: string }
   | { k: "playWeek" }
   | { k: "closeTicker" }
@@ -86,6 +87,7 @@ export function pickSave(s: SaveState): SaveState {
     mode: s.mode,
     peerTeams: s.peerTeams,
     hostPeerId: s.hostPeerId,
+    nflWeekStart: s.nflWeekStart ?? 1,
   };
 }
 
