@@ -31,7 +31,7 @@ export function TitleScreen() {
             Eight teams · $200 cap
           </p>
           <h1 className="font-display text-6xl font-semibold tracking-tight text-fg sm:text-7xl">
-            Night League
+            Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
             You and a friend bid $200 on a roster. Seven weeks. Then four teams play for the title.

@@ -1,4 +1,4 @@
-# Night League
+# Dream Football
 
 $200 auction fantasy football. You and a friend bid on a roster. Seven weeks. Then four teams play for the title.
 
@@ -20,4 +20,4 @@ Empty seats play themselves. No accounts.
 
 ## Repo
 
-Dedicated home for this game: [NyxSpecter4/night-league](https://github.com/NyxSpecter4/night-league).
+Dedicated home for this game: [NyxSpecter4/dream-football](https://github.com/NyxSpecter4/dream-football).
