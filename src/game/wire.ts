@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { StatBox } from "./box";
 import { adoptBoard, getPlayer } from "./players";
 import type { Player } from "./types";
 import { normAbbr } from "./nfl";
@@ -68,6 +69,7 @@ export type WireStat = {
   line: string;
   done: boolean;
   state: "live" | "final" | "soon" | "bye";
+  box?: StatBox;
 };
 
 export type WirePayload = {

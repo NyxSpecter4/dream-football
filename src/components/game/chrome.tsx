@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { PLAYOFF_WEEK, CHAMPIONSHIP_WEEK, type JerseyId, type Player, type Position } from "@/game/types";
 import { marketValue } from "@/game/draft";
 import { fmtMoney } from "@/game/money";
+import { boxChips } from "@/game/box";
 import { dreamProj } from "@/game/project";
 import { nflContext } from "@/game/scoring";
 import { useGame } from "@/game/store";
@@ -79,6 +80,7 @@ export function PlayerRow({
   const ctx = nflContext(player.nfl, data?.games);
   const d = dreamProj(player, { sleeper: st?.proj, home: ctx ? ctx.home : null });
   const live = st?.state === "live";
+  const chips = st?.box ? boxChips(st.box, player.pos) : [];
   const Comp = onClick ? "button" : "div";
   return (
     <Comp
@@ -93,7 +95,10 @@ export function PlayerRow({
     >
       <PlayerMark player={player} live={live} />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-fg">{player.name}</span>
+        <span className="flex items-baseline gap-2">
+          <span className="truncate text-sm font-medium text-fg">{player.name}</span>
+          <PosChip pos={player.pos} />
+        </span>
         <span className="block font-mono text-[11px] text-muted">
           {player.nfl}
           {ctx ? ` · ${ctx.line}` : ` · bye ${player.bye}`}
@@ -101,6 +106,23 @@ export function PlayerRow({
             ? ` · ${st.pts.toFixed(1)}/${d.mid.toFixed(1)} PPR`
             : ` · ${d.mid.toFixed(1)} proj · ${d.floor.toFixed(0)}–${d.ceil.toFixed(0)}`}
         </span>
+        {chips.length > 0 && (
+          <span className="stagger-in mt-1.5 flex flex-wrap gap-1.5">
+            {chips.map((c) => (
+              <span
+                key={c.k}
+                className={cn(
+                  "stat-chip",
+                  live && "stat-chip-live",
+                  st?.box?.actual && "stat-chip-on",
+                )}
+              >
+                <span className="text-subtle">{c.k}</span> {c.v}
+                {!st?.box?.actual ? <span className="text-subtle"> proj</span> : null}
+              </span>
+            ))}
+          </span>
+        )}
       </span>
       {trailing ?? (
         <span className="font-mono text-sm tabular-nums text-muted">{fmtMoney(marketValue(player.id))}</span>

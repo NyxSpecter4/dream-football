@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { House, ListOrdered, Swords, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Field, fmtMoney, fmtPts, JerseyMark, PlayerRow, RoomBar, useLeaveRoom, WeekLabel } from "./chrome";
+import { Field, fmtMoney, fmtPts, JerseyMark, PlayerMark, PlayerRow, RoomBar, useLeaveRoom, WeekLabel } from "./chrome";
+import { boxChips } from "@/game/box";
 import { useGame } from "@/game/store";
 import { getPlayer } from "@/game/players";
 import { slotLabel, teamById, opponentOf, rosterPlayerIds, clubLine } from "@/game/league";
@@ -298,6 +299,7 @@ function RosterScreen() {
                 <span className="w-10 font-mono text-[11px] text-muted">{slotLabel(slot)}</span>
                 {pl && mark ? (
                   <>
+                    <PlayerMark player={pl} live={mark.state === "live"} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium">{pl.name}</span>
                       <span className="font-mono text-[11px] text-muted">
@@ -305,11 +307,21 @@ function RosterScreen() {
                         {bye ? " · bye" : ctx ? ` · ${ctx.line}` : ""}
                         {mark.line && !bye ? ` · ${mark.line}` : ""}
                       </span>
+                      {wire?.stats[pl.id]?.box && (
+                        <span className="stagger-in mt-1 flex flex-wrap gap-1">
+                          {boxChips(wire.stats[pl.id]!.box!, pl.pos).map((c) => (
+                            <span key={c.k} className={cn("stat-chip", mark.state === "live" && "stat-chip-live")}>
+                              <span className="text-subtle">{c.k}</span> {c.v}
+                            </span>
+                          ))}
+                        </span>
+                      )}
                     </span>
                     <span className="text-right">
                       <span
+                        key={mark.pts}
                         className={cn(
-                          "block font-mono text-sm tabular-nums",
+                          "pop-in block font-mono text-sm tabular-nums",
                           mark.state === "live" ? "text-win" : mark.state === "final" ? "text-fg" : "text-subtle",
                         )}
                       >

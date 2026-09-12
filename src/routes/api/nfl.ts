@@ -4,8 +4,9 @@ import { SLEEPER_IDS } from "@/game/sleeper-ids";
 import { expandBoard, loadSleeperPlayers, sleeperIdFor } from "@/game/sleeper-board";
 import { normAbbr } from "@/game/nfl";
 import { parseEspnSummary } from "@/game/pbp";
-import type { WireGame } from "@/game/wire";
+import type { WireGame, WireStat } from "@/game/wire";
 import type { Player } from "@/game/types";
+import { readBox } from "@/game/box";
 
 type Cache = { at: number; body: string; key: string };
 
@@ -229,10 +230,7 @@ async function build(weekHint = 0) {
       ? (projRaw.value as Record<string, Record<string, unknown>>)
       : {};
 
-  const mapped: Record<
-    string,
-    { pts: number; proj: number; line: string; done: boolean; state: "live" | "final" | "soon" | "bye" }
-  > = {};
+  const mapped: Record<string, WireStat> = {};
 
   let extra: Player[] = [];
   let sleeperRows: Awaited<ReturnType<typeof loadSleeperPlayers>> | null = null;
@@ -261,13 +259,15 @@ async function build(weekHint = 0) {
       : pl.bye === week
         ? "bye"
         : "soon";
-    const line = gState === "live" || gState === "final" ? flavor(st) : "";
+    const actual = gState === "live" || gState === "final";
+    const line = actual ? flavor(st) : "";
     mapped[pl.id] = {
       pts: Math.round(pts * 10) / 10,
       proj: Math.round(proj * 10) / 10,
       line,
       done: gState === "final",
       state: gState,
+      box: readBox(st, pj, actual),
     };
   }
 
