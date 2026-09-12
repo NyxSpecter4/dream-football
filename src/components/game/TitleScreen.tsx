@@ -62,7 +62,7 @@ export function TitleScreen() {
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            Draft a team. Score this week's real NFL games. Eight teams, one league.
+            $301.2M cap. $885K floor. This week's NFL scores. Eight clubs.
           </p>
         </div>
 

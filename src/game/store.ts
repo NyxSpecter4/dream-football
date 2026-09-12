@@ -50,7 +50,7 @@ import { capSpace, cpuRefresh, cutPlayerFromClub } from "./franchise";
 import { anyHumanCanBid, type LobbyIdentity, type MeshPeer, type RemoteAct } from "./net";
 import type { WireGame, WireStat } from "./wire";
 
-const SAVE_VERSION = 9;
+const SAVE_VERSION = 10;
 const CAREER_KEY = "night-league-career";
 let remoteApplying = false;
 let lastSoloPersist: Record<string, unknown> | null = null;
@@ -284,8 +284,9 @@ export const useGame = create<GameStore>()(
           return;
         }
         if (s.version !== SAVE_VERSION) {
-          if ((s.version === 6 || s.version === 7 || s.version === 8) && teamOk) {
-            const k = s.version === 8 ? 1 : 1000;
+          const staleCap = Object.values(s.budgets).some((n) => n > 0 && n <= 2500);
+          if (!staleCap && (s.version === 6 || s.version === 7 || s.version === 8 || s.version === 9) && teamOk) {
+            const k = s.version === 8 || s.version === 9 ? 1 : 1000;
             const block =
               k === 1
                 ? s.block
@@ -1206,7 +1207,7 @@ export const useGame = create<GameStore>()(
       },
     }),
     {
-      name: "night-league-save",
+      name: "dream-football-save",
       version: SAVE_VERSION,
       skipHydration: true,
       merge: (persisted, current) => {
