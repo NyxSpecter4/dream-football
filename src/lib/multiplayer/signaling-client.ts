@@ -263,7 +263,7 @@ type RoomState = {
 const rooms = new Map<string, RoomState>();
 
 function topicFor(room: string) {
-  return `dreamfootball/${room}`;
+  return `nightleague/${room}`;
 }
 
 function getRoom(room: string, peer: string): RoomState {
