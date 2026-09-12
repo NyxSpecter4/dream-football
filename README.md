@@ -1,8 +1,10 @@
 # Dream Football
 
-$200 auction fantasy football. You and a friend bid on a roster. Seven weeks. Then four teams play for the title.
+$200 auction fantasy football — and a night-stadium sim you watch when you can’t get the game on TV.
 
 Live: [nl-play.vercel.app](https://nl-play.vercel.app)
+
+**Watch tonight** is the same night for everyone. Real names, downs, a field. Simulated. Not an NFL broadcast.
 
 ## Play together
 
@@ -11,13 +13,14 @@ Live: [nl-play.vercel.app](https://nl-play.vercel.app)
 3. Text the 4-letter code.
 4. Friend: **Play with friends** → paste the code → **Join**.
 5. Host taps **Start auction**. Keep both pages open.
+6. After the draft, **Watch tonight**.
 
 Empty seats play themselves. No accounts.
 
 ## Solo
 
-**New season** on the title screen. Same auction, you vs seven clubs.
+**Watch tonight** from the title, or **New season** to bid $200.
 
 ## Repo
 
-Dedicated home for this game: [NyxSpecter4/dream-football](https://github.com/NyxSpecter4/dream-football).
+Dedicated home: [NyxSpecter4/night-league](https://github.com/NyxSpecter4/night-league)

@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "./chrome";
+import { NightBroadcast } from "./Broadcast";
 import { useGame } from "@/game/store";
 import { unlockAudio } from "@/game/audio";
 
@@ -10,7 +12,13 @@ export function TitleScreen() {
   const startSetup = useGame((s) => s.startSetup);
   const setScreen = useGame((s) => s.setScreen);
   const resetSeason = useGame((s) => s.resetSeason);
+  const watchNight = useGame((s) => s.watchNight);
+  const startWatchNight = useGame((s) => s.startWatchNight);
   const hasSave = teams.length > 0 && phase !== "complete";
+
+  if (watchNight) {
+    return <WatchNightScreen />;
+  }
 
   return (
     <Field>
@@ -28,23 +36,33 @@ export function TitleScreen() {
             <circle cx="24" cy="3" r="1.6" fill="currentColor" />
           </svg>
           <p className="mb-3 font-mono text-[11px] tracking-[0.22em] text-muted uppercase">
-            Eight teams · $200 cap
+            No Netflix. No Amazon. No Peacock.
           </p>
           <h1 className="font-display text-6xl font-semibold tracking-tight text-fg sm:text-7xl">
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            You and a friend bid $200 on a roster. Seven weeks. Then four teams play for the title.
+            Sit the night. Watch a stadium sim of the week with real names, then play it with your friend on a $200 board.
           </p>
           <p className="mt-3 max-w-sm text-sm text-subtle">
-            This chat is just a preview. Cindy needs the live link on her phone.
+            Not a scoreboard. Not a league feed. A game you can actually watch.
           </p>
         </div>
 
         <div className="flex flex-col gap-3 pb-8">
+          <Button
+            size="lg"
+            onClick={() => {
+              unlockAudio();
+              startWatchNight();
+            }}
+          >
+            Watch tonight
+          </Button>
           {hasSave && (
             <Button
               size="lg"
+              variant="secondary"
               onClick={() => {
                 unlockAudio();
                 setScreen(phase === "draft" ? "draft" : "home");
@@ -55,7 +73,7 @@ export function TitleScreen() {
           )}
           <Button
             size="lg"
-            variant={hasSave ? "secondary" : "primary"}
+            variant="secondary"
             onClick={() => {
               unlockAudio();
               if (hasSave) resetSeason();
@@ -66,7 +84,7 @@ export function TitleScreen() {
           </Button>
           <Button
             size="lg"
-            variant="secondary"
+            variant="ghost"
             onClick={() => {
               unlockAudio();
               setScreen("lobby");
@@ -83,6 +101,80 @@ export function TitleScreen() {
             {career.bestFinish ? ` · best ${ordinal(career.bestFinish)}` : ""}
           </p>
         )}
+      </main>
+    </Field>
+  );
+}
+
+function WatchNightScreen() {
+  const night = useGame((s) => s.watchNight);
+  const endWatchNight = useGame((s) => s.endWatchNight);
+  const reshuffleWatchNight = useGame((s) => s.reshuffleWatchNight);
+  const startSetup = useGame((s) => s.startSetup);
+  const setScreen = useGame((s) => s.setScreen);
+  const [done, setDone] = useState(false);
+
+  if (!night) return null;
+
+  return (
+    <Field>
+      <main className="mx-auto min-h-dvh max-w-3xl px-5 pb-16 pt-8">
+        <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Tonight · week {night.week}</p>
+        <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">The night</h1>
+        <p className="mt-2 max-w-md text-sm text-muted">
+          Same night, same game — anyone who sits down tonight sees this board.
+        </p>
+
+        <div className="mt-6">
+          <NightBroadcast
+            key={`${night.seed}-${night.week}`}
+            week={night.week}
+            seed={night.seed}
+            homeName="Home"
+            awayName="Away"
+            homeJersey="pine"
+            awayJersey="bone"
+            homePts={{}}
+            awayPts={{}}
+            live={!done}
+            board={false}
+            onDone={() => setDone(true)}
+          />
+        </div>
+
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+          {done && (
+            <Button
+              onClick={() => {
+                setDone(false);
+                reshuffleWatchNight();
+              }}
+            >
+              Another night
+            </Button>
+          )}
+          <Button
+            variant="secondary"
+            onClick={() => {
+              endWatchNight();
+              startSetup();
+            }}
+          >
+            Bid $200
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              endWatchNight();
+              setScreen("lobby");
+            }}
+          >
+            Play with friends
+          </Button>
+          <Button variant="ghost" onClick={() => endWatchNight()}>
+            Back
+          </Button>
+        </div>
       </main>
     </Field>
   );

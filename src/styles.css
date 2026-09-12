@@ -10,6 +10,8 @@
   --color-accent: #e8ece6;
   --color-accent-fg: #0c0f0c;
   --color-field: #3d6b4f;
+  --color-turf: #142218;
+  --color-turf-end: #1e3a2a;
   --color-win: #7dba8e;
   --color-loss: #c46b6b;
   --color-border: color-mix(in oklab, #eef2ec 12%, transparent);
@@ -169,6 +171,10 @@
 
 .pop-in {
   animation: number-pop 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.broadcast-ball {
+  transition: cx 700ms cubic-bezier(0.22, 1, 0.36, 1), cy 500ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { House, ListOrdered, Swords, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Field, fmtPts, JerseyMark, PlayerRow, PosChip, RoomBar, useLeaveRoom, WeekLabel } from "./chrome";
+import { Field, fmtPts, JerseyMark, PlayerRow, RoomBar, useLeaveRoom, WeekLabel } from "./chrome";
 import { useGame } from "@/game/store";
 import { getPlayer } from "@/game/players";
 import { slotLabel, teamById } from "@/game/league";
-import { flavorLine, freeAgents, ownedSet, remainingValue, standings } from "@/game/simulate";
-import { sfxScore, sfxWin, sfxLoss } from "@/game/audio";
+import { freeAgents, ownedSet, remainingValue, standings } from "@/game/simulate";
+import { NightBroadcast } from "./Broadcast";
 import { cn } from "@/lib/utils";
+import { sfxWin, sfxLoss } from "@/game/audio";
 import { REGULAR_WEEKS, STARTER_SLOTS, type Screen, type Slot } from "@/game/types";
 
 export function LeagueApp() {
@@ -31,7 +32,7 @@ function LeagueNav() {
   const items: Array<{ id: Screen; label: string; icon: typeof House }> = [
     { id: "home", label: "Home", icon: House },
     { id: "roster", label: "Roster", icon: Users },
-    { id: "matchup", label: "Matchup", icon: Swords },
+    { id: "matchup", label: "Watch", icon: Swords },
     { id: "standings", label: "Table", icon: ListOrdered },
   ];
   return (
@@ -140,7 +141,7 @@ function HomeScreen() {
               <h2 className="mt-2 font-display text-3xl font-semibold">{teamById(teams, opponentId).name}</h2>
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                 <Button disabled={Boolean(ticker)} onClick={playWeek}>
-                  Play {week <= REGULAR_WEEKS ? "week" : week === 8 ? "semi" : "final"}
+                  Watch {week <= REGULAR_WEEKS ? "tonight" : week === 8 ? "the semi" : "the final"}
                 </Button>
                 <Button variant="secondary" onClick={() => setScreen("roster")}>
                   Set lineup
@@ -296,6 +297,7 @@ function MatchupScreen() {
   const you = useGame((s) => s.playerTeamId);
   const week = useGame((s) => s.week);
   const seasonSeed = useGame((s) => s.seasonSeed);
+  const rosters = useGame((s) => s.rosters);
   const skipTicker = useGame((s) => s.skipTicker);
   const closeTicker = useGame((s) => s.closeTicker);
   const setScreen = useGame((s) => s.setScreen);
@@ -303,28 +305,6 @@ function MatchupScreen() {
 
   const playedWeek = ticker?.week ?? (results[week - 1] ? week - 1 : week);
   const box = results[playedWeek]?.[you];
-
-  useEffect(() => {
-    if (!ticker || ticker.done) return;
-    let raf = 0;
-    let acc = 0;
-    let last = performance.now();
-    const reduced =
-      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const loop = (now: number) => {
-      const dt = Math.min(0.1, (now - last) / 1000);
-      last = now;
-      acc += dt;
-      if (acc >= (reduced ? 0.05 : 0.42)) {
-        acc = 0;
-        sfxScore();
-        useGame.getState().tickReveal();
-      }
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, [ticker?.done, ticker?.week]);
 
   useEffect(() => {
     if (!ticker?.done || !box) return;
@@ -335,8 +315,8 @@ function MatchupScreen() {
   if (!box && !ticker) {
     return (
       <main className="px-5 pt-8">
-        <h1 className="font-display text-4xl font-semibold tracking-tight">Matchup</h1>
-        <p className="mt-3 text-sm text-muted">No game on the slate yet. Set your lineup, then play from Home.</p>
+        <h1 className="font-display text-4xl font-semibold tracking-tight">Watch</h1>
+        <p className="mt-3 text-sm text-muted">Nothing on tonight. Set your lineup, then watch from Home.</p>
         <Button className="mt-6" onClick={() => setScreen("home")}>
           Home
         </Button>
@@ -348,45 +328,37 @@ function MatchupScreen() {
   const away = ticker?.awayId ?? box?.opponentId ?? you;
   const homeTeam = teamById(teams, home);
   const awayTeam = teamById(teams, away);
-  const homePts = sumRevealed(ticker, results, playedWeek, home);
-  const awayPts = sumRevealed(ticker, results, playedWeek, away);
-  const max = Math.max(homePts, awayPts, 1);
-  const lastId = ticker && ticker.index > 0 ? ticker.order[ticker.index - 1] : null;
+  const homeBox = results[playedWeek]?.[home];
+  const awayBox = results[playedWeek]?.[away];
 
   return (
     <main className="px-5 pt-8">
       <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">
         <WeekLabel week={playedWeek} phase={phase} />
       </p>
-      <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Live</h1>
+      <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Tonight</h1>
+      <p className="mt-2 text-sm text-muted">The game, then your board. Sit with it.</p>
 
-      <div className="mt-6 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
-        <ScoreLine name={homeTeam.name} jersey={homeTeam.jersey} pts={homePts} max={max} />
-        <div className="mt-4" />
-        <ScoreLine name={awayTeam.name} jersey={awayTeam.jersey} pts={awayPts} max={max} />
+      <div className="mt-6">
+        {homeBox && awayBox && rosters[home] && rosters[away] && (
+          <NightBroadcast
+            week={playedWeek}
+            seed={seasonSeed}
+            homeName={homeTeam.name}
+            awayName={awayTeam.name}
+            homeJersey={homeTeam.jersey}
+            awayJersey={awayTeam.jersey}
+            homeRoster={rosters[home]!}
+            awayRoster={rosters[away]!}
+            homePts={homeBox.playerPoints}
+            awayPts={awayBox.playerPoints}
+            live={Boolean(ticker && !ticker.done)}
+            onDone={skipTicker}
+          />
+        )}
       </div>
 
-      {lastId && ticker && (
-        <div className="pop-in mt-5 rounded-lg bg-surface-2 px-4 py-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="flex items-center gap-2 text-sm">
-              <PosChip pos={getPlayer(lastId).pos} />
-              {getPlayer(lastId).name}
-            </span>
-            <span className="font-mono text-lg tabular-nums">{fmtPts(ticker.revealed[lastId] ?? 0)}</span>
-          </div>
-          <p className="mt-1 font-mono text-[11px] text-muted">
-            {flavorLine(getPlayer(lastId), ticker.revealed[lastId] ?? 0, playedWeek, seasonSeed)}
-          </p>
-        </div>
-      )}
-
       <div className="mt-6 flex gap-2">
-        {ticker && !ticker.done && (
-          <Button variant="secondary" onClick={skipTicker}>
-            Skip
-          </Button>
-        )}
         {ticker?.done && (
           <Button onClick={closeTicker}>{phase === "complete" ? "Final table" : "Continue"}</Button>
         )}
@@ -399,54 +371,6 @@ function MatchupScreen() {
       )}
     </main>
   );
-}
-
-function ScoreLine({
-  name,
-  jersey,
-  pts,
-  max,
-}: {
-  name: string;
-  jersey: "pine" | "steel" | "ember" | "midnight" | "bone" | "harbor";
-  pts: number;
-  max: number;
-}) {
-  return (
-    <div>
-      <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2 text-sm">
-          <JerseyMark jersey={jersey} />
-          {name}
-        </span>
-        <span className="font-mono text-xl tabular-nums">{fmtPts(pts)}</span>
-      </div>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg">
-        <div
-          className="h-full bg-field transition-[width] duration-300"
-          style={{ width: `${Math.min(100, (pts / max) * 100)}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function sumRevealed(
-  ticker: ReturnType<typeof useGame.getState>["ticker"],
-  results: ReturnType<typeof useGame.getState>["results"],
-  week: number,
-  teamId: string,
-) {
-  const box = results[week]?.[teamId];
-  if (!box) return 0;
-  if (!ticker || ticker.done) return box.points;
-  const roster = useGame.getState().rosters[teamId];
-  const starterIds = new Set(STARTER_SLOTS.map((s) => roster?.lineup[s]).filter(Boolean));
-  let sum = 0;
-  for (const [id, pts] of Object.entries(ticker.revealed)) {
-    if (starterIds.has(id)) sum += pts;
-  }
-  return Math.round(sum * 10) / 10;
 }
 
 function StandingsScreen() {

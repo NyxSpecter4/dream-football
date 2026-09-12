@@ -41,9 +41,10 @@ import {
   standings,
 } from "./simulate";
 import { getPlayer } from "./players";
+import { calendarNight } from "./nfl";
 import { anyHumanCanBid, type LobbyIdentity, type MeshPeer, type RemoteAct } from "./net";
 
-const SAVE_VERSION = 3;
+const SAVE_VERSION = 4;
 const CAREER_KEY = "night-league-career";
 let remoteApplying = false;
 let lastSoloPersist: Record<string, unknown> | null = null;
@@ -141,6 +142,7 @@ type GameStore = SaveState & {
   lobbySeats: Record<string, LobbyIdentity>;
   mesh: { joined: boolean; peers: MeshPeer[] };
   lateJoinBlocked: boolean;
+  watchNight: { seed: number; week: number } | null;
   setHydrated: () => void;
   setScreen: (screen: Screen) => void;
   startSetup: () => void;
@@ -177,6 +179,9 @@ type GameStore = SaveState & {
     lastSold: { playerId: string; teamId: string; price: number } | null,
   ) => void;
   applyRemote: (fromPeerId: string, act: RemoteAct) => void;
+  startWatchNight: () => void;
+  reshuffleWatchNight: () => void;
+  endWatchNight: () => void;
 };
 
 function guestSend(get: () => GameStore, act: RemoteAct): boolean {
@@ -231,6 +236,7 @@ export const useGame = create<GameStore>()(
       ticker: null,
       lastSold: null,
       applyingRemote: false,
+      watchNight: null,
       ...offlineFields(),
 
       setHydrated: () => {
@@ -240,7 +246,7 @@ export const useGame = create<GameStore>()(
           return;
         }
         const teamOk = s.teams.some((t) => t.id === s.playerTeamId);
-        if (s.mode === "online" || !teamOk) {
+        if (s.mode === "online" || !teamOk || s.version !== SAVE_VERSION) {
           set({
             ...emptySave(),
             hydrated: true,
@@ -526,6 +532,13 @@ export const useGame = create<GameStore>()(
       setPauseEvery: (v) => set({ pauseEvery: v }),
       setAutoFill: (v) => set({ autoFill: v, nominating: v ? false : get().nominating }),
 
+      startWatchNight: () => set({ watchNight: calendarNight() }),
+      reshuffleWatchNight: () => {
+        const n = calendarNight();
+        set({ watchNight: { week: n.week, seed: (Math.floor(Math.random() * 1e9) + Date.now()) >>> 0 } });
+      },
+      endWatchNight: () => set({ watchNight: null }),
+
       swapSlot: (slot, benchId, teamId) => {
         if (guestSend(get, { k: "swap", slot, benchId })) return;
         const s = get();
@@ -776,6 +789,7 @@ export const useGame = create<GameStore>()(
           career: get().career,
           ticker: null,
           lastSold: null,
+          watchNight: null,
           hydrated: true,
           screen: "title",
           applyingRemote: false,
@@ -814,6 +828,7 @@ export const useGame = create<GameStore>()(
           career,
           ticker: null,
           lastSold: null,
+          watchNight: null,
           hydrated: true,
           screen: "title",
           applyingRemote: false,
