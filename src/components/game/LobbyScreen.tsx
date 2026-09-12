@@ -79,10 +79,10 @@ function LobbyGate() {
         </h1>
         <p className="mt-2 text-sm text-muted">
           {pending
-            ? "Name your club, then sit the table. Same $200 auction as everyone else."
+            ? "Name your club, then sit. Same $200 board as everyone else."
             : isLiveShareHost()
-              ? "Private $200 auction. Empty seats fill with CPU clubs. Share a 4-letter code — no accounts."
-              : "Friends can’t join this window. Publish Night League, open that page on each phone, then host or join with a code."}
+              ? "Host gets a 4-letter code. Friend opens this same page and joins. Empty seats play themselves."
+              : "Cindy can’t join from this preview. Open the live Night League link on both phones, then host or join."}
         </p>
 
         <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Team name</label>
@@ -93,7 +93,7 @@ function LobbyGate() {
           className="mt-2 h-12 rounded-lg bg-surface px-4 text-base text-fg shadow-[var(--shadow-border)] outline-none focus:ring-2 focus:ring-accent/40"
         />
 
-        <label className="mt-5 text-xs font-medium tracking-wide text-muted uppercase">Letters</label>
+        <label className="mt-5 text-xs font-medium tracking-wide text-muted uppercase">Tag</label>
         <input
           value={short}
           maxLength={4}
@@ -237,12 +237,12 @@ function WaitingRoom() {
         <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Night League</h1>
         <p className="mt-2 text-sm text-muted">
           {lateJoinBlocked
-            ? "This auction already started without you. Leave and host a new room."
+            ? "This game already started. Leave and host a new room."
             : !liveShare
-              ? "This window is only you. Publish the app, open the live grok.me page on each phone, then use this code."
+              ? "This preview is only you. Open the live link on each phone, then use this code."
               : isHost
-                ? "Send the code. Friends open this same page, tap Play with friends, and join."
-                : "Waiting on the host to open the auction. Stay in this tab."}
+                ? "Text Cindy the code. She opens the same link, taps Play with friends, and joins."
+                : "Waiting on the host. Stay on this page."}
         </p>
 
         <div className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
@@ -290,7 +290,7 @@ function WaitingRoom() {
             Array.from({ length: cpuFill }).map((_, i) => (
               <li key={`cpu-${i}`} className="flex min-h-14 items-center gap-3 px-4 text-subtle">
                 <span className="size-2.5 rounded-full bg-surface-2" />
-                <span className="text-sm">CPU club</span>
+                <span className="text-sm">Open seat</span>
               </li>
             ))}
         </ul>
@@ -301,11 +301,11 @@ function WaitingRoom() {
           </Button>
         ) : (
           <p className="mt-8 text-sm text-muted">
-            {lateJoinBlocked ? "The board is already live." : "The host starts the board. Stay in this tab."}
+            {lateJoinBlocked ? "The board is already live." : "The host starts. Stay on this page."}
           </p>
         )}
         <p className="mt-3 font-mono text-xs tabular-nums text-subtle">
-          {liveCount} manager{liveCount === 1 ? "" : "s"} · {cpuFill} CPU
+          {liveCount} live · {cpuFill} open
         </p>
       </main>
     </Field>

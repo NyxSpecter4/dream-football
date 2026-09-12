@@ -34,10 +34,10 @@ export function TitleScreen() {
             Night League
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            Auction draft a roster. Bid on anyone. Seven weeks, then the field of four.
+            You and a friend bid $200 on a roster. Seven weeks. Then four teams play for the title.
           </p>
           <p className="mt-3 max-w-sm text-sm text-subtle">
-            Friends play on the published page — not this chat window. Same link, then a room code.
+            This chat is just a preview. Cindy needs the live link on her phone.
           </p>
         </div>
 
