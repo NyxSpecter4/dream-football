@@ -63,7 +63,7 @@ export function TitleScreen() {
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            You, Cindy, and the Sunday desk. They bid like the show. They remember who beat them.
+            Solo or with Cindy. Same league. Sleeper’s public board feeds the names — we don’t live inside their app.
           </p>
           <div className="mt-8">
             <RoundTable />
@@ -95,7 +95,7 @@ export function TitleScreen() {
               startSeason("Dream", "DRM", "midnight", "Dallas", "Trinity Field");
             }}
           >
-            Start a club
+            Start solo
           </Button>
           <Button
             size="lg"

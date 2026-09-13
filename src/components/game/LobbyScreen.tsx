@@ -10,6 +10,7 @@ import { TEAM_COUNT, type JerseyId } from "@/game/types";
 import { cn } from "@/lib/utils";
 import { unlockAudio } from "@/game/audio";
 import { RoundTable } from "./RoundTable";
+import { GROK_BOTS } from "@/game/bots";
 
 export function LobbyScreen() {
   const online = useGame((s) => s.online);
@@ -293,7 +294,9 @@ function WaitingRoom() {
 
         {!mesh.joined && <p className="mt-5 text-sm text-muted">Connecting… keep this page open.</p>}
         {mesh.joined && liveCount < 2 && isHost && (
-          <p className="mt-5 text-sm text-muted">Waiting for her to join. Wi-Fi is more reliable than cell.</p>
+          <p className="mt-5 text-sm text-muted">
+            Cindy isn’t in yet. Start vs the desk now, or wait and start with her.
+          </p>
         )}
         {hostMissing && !lateJoinBlocked && (
           <p className="mt-5 text-sm text-loss">Host left. Leave and host a new room.</p>
@@ -320,17 +323,22 @@ function WaitingRoom() {
             </li>
           ))}
           {cpuFill > 0 &&
-            Array.from({ length: cpuFill }).map((_, i) => (
-              <li key={`cpu-${i}`} className="flex min-h-14 items-center gap-3 px-4 text-subtle">
-                <span className="size-2.5 rounded-full bg-surface-2" />
-                <span className="text-sm">Open seat</span>
+            GROK_BOTS.slice(0, cpuFill).map((b) => (
+              <li key={b.manager} className="flex min-h-14 items-center gap-3 px-4">
+                {b.avatar ? (
+                  <img src={b.avatar} alt="" className="size-6 rounded-full object-cover" />
+                ) : (
+                  <span className="size-2.5 rounded-full bg-surface-2" />
+                )}
+                <span className="min-w-0 flex-1 truncate text-sm">{b.manager}</span>
+                <span className="font-mono text-[11px] text-muted">{b.desk.replace("The ", "")}</span>
               </li>
             ))}
         </ul>
 
         {isHost && !lateJoinBlocked ? (
           <Button size="lg" className="mt-8" disabled={!localPeerId} onClick={start}>
-            Start the draft
+            {liveCount >= 2 ? "Start with Cindy" : "Start vs the desk"}
           </Button>
         ) : (
           <p className="mt-8 text-sm text-muted">

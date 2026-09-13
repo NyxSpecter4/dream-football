@@ -40,6 +40,7 @@ export function AuctionScreen() {
   const { data: wire } = useWire();
   const plan: AuctionPlan = "balanced";
   const [filter, setFilter] = useState<Position | "ALL">("ALL");
+  const [q, setQ] = useState("");
   const [soldFlash, setSoldFlash] = useState(lastSold);
   const [guide, setGuide] = useState(false);
   const guideRef = useRef(false);
@@ -63,8 +64,13 @@ export function AuctionScreen() {
     const ids = availablePlayers(owned);
     return ids
       .map(getPlayer)
-      .filter((p) => (filter === "ALL" ? true : p.pos === filter));
-  }, [owned, filter, wire?.board]);
+      .filter((p) => (filter === "ALL" ? true : p.pos === filter))
+      .filter((p) => {
+        const s = q.trim().toLowerCase();
+        if (!s) return true;
+        return p.name.toLowerCase().includes(s) || p.nfl.toLowerCase().includes(s);
+      });
+  }, [owned, filter, wire?.board, q]);
 
   useEffect(() => {
     let raf = 0;
@@ -168,7 +174,8 @@ export function AuctionScreen() {
         </ul>
 
         <p className="mt-3 font-mono text-xs tabular-nums text-subtle">
-          {filled}/{totalLots} signed
+          {filled}/{totalLots} signed · {owned.size} owned · {pool.length} left on the board
+          {wire?.board?.length ? " · Sleeper live" : ""}
         </p>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-surface-2">
           <div
@@ -226,8 +233,14 @@ export function AuctionScreen() {
                 </button>
               ))}
             </div>
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search a name"
+              className="mt-3 h-11 w-full rounded-lg bg-surface px-3 text-sm text-fg shadow-[var(--shadow-border)] outline-none focus:ring-2 focus:ring-accent/40"
+            />
             <ul className="mt-3 flex flex-col gap-1.5">
-              {pool.slice(0, 24).map((pl) => (
+              {pool.slice(0, 80).map((pl) => (
                 <li key={pl.id}>
                   <PlayerRow
                     player={pl}

@@ -20,7 +20,7 @@ if (overlay) {
   await page.keyboard.press("Escape");
   await page.evaluate(() => document.querySelector("vite-error-overlay")?.remove());
 }
-const start = page.getByRole("button", { name: /start a club/i });
+const start = page.getByRole("button", { name: /start solo|start a club/i });
 if (!(await start.count())) fail.push("no Start a club");
 else await start.first().click({ force: true });
 
