@@ -42,9 +42,9 @@ function LeagueNav() {
   const screen = useGame((s) => s.screen);
   const setScreen = useGame((s) => s.setScreen);
   const items: Array<{ id: Screen; label: string; icon: typeof House }> = [
-    { id: "home", label: "Home", icon: House },
-    { id: "roster", label: "Roster", icon: Users },
-    { id: "matchup", label: "Watch", icon: Swords },
+    { id: "home", label: "Club", icon: House },
+    { id: "roster", label: "Squad", icon: Users },
+    { id: "matchup", label: "Match", icon: Swords },
     { id: "standings", label: "Table", icon: ListOrdered },
   ];
   return (
@@ -71,6 +71,34 @@ function LeagueNav() {
         })}
       </ul>
     </nav>
+  );
+}
+
+function StarterDesk({ roster, week }: { roster: import("@/game/types").Roster; week: number }) {
+  const { data: wire } = useWire();
+  const ids = STARTER_SLOTS.map((s) => roster.lineup[s]).filter((id): id is string => Boolean(id));
+  const holes = STARTER_SLOTS.length - ids.length;
+  const hurt = ids.map(getPlayer).filter((p) => p.injury);
+  const live = scoreRosterLive(roster, week, useGame.getState().seasonSeed, wire?.stats, wire?.games, false);
+  return (
+    <section className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+      <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Squad this week</p>
+      <p className="mt-2 font-display text-2xl font-semibold tabular-nums">
+        {fmtPts(live.points)} <span className="text-muted">live</span>
+        <span className="text-subtle"> / {fmtPts(live.proj)} proj</span>
+      </p>
+      {holes > 0 && <p className="mt-2 text-sm text-loss">{holes} starter hole{holes === 1 ? "" : "s"}. Set lineup.</p>}
+      {hurt.length > 0 && (
+        <ul className="mt-2 space-y-1">
+          {hurt.map((p) => (
+            <li key={p.id} className="text-sm">
+              <span className="font-mono text-[10px] text-loss">{p.injury}</span> {p.name}
+            </li>
+          ))}
+        </ul>
+      )}
+      {holes === 0 && hurt.length === 0 && <p className="mt-2 text-sm text-muted">Starters in. No injury tags.</p>}
+    </section>
   );
 }
 
@@ -141,7 +169,10 @@ function HomeScreen() {
         {rank ? ` · ${rank} of 8` : ""}
       </p>
       {online && <RoomBar className="mt-3" />}
-      <p className="mt-2 font-mono text-sm tabular-nums text-muted">House bank {fmtMoney(cash)}</p>
+
+      {roster && (
+        <StarterDesk roster={roster} week={week} />
+      )}
 
       {phase === "complete" && bracket?.championId && (
         <section className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
@@ -188,11 +219,9 @@ function HomeScreen() {
                   : "Live PPR on this NFL week. Names that haven't kicked sit at 0.0."}
               </p>
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-                <Button disabled={Boolean(ticker)} onClick={() => setScreen("matchup")}>
-                  This week's matchup
-                </Button>
-                <Button variant="secondary" onClick={() => setScreen("roster")}>
-                  Set lineup
+                <Button onClick={() => setScreen("roster")}>Set lineup</Button>
+                <Button variant="secondary" disabled={Boolean(ticker)} onClick={() => setScreen("matchup")}>
+                  This week's match
                 </Button>
                 <Button variant="secondary" disabled={Boolean(ticker)} onClick={playWeek}>
                   {nflLive ? "Score this week" : "Play the week"}

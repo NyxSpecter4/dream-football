@@ -56,13 +56,13 @@ export function TitleScreen() {
             <circle cx="24" cy="3" r="1.6" fill="currentColor" />
           </svg>
           <p className="mb-3 font-mono text-[11px] tracking-[0.22em] text-muted uppercase">
-            Fantasy football
+            Fantasy manager
           </p>
           <h1 className="font-display text-6xl font-semibold tracking-tight text-fg sm:text-7xl">
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            Draft 10 NFL players. $301.2M. Score this Sunday.
+            You run the club. Sign players, set the lineup, play this week's NFL. Keep the team next year.
           </p>
         </div>
 
@@ -91,7 +91,7 @@ export function TitleScreen() {
               startSeason("Dream", "DRM", "midnight", "Dallas", "Trinity Field");
             }}
           >
-            Start the draft
+            Start a club
           </Button>
           <Button
             size="lg"
