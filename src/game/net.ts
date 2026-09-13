@@ -113,20 +113,20 @@ export function parseRoomCode(raw: string): string | null {
   return code;
 }
 
+export const PLAY_URL = "https://nl-play.vercel.app";
+
 export function isLiveShareHost(
   hostname = typeof window === "undefined" ? "" : window.location.hostname,
 ) {
   const h = hostname.toLowerCase();
   if (!h) return false;
   if (h === "localhost" || h === "127.0.0.1" || h === "[::1]") return false;
-  if (h === "grok-sandbox.com" || h.endsWith(".grok-sandbox.com")) return false;
+  if (h.includes("grok")) return false;
   return true;
 }
 
 export function roomShareUrl(code: string): string | null {
-  if (typeof window === "undefined" || !isLiveShareHost()) return null;
-  const path = window.location.pathname.replace(/\/$/, "");
-  return `${window.location.origin}${path === "/" ? "" : path}?room=${code}`;
+  return `${PLAY_URL}?room=${code}`;
 }
 
 export function p2pRoomId(code: string) {

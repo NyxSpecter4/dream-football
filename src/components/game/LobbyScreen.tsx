@@ -82,7 +82,7 @@ function LobbyGate() {
           {pending
             ? "Your name. Join. The Sunday desk already sits the other seats."
             : isLiveShareHost()
-              ? "Host. Send Cindy the 4-letter code. The desk fills the table."
+              ? "Host. Send Cindy this link. Both stay on nl-play.vercel.app — not grok.me."
               : "Both of you open nl-play.vercel.app. The Sunday desk takes the other seats."}
         </p>
 
@@ -263,9 +263,9 @@ function WaitingRoom() {
           {lateJoinBlocked
             ? "This game already started. Leave and host a new room."
             : !liveShare
-              ? "This preview is only you. Open the live link on each phone, then use this code."
+              ? "This Grok preview cannot reach her phone. Both of you open nl-play.vercel.app — same site, then this code."
               : isHost
-                ? "Text her the code OR the link. She stays on this site. Both stay on this page."
+                ? "Both phones on the SAME site. Not grok.me. Text her the link. Stay on this page."
                 : "You're in. Wait for the host. Don't leave this page."}
         </p>
 

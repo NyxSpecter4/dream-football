@@ -344,7 +344,7 @@ const httpOnly: Signaling = httpSignaling;
 
 export function getSignaling(): Signaling {
   if (typeof window === "undefined") return httpOnly;
-  return isPublicShareHost() ? mqttSignaling : httpOnly;
+  return mqttSignaling;
 }
 
 function encodeMqttString(s: string): Uint8Array {
