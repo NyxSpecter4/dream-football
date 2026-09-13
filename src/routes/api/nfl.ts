@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PLAYERS } from "@/game/players";
 import { SLEEPER_IDS } from "@/game/sleeper-ids";
-import { expandBoard, loadSleeperPlayers, sleeperIdFor } from "@/game/sleeper-board";
+import { expandBoard, loadSleeperPlayers, sleeperIdFor, stampInjuries } from "@/game/sleeper-board";
 import { normAbbr } from "@/game/nfl";
 import { parseEspnSummary } from "@/game/pbp";
 import type { WireGame, WireStat } from "@/game/wire";
@@ -237,6 +237,8 @@ async function build(weekHint = 0) {
   try {
     sleeperRows = await loadSleeperPlayers();
     extra = expandBoard(sleeperRows, projs);
+    stampInjuries(PLAYERS, sleeperRows);
+    stampInjuries(extra, sleeperRows);
   } catch {
     extra = [];
   }

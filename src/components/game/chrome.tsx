@@ -100,6 +100,11 @@ export function PlayerRow({
         <span className="flex items-baseline gap-2">
           <span className="truncate text-sm font-medium text-fg">{player.name}</span>
           <PosChip pos={player.pos} />
+          {player.injury && (
+            <span className={cn("font-mono text-[10px] font-semibold", player.injury === "OUT" ? "text-loss" : "text-live")}>
+              {player.injury}
+            </span>
+          )}
         </span>
         <span className="block font-mono text-[11px] text-muted">
           {player.nfl}

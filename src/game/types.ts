@@ -52,6 +52,7 @@ export type Player = {
   ovr: number;
   boom: number;
   durability: number;
+  injury?: string;
 };
 
 export type JerseyId = "pine" | "steel" | "ember" | "midnight" | "bone" | "harbor";

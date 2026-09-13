@@ -54,6 +54,16 @@ function norm(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function injTag(raw: string | null | undefined) {
+  const s = (raw || "").toLowerCase();
+  if (!s) return "";
+  if (s.includes("out") || s === "ir" || s.includes("injured reserve")) return "OUT";
+  if (s.includes("pup") || s.includes("nfi") || s.includes("suspend")) return "OUT";
+  if (s.includes("doubt")) return "D";
+  if (s.includes("question")) return "Q";
+  return "";
+}
+
 function ovrFrom(pos: Position, proj: number, rank: number) {
   if (proj > 0) {
     const scale = pos === "QB" ? 3.1 : pos === "RB" || pos === "WR" ? 4.2 : pos === "TE" ? 5.4 : 6.2;
@@ -143,6 +153,7 @@ export function expandBoard(
       ovr: ovrFrom(pos, proj, rank),
       boom: 0.22,
       durability: row.injury_status ? 0.74 : 0.86,
+      injury: injTag(row.injury_status) || undefined,
     });
   }
 
@@ -155,4 +166,13 @@ export function expandBoard(
     );
   });
   return extra;
+}
+
+export function stampInjuries(players: Player[], rows: Record<string, SleeperRow>) {
+  for (const pl of players) {
+    const sid = sleeperIdFor(pl, rows);
+    if (!sid) continue;
+    const tag = injTag(rows[sid]?.injury_status);
+    if (tag) pl.injury = tag;
+  }
 }

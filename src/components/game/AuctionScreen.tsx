@@ -3,16 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Field, JerseyMark, PlayerRow, PosChip, RoomBar, fmtMoney } from "./chrome";
 import { useGame } from "@/game/store";
 import { availablePlayers, marketValue, maxAffordable, nextNominator, nextRaise, spotsLeft } from "@/game/draft";
-import { AUCTION_PLANS, leftoverAfter, nomAdvice, planMax, type AuctionPlan } from "@/game/plans";
+import { leftoverAfter, planMax, type AuctionPlan } from "@/game/plans";
 import { adoptBoard, getPlayer } from "@/game/players";
-import { dreamProj } from "@/game/project";
 import { useWire } from "@/game/wire";
 import { ownedSet } from "@/game/simulate";
 import { rosterPlayerIds, slotLabel, teamById } from "@/game/league";
 import { canTeamBid } from "@/game/net";
 import { sfxBid, sfxSold, sfxTick, sfxWhoosh } from "@/game/audio";
 import { BID_STEP, MIN_BID, ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
-import { BoardGuide, GuideLink } from "./BoardGuide";
+import { BoardGuide } from "./BoardGuide";
 import { cn } from "@/lib/utils";
 
 const POS_FILTERS: Array<Position | "ALL"> = ["ALL", "QB", "RB", "WR", "TE", "K", "DST"];
@@ -37,9 +36,8 @@ export function AuctionScreen() {
   const setAutoFill = useGame((s) => s.setAutoFill);
   const fillRest = useGame((s) => s.fillRest);
   const { data: wire } = useWire();
-  const [plan, setPlan] = useState<AuctionPlan>("balanced");
+  const plan: AuctionPlan = "balanced";
   const [filter, setFilter] = useState<Position | "ALL">("ALL");
-  const [selected, setSelected] = useState<string | null>(null);
   const [soldFlash, setSoldFlash] = useState(lastSold);
   const [guide, setGuide] = useState(false);
   const guideRef = useRef(false);
@@ -122,7 +120,6 @@ export function AuctionScreen() {
           <div className="min-w-0">
             <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Auction</p>
             <h1 className="font-display text-3xl font-semibold tracking-tight">Draft</h1>
-            <GuideLink onClick={() => setGuide(true)}>Help</GuideLink>
           </div>
           <div className="shrink-0 text-right">
             <p className="font-mono text-2xl tabular-nums leading-none">{fmtMoney(budget)}</p>
@@ -136,23 +133,6 @@ export function AuctionScreen() {
         </header>
 
         {online && <RoomBar className="mt-3" />}
-
-        <div className="mt-4 flex gap-1.5 overflow-x-auto pb-1">
-          {AUCTION_PLANS.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => setPlan(p.id)}
-              className={cn(
-                "chip min-h-9 shrink-0 rounded-full px-3 text-xs font-medium",
-                plan === p.id ? "bg-accent text-accent-fg" : "bg-surface text-muted",
-              )}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-xs text-subtle">{AUCTION_PLANS.find((p) => p.id === plan)?.line}</p>
 
         <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-8">
           {teams.map((t) => {
@@ -200,11 +180,7 @@ export function AuctionScreen() {
             cap={cap}
           />
         ) : myNomination ? (
-          <div className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
-            <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Your nomination</p>
-            <p className="mt-1 text-sm text-muted">{nomAdvice(plan, spots)}</p>
-            <p className="mt-1 text-sm text-subtle">You still need {spots}.</p>
-          </div>
+          <p className="mt-6 font-display text-xl font-semibold">Tap a name to put him up.</p>
         ) : waitingOn ? (
           <div className="mt-6 rounded-xl bg-surface p-4 text-sm text-muted shadow-[var(--shadow-border)]">
             Waiting on {waitingOn.name} to nominate.
@@ -245,10 +221,12 @@ export function AuctionScreen() {
                   <PlayerRow
                     player={pl}
                     dense
-                    active={selected === pl.id}
                     onClick={
                       myNomination
-                        ? () => setSelected(pl.id)
+                        ? () => {
+                            sfxWhoosh();
+                            nominate(pl.id);
+                          }
                         : undefined
                     }
                     trailing={
@@ -258,27 +236,6 @@ export function AuctionScreen() {
                 </li>
               ))}
             </ul>
-            {myNomination && selected && (
-              <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-bg/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-                <div className="mx-auto flex max-w-5xl items-center gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{getPlayer(selected).name}</p>
-                    <p className="font-mono text-xs text-muted">
-                      Opens at {fmtMoney(MIN_BID)} · {dreamProj(getPlayer(selected)).mid.toFixed(1)} proj · {fmtMoney(marketValue(selected))}
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => {
-                      sfxWhoosh();
-                      nominate(selected);
-                      setSelected(null);
-                    }}
-                  >
-                    Nominate
-                  </Button>
-                </div>
-              </div>
-            )}
           </>
         )}
 
