@@ -11,7 +11,7 @@ import { ownedSet } from "@/game/simulate";
 import { rosterPlayerIds, slotLabel, teamById } from "@/game/league";
 import { canTeamBid } from "@/game/net";
 import { sfxBid, sfxSold, sfxTick, sfxWhoosh } from "@/game/audio";
-import { MIN_BID, ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
+import { BID_STEP, MIN_BID, ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
 import { BoardGuide, GuideLink } from "./BoardGuide";
 import { cn } from "@/lib/utils";
 
@@ -219,7 +219,6 @@ export function AuctionScreen() {
           <p className="pop-in mt-3 font-mono text-xs text-win">
             Sold · {getPlayer(soldFlash.playerId).name} to {teamById(teams, soldFlash.teamId).name} ·{" "}
             {fmtMoney(soldFlash.price)}
-            {soldFlash.price}
           </p>
         )}
 
@@ -401,10 +400,10 @@ function BlockCard({
           </Button>
           <Button
             variant="secondary"
-            disabled={!canBid || cap < nextBid + 1_000}
-            onClick={() => onBid(Math.min(cap, nextBid + 1_000))}
+            disabled={!canBid || cap < nextBid + BID_STEP}
+            onClick={() => onBid(Math.min(cap, nextBid + BID_STEP * 5))}
           >
-            +{fmtMoney(1_000)}
+            Jump {fmtMoney(nextBid + BID_STEP * 5)}
           </Button>
           <Button
             variant="secondary"

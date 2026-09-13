@@ -100,7 +100,7 @@ export function TitleScreen() {
               setScreen("lobby");
             }}
           >
-            Play with a friend
+            Play together
           </Button>
           <Button
             size="lg"
