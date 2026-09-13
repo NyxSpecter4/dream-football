@@ -8,6 +8,7 @@ import com.example.dreamfootball.data.model.AuctionBlock
 import com.example.dreamfootball.data.model.AuctionPlan
 import com.example.dreamfootball.data.model.BidLog
 import com.example.dreamfootball.data.model.BoxScore
+import com.example.dreamfootball.data.model.CareerStats
 import com.example.dreamfootball.data.model.Contract
 import com.example.dreamfootball.data.model.GameScreen
 import com.example.dreamfootball.data.model.GameState
@@ -209,7 +210,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         // Check if CPU wants to raise
         var raised = false
-        var nextBlock = b
+        var nextBlock = b!!
 
         for (cpu in activeTeams.shuffled(Random(System.currentTimeMillis()))) {
             if (cpu.human) continue
