@@ -122,7 +122,7 @@ export function AuctionScreen() {
   const totalLots = teams.length * 10;
 
   return (
-    <Field>
+    <Field className={soldFlash ? "juice-shake" : undefined}>
       <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-4 pb-28 pt-5 sm:px-6">
         <header className="flex items-end justify-between gap-4">
           <div className="min-w-0">
@@ -210,10 +210,24 @@ export function AuctionScreen() {
         )}
 
         {soldFlash && (
-          <p className="pop-in mt-3 font-mono text-xs text-win">
-            Sold · {getPlayer(soldFlash.playerId).name} to {teamById(teams, soldFlash.teamId).name} ·{" "}
-            {fmtMoney(soldFlash.price)}
-          </p>
+          <div className="relative mt-3">
+            <div className="confetti" aria-hidden>
+              {Array.from({ length: 12 }).map((_, i) => (
+                <i
+                  key={i}
+                  style={{
+                    left: `${8 + i * 7}%`,
+                    background: i % 2 ? "#e8d44d" : "#7dba8e",
+                    animationDelay: `${i * 40}ms`,
+                  }}
+                />
+              ))}
+            </div>
+            <p className="sold-stamp">Sold</p>
+            <p className="pop-in mt-2 font-mono text-xs text-win">
+              {getPlayer(soldFlash.playerId).name} to {teamById(teams, soldFlash.teamId).name} · {fmtMoney(soldFlash.price)}
+            </p>
+          </div>
         )}
 
         {(myNomination || (!block && !nominating)) && (

@@ -346,6 +346,133 @@
   }
 }
 
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: -20% -40%;
+  background: linear-gradient(115deg, transparent 40%, rgb(255 255 255 / 28%) 50%, transparent 60%);
+  transform: translateX(-60%);
+  animation: shine-sweep 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.wordmark {
+  text-shadow:
+    0 0 28px color-mix(in oklab, var(--color-live) 40%, transparent),
+    0 2px 0 #0008;
+}
+
+.flood-sweep {
+  pointer-events: none;
+}
+.flood-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 36%,
+    color-mix(in oklab, var(--color-live) 14%, transparent) 50%,
+    transparent 64%
+  );
+  animation: flood-pan 5.6s ease-in-out infinite;
+}
+
+.sold-stamp {
+  display: inline-block;
+  border: 2px solid var(--color-win);
+  color: var(--color-win);
+  padding: 0.2rem 0.55rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: rotate(-8deg);
+  animation: stamp 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.juice-shake {
+  animation: juice-shake 420ms ease-out;
+}
+
+.confetti {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.confetti i {
+  position: absolute;
+  top: -8px;
+  width: 6px;
+  height: 10px;
+  border-radius: 1px;
+  animation: confetti-fall 900ms ease-in forwards;
+}
+
+@keyframes shine-sweep {
+  0%,
+  55% {
+    transform: translateX(-70%);
+  }
+  100% {
+    transform: translateX(70%);
+  }
+}
+@keyframes flood-pan {
+  0%,
+  100% {
+    transform: translateX(-18%);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateX(18%);
+    opacity: 0.7;
+  }
+}
+@keyframes stamp {
+  0% {
+    transform: scale(1.7) rotate(-14deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(0.92) rotate(-6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(-8deg);
+    opacity: 1;
+  }
+}
+@keyframes juice-shake {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-5px, 0, 0);
+  }
+  40% {
+    transform: translate3d(4px, 0, 0);
+  }
+  60% {
+    transform: translate3d(-3px, 0, 0);
+  }
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+}
+@keyframes confetti-fall {
+  to {
+    transform: translateY(120px) rotate(220deg);
+    opacity: 0;
+  }
+}
+
 .felt-table {
   background:
     radial-gradient(circle at 50% 42%, #2a6a45 0%, #0f3a24 58%, #07160e 100%);
@@ -387,10 +514,17 @@
   .live-dot,
   .seat-hot,
   .going-pulse,
-  .player-mark-live {
+  .player-mark-live,
+  .btn-primary::after,
+  .flood-sweep::after,
+  .sold-stamp,
+  .juice-shake,
+  .confetti i,
+  .wordmark {
     animation: none;
     opacity: 1;
     transform: none;
     filter: none;
+    text-shadow: none;
   }
 }

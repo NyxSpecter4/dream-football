@@ -38,10 +38,11 @@ export function TitleScreen() {
           muted
           loop
           playsInline
-          poster="/art/field.jpg"
+          poster="/art/title-portrait.jpg"
           src="/art/field.mp4"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/80 to-black/45" />
+        <div className="flood-sweep absolute inset-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/75 to-black/40" />
       </div>
       <main className="relative z-10 mx-auto flex min-h-dvh max-w-lg flex-col justify-center px-5 py-16">
         <div className="stagger-in mb-10">
@@ -59,11 +60,11 @@ export function TitleScreen() {
           <p className="mb-3 font-mono text-[11px] tracking-[0.22em] text-muted uppercase">
             Fantasy manager
           </p>
-          <h1 className="font-display text-6xl font-semibold tracking-tight text-fg sm:text-7xl">
+          <h1 className="wordmark font-display text-6xl font-semibold tracking-tight text-fg sm:text-7xl">
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            Solo or with Cindy. Same league. Sleeper’s public board feeds the names — we don’t live inside their app.
+            Your club. The Sunday desk. Cindy if she shows.
           </p>
           <div className="mt-8">
             <RoundTable />
