@@ -80,6 +80,7 @@ export type LeagueTeam = {
   city: string;
   stadium: string;
   nfl: string;
+  manager?: string;
   peerId?: string;
 };
 

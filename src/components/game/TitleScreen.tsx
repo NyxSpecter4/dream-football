@@ -62,7 +62,7 @@ export function TitleScreen() {
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            You run the club. Sign players, set the lineup, play this week's NFL. Keep the team next year.
+            You run the club. Sign players, set the lineup, play this week's NFL. You and a friend vs six Grok managers. Keep the team next year.
           </p>
         </div>
 

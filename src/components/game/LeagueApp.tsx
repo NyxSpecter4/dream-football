@@ -105,12 +105,17 @@ function StarterDesk({ roster, week }: { roster: import("@/game/types").Roster; 
 function ChatDock() {
   const log = useGame((s) => s.chatLog);
   const sendChat = useGame((s) => s.sendChat);
+  const pushChat = useGame((s) => s.pushChat);
+  const teams = useGame((s) => s.teams);
+  const you = useGame((s) => s.playerTeamId);
   const [text, setText] = useState("");
+  const bots = teams.filter((t) => !t.human && t.manager);
   return (
     <section className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
       <p className="font-mono text-[11px] tracking-wide text-muted uppercase">League chat</p>
+      <p className="mt-1 text-xs text-muted">You, Cindy, and six Grok managers.</p>
       <ul className="mt-2 max-h-32 space-y-1 overflow-y-auto">
-        {log.length === 0 && <li className="text-sm text-muted">Trash talk goes here.</li>}
+        {log.length === 0 && <li className="text-sm text-muted">Talk. A Grok manager will answer.</li>}
         {log.map((row) => (
           <li key={row.id} className="text-sm">
             <span className="font-mono text-[11px] text-muted">{row.name}</span> {row.text}
@@ -121,8 +126,22 @@ function ChatDock() {
         className="mt-3 flex gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          sendChat(text);
+          const msg = text.trim();
+          if (!msg) return;
+          sendChat(msg);
           setText("");
+          const bot = bots[Math.floor(Math.random() * Math.max(1, bots.length))];
+          const human = teams.find((t) => t.id === you)?.short || "You";
+          void fetch("/api/grok-bot", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ manager: bot?.manager ?? "Grok Zero", human, text: msg }),
+          })
+            .then((r) => r.json())
+            .then((d: { reply?: string; manager?: string }) => {
+              if (d.reply) pushChat(d.manager || bot?.manager || "Grok", d.reply);
+            })
+            .catch(() => undefined);
         }}
       >
         <input
@@ -649,6 +668,7 @@ function StandingsScreen() {
                 {team.name}
                 <span className="ml-2 text-xs text-muted">
                   {team.nfl} · {team.city}
+                  {team.manager ? ` · ${team.manager}` : ""}
                 </span>
               </span>
               <span className="font-mono text-sm tabular-nums">

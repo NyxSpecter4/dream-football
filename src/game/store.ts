@@ -198,6 +198,7 @@ type GameStore = SaveState & {
   sendToIr: (playerId: string, teamId?: string) => void;
   activateIr: (playerId: string, teamId?: string) => void;
   sendChat: (text: string, teamId?: string) => void;
+  pushChat: (name: string, text: string) => void;
   offerTrade: (toId: string, giveId: string, getId: string, teamId?: string) => void;
   takeTrade: (id: string, teamId?: string) => void;
   passTrade: (id: string, teamId?: string) => void;
@@ -1058,6 +1059,15 @@ export const useGame = create<GameStore>()(
         const name = s.teams.find((t) => t.id === who)?.short || s.onlineIdentity?.name || "You";
         const row = { id: `${Date.now()}`, name, text: line, at: Date.now() };
         set({ chatLog: [...s.chatLog, row].slice(-40) });
+      },
+
+      pushChat: (name, text) => {
+        const line = text.trim().slice(0, 180);
+        if (!line) return;
+        const s = get();
+        set({
+          chatLog: [...s.chatLog, { id: `${Date.now()}-b`, name, text: line, at: Date.now() }].slice(-40),
+        });
       },
 
       offerBet: (toId, stake, teamId) => {

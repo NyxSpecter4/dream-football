@@ -20,13 +20,13 @@ import { shuffle } from "./rng";
 import { CITIES, cityByName } from "./cities";
 
 export const CPU_TEAMS: Array<Omit<LeagueTeam, "id" | "human">> = [
-  { name: "Harbor Wolves", short: "HRB", jersey: "harbor", city: "Seattle", stadium: "Elliott Field", nfl: "SEA" },
-  { name: "Iron Ridge", short: "IRN", jersey: "steel", city: "Pittsburgh", stadium: "The Point", nfl: "PIT" },
-  { name: "Dust Devils", short: "DST", jersey: "ember", city: "Phoenix", stadium: "South Mountain", nfl: "ARI" },
-  { name: "Lake Effect", short: "LKE", jersey: "midnight", city: "Buffalo", stadium: "The Falls", nfl: "BUF" },
-  { name: "Redline", short: "RED", jersey: "ember", city: "Kansas City", stadium: "West Bottoms", nfl: "KC" },
-  { name: "North Pine", short: "PIN", jersey: "pine", city: "Green Bay", stadium: "Titletown Field", nfl: "GB" },
-  { name: "Metro Kings", short: "MTR", jersey: "bone", city: "Chicago", stadium: "Grant Park", nfl: "CHI" },
+  { name: "Harbor Wolves", short: "HRB", jersey: "harbor", city: "Seattle", stadium: "Elliott Field", nfl: "SEA", manager: "Grok Zero" },
+  { name: "Iron Ridge", short: "IRN", jersey: "steel", city: "Pittsburgh", stadium: "The Point", nfl: "PIT", manager: "Grok Fade" },
+  { name: "Dust Devils", short: "DST", jersey: "ember", city: "Phoenix", stadium: "South Mountain", nfl: "ARI", manager: "Grok Smash" },
+  { name: "Lake Effect", short: "LKE", jersey: "midnight", city: "Buffalo", stadium: "The Falls", nfl: "BUF", manager: "Grok Cold" },
+  { name: "Redline", short: "RED", jersey: "ember", city: "Kansas City", stadium: "West Bottoms", nfl: "KC", manager: "Grok Prime" },
+  { name: "North Pine", short: "PIN", jersey: "pine", city: "Green Bay", stadium: "Titletown Field", nfl: "GB", manager: "Grok Pack" },
+  { name: "Metro Kings", short: "MTR", jersey: "bone", city: "Chicago", stadium: "Grant Park", nfl: "CHI", manager: "Grok Wire" },
 ];
 
 export const JERSEYS: Array<{ id: JerseyId; label: string }> = [
@@ -248,6 +248,7 @@ export function buildLeague(
     stadium: c.stadium,
     nfl: c.tag,
     human: false,
+    manager: CPU_TEAMS[i]?.manager,
   }));
   return [human, ...others];
 }
@@ -288,6 +289,7 @@ export function buildOnlineLeague(
     stadium: c.stadium,
     nfl: c.tag,
     human: false,
+    manager: CPU_TEAMS[i]?.manager,
   }));
   return [...seats, ...cpus];
 }
