@@ -25,35 +25,37 @@ const handle = async ({ request }: { request: Request }) => {
     return Response.json({ ok: true, manager, reply: canned(manager, human) });
   }
 
+  const cheap = ["grok-4-1-fast", "grok-3-mini"];
   try {
-    const res = await fetch("https://api.x.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "grok-4.5",
-        max_tokens: 70,
-        temperature: 0.8,
-        messages: [
-          {
-            role: "system",
-            content: `You are ${manager}, a rival fantasy manager in Dream Football. Voice: ${vibe} One trash-talk line. No emojis. No hashtags. Under 18 words.`,
-          },
-          { role: "user", content: `${human} said: ${text}` },
-        ],
-      }),
-    });
-    if (!res.ok) {
-      return Response.json({ ok: true, manager, reply: canned(manager, human) });
+    for (const model of cheap) {
+      const res = await fetch("https://api.x.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 40,
+          temperature: 0.8,
+          messages: [
+            {
+              role: "system",
+              content: `You are ${manager}, a rival fantasy manager in Dream Football. Voice: ${vibe} One trash-talk line. No emojis. Under 16 words.`,
+            },
+            { role: "user", content: `${human} said: ${text}` },
+          ],
+        }),
+      });
+      if (!res.ok) continue;
+      const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+      const reply = (json.choices?.[0]?.message?.content ?? "").trim();
+      if (reply) return Response.json({ ok: true, manager, reply: reply.slice(0, 180), model });
     }
-    const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-    const reply = (json.choices?.[0]?.message?.content ?? "").trim() || canned(manager, human);
-    return Response.json({ ok: true, manager, reply: reply.slice(0, 180) });
   } catch {
-    return Response.json({ ok: true, manager, reply: canned(manager, human) });
+    /* canned */
   }
+  return Response.json({ ok: true, manager, reply: canned(manager, human) });
 };
 
 export const Route = createFileRoute("/api/grok-bot")({
