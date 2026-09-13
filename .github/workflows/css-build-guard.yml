@@ -1,0 +1,40 @@
+name: css-build-guard
+
+# Prevents broken CSS/source from reaching main — the 2026-09-13 incident:
+# an unbalanced `{` in src/styles.css (93 vs 94 braces) broke the Vite build and
+# failed EVERY deploy on the three projects wired to this repo (dream-football,
+# df-play, nl-play) until the next commit fixed it. This gate runs the real
+# `vite build` so the same class of error fails loudly at push/PR time instead
+# of in production deploys.
+#
+# NOTE: `npm run build` also runs `db:migrate`, which needs the production
+# database — CI has no DB, so this gate runs the Vite build only (the step that
+# catches CSS/TSX syntax errors). Deploys still run the full build.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: css-build-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  css-build-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Vite production build (catches CSS/syntax errors)
+        run: |
+          export PATH="$PWD/node_modules/.bin:$PATH"
+          node scripts/with-app-env.mjs vite build
