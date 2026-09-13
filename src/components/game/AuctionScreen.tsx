@@ -8,6 +8,7 @@ import { adoptBoard, getPlayer } from "@/game/players";
 import { useWire } from "@/game/wire";
 import { ownedSet } from "@/game/simulate";
 import { rosterPlayerIds, slotLabel, teamById } from "@/game/league";
+import { botByManager } from "@/game/bots";
 import { canTeamBid } from "@/game/net";
 import { sfxBid, sfxSold, sfxTick, sfxWhoosh } from "@/game/audio";
 import { BID_STEP, MIN_BID, ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
@@ -142,6 +143,7 @@ export function AuctionScreen() {
         <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-8">
           {teams.map((t) => {
             const open = spotsLeft(rosters[t.id]!);
+            const bot = t.manager ? botByManager(t.manager) : undefined;
             return (
               <li
                 key={t.id}
@@ -151,8 +153,12 @@ export function AuctionScreen() {
                 )}
               >
                 <p className="flex items-center gap-1 truncate font-mono text-[11px] text-muted">
-                  <JerseyMark jersey={t.jersey} className="size-2" />
-                  {t.short}
+                  {bot?.avatar ? (
+                    <img src={bot.avatar} alt="" className="size-4 rounded-full object-cover" />
+                  ) : (
+                    <JerseyMark jersey={t.jersey} className="size-2" />
+                  )}
+                  {t.human ? t.short : (t.manager ?? t.short).split(" ")[0]}
                 </p>
                 <p className="font-mono text-sm tabular-nums">{fmtMoney(budgets[t.id] ?? 0)}</p>
                 <p className="font-mono text-[10px] tabular-nums text-subtle">{open} open</p>

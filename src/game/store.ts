@@ -23,7 +23,7 @@ import {
   type TickerState,
   type TradeOffer,
 } from "./types";
-import { emptyRoster, placePlayer, dropPlayer, swapLineup, autoSetLineup, buildLeague, buildOnlineLeague, seasonSchedule, rosterPlayerIds, ensureClubHomes, toIr, fromIr } from "./league";
+import { emptyRoster, placePlayer, dropPlayer, swapLineup, autoSetLineup, buildLeague, buildOnlineLeague, firstCpuIndex, seasonSchedule, rosterPlayerIds, ensureClubHomes, toIr, fromIr } from "./league";
 import {
   availablePlayers,
   cpuMaxBid,
@@ -34,7 +34,6 @@ import {
   nextNominator,
   openBlock,
   rankPlayer,
-  shouldPauseForHuman,
   spotsLeft,
 } from "./draft";
 import { hashSeed, mulberry32 } from "./rng";
@@ -59,6 +58,7 @@ const SAVE_VERSION = 12;
 const CAREER_KEY = "night-league-career";
 let remoteApplying = false;
 let lastSoloPersist: Record<string, unknown> | null = null;
+let humanNomSince = 0;
 
 function loadCareer(): Career {
   if (typeof window === "undefined") return { seasons: 0, titles: 0, bestFinish: null };
@@ -368,6 +368,7 @@ export const useGame = create<GameStore>()(
             chatLog: botHelloLines(),
             screen: "draft",
             phase: "draft",
+            nominateIndex: firstCpuIndex(teams),
             career: get().career,
             hydrated: true,
             mode: "solo",
@@ -414,6 +415,7 @@ export const useGame = create<GameStore>()(
             chatLog: botHelloLines().slice(0, Math.max(0, teams.filter((t) => !t.human).length)),
             screen: "draft",
             phase: "draft",
+            nominateIndex: firstCpuIndex(teams),
             playerTeamId: myTeam,
             peerTeams,
             hostPeerId,
@@ -551,10 +553,19 @@ export const useGame = create<GameStore>()(
           const nomSpots = spotsLeft(s.rosters[nom.teamId]!);
           const nomCap = maxAffordable(s.budgets[nom.teamId] ?? 0, nomSpots);
           const brokeHuman = liveHumans.has(nom.teamId) && nomSpots > 0 && nomCap <= 2;
-          if (liveHumans.has(nom.teamId) && !skipHumanWait && !brokeHuman) {
-            if (!s.nominating) set({ nominating: true, nominateIndex: nom.index });
+          const slowHuman =
+            liveHumans.has(nom.teamId) &&
+            s.nominating &&
+            humanNomSince > 0 &&
+            Date.now() - humanNomSince > 5000;
+          if (liveHumans.has(nom.teamId) && !skipHumanWait && !brokeHuman && !slowHuman) {
+            if (!s.nominating) {
+              humanNomSince = Date.now();
+              set({ nominating: true, nominateIndex: nom.index });
+            }
             return;
           }
+          humanNomSince = 0;
           if (available.length === 0) {
             set(finishDraft(s));
             return;
@@ -567,16 +578,8 @@ export const useGame = create<GameStore>()(
             botByManager(s.teams.find((t) => t.id === nom.teamId)?.manager ?? "")?.style,
             s.teams.find((t) => t.id === nom.teamId)?.manager,
           );
-          const youRoster = s.rosters[s.playerTeamId];
-          const pause =
-            !brokeHuman &&
-            !s.autoFill &&
-            (s.mode === "online" ||
-              (youRoster
-                ? shouldPauseForHuman(pick, youRoster, s.budgets[s.playerTeamId] ?? 0, s.pauseEvery)
-                : true));
           set({
-            block: openBlock(pick, nom.teamId, pause),
+            block: openBlock(pick, nom.teamId, false),
             nominating: false,
             nominateIndex: nom.index,
           });

@@ -295,6 +295,11 @@ export function buildOnlineLeague(
   return [...seats, ...cpus];
 }
 
+export function firstCpuIndex(teams: LeagueTeam[]) {
+  const i = teams.findIndex((t) => !t.human);
+  return i < 0 ? 0 : i;
+}
+
 export function clubLine(t: Pick<LeagueTeam, "city" | "stadium" | "name">) {
   if (t.city && t.stadium) return `${t.city} · ${t.stadium}`;
   return t.city || t.name;
