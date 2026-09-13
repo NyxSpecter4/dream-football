@@ -79,6 +79,7 @@ export type WirePayload = {
   news: WireNews[];
   stats: Record<string, WireStat>;
   board?: Player[];
+  trending?: Array<{ id: string; count: number }>;
   updated: number;
 };
 

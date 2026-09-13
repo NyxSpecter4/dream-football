@@ -23,7 +23,7 @@ import {
   type TickerState,
   type TradeOffer,
 } from "./types";
-import { emptyRoster, placePlayer, dropPlayer, swapLineup, autoSetLineup, buildLeague, buildOnlineLeague, seasonSchedule, rosterPlayerIds, ensureClubHomes } from "./league";
+import { emptyRoster, placePlayer, dropPlayer, swapLineup, autoSetLineup, buildLeague, buildOnlineLeague, seasonSchedule, rosterPlayerIds, ensureClubHomes, toIr, fromIr } from "./league";
 import {
   availablePlayers,
   cpuMaxBid,
@@ -53,7 +53,7 @@ import { capSpace, cpuRefresh, cutPlayerFromClub } from "./franchise";
 import { anyHumanCanBid, type LobbyIdentity, type MeshPeer, type RemoteAct } from "./net";
 import type { WireGame, WireStat } from "./wire";
 
-const SAVE_VERSION = 11;
+const SAVE_VERSION = 12;
 const CAREER_KEY = "night-league-career";
 let remoteApplying = false;
 let lastSoloPersist: Record<string, unknown> | null = null;
@@ -168,6 +168,7 @@ type GameStore = SaveState & {
   mesh: { joined: boolean; peers: MeshPeer[] };
   lateJoinBlocked: boolean;
   watchNight: { seed: number; week: number } | null;
+  chatLog: Array<{ id: string; name: string; text: string; at: number }>;
   setHydrated: () => void;
   setScreen: (screen: Screen) => void;
   startSetup: () => void;
@@ -194,6 +195,9 @@ type GameStore = SaveState & {
   closeTicker: () => void;
   claimWaiver: (addId: string, dropId: string, teamId?: string) => void;
   skipWaiver: (teamId?: string) => void;
+  sendToIr: (playerId: string, teamId?: string) => void;
+  activateIr: (playerId: string, teamId?: string) => void;
+  sendChat: (text: string, teamId?: string) => void;
   offerTrade: (toId: string, giveId: string, getId: string, teamId?: string) => void;
   takeTrade: (id: string, teamId?: string) => void;
   passTrade: (id: string, teamId?: string) => void;
@@ -272,6 +276,7 @@ export const useGame = create<GameStore>()(
       lastSold: null,
       applyingRemote: false,
       watchNight: null,
+      chatLog: [],
       ...offlineFields(),
 
       setHydrated: () => {
@@ -1026,6 +1031,35 @@ export const useGame = create<GameStore>()(
         void teamId;
       },
 
+      sendToIr: (playerId, teamId) => {
+        if (guestSend(get, { k: "ir", playerId })) return;
+        const s = get();
+        const who = teamId ?? s.playerTeamId;
+        const next = toIr(s.rosters[who]!, playerId);
+        if (!next) return;
+        set({ rosters: { ...s.rosters, [who]: next } });
+      },
+
+      activateIr: (playerId, teamId) => {
+        if (guestSend(get, { k: "activateIr", playerId })) return;
+        const s = get();
+        const who = teamId ?? s.playerTeamId;
+        const next = fromIr(s.rosters[who]!, playerId);
+        if (!next) return;
+        set({ rosters: { ...s.rosters, [who]: next } });
+      },
+
+      sendChat: (text, teamId) => {
+        const line = text.trim().slice(0, 140);
+        if (!line) return;
+        if (guestSend(get, { k: "chat", text: line })) return;
+        const s = get();
+        const who = teamId ?? s.playerTeamId;
+        const name = s.teams.find((t) => t.id === who)?.short || s.onlineIdentity?.name || "You";
+        const row = { id: `${Date.now()}`, name, text: line, at: Date.now() };
+        set({ chatLog: [...s.chatLog, row].slice(-40) });
+      },
+
       offerBet: (toId, stake, teamId) => {
         if (guestSend(get, { k: "bet", toId, stake })) return;
         const s = get();
@@ -1300,6 +1334,9 @@ export const useGame = create<GameStore>()(
           else if (act.k === "trade") get().offerTrade(act.toId, act.giveId, act.getId, teamId);
           else if (act.k === "takeTrade") get().takeTrade(act.id, teamId);
           else if (act.k === "passTrade") get().passTrade(act.id, teamId);
+          else if (act.k === "ir") get().sendToIr(act.playerId, teamId);
+          else if (act.k === "activateIr") get().activateIr(act.playerId, teamId);
+          else if (act.k === "chat") get().sendChat(act.text, teamId);
           else if (act.k === "bet") get().offerBet(act.toId, act.stake, teamId);
           else if (act.k === "takeBet") get().takeBet(act.id, teamId);
           else if (act.k === "passBet") get().passBet(act.id, teamId);

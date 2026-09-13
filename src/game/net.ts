@@ -14,6 +14,9 @@ export type RemoteAct =
   | { k: "trade"; toId: string; giveId: string; getId: string }
   | { k: "takeTrade"; id: string }
   | { k: "passTrade"; id: string }
+  | { k: "ir"; playerId: string }
+  | { k: "activateIr"; playerId: string }
+  | { k: "chat"; text: string }
   | { k: "bet"; toId: string; stake: number }
   | { k: "takeBet"; id: string }
   | { k: "passBet"; id: string };

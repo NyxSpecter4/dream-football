@@ -30,6 +30,7 @@ export const SKILL_RESERVE = 8_000;
 
 export const FAAB_BUDGET = 100;
 export const WAIVER_MAX = 3;
+export const IR_MAX = 2;
 
 export type TradeOffer = {
   id: string;
@@ -87,6 +88,7 @@ export type Lineup = Record<Slot, string | null>;
 export type Roster = {
   lineup: Lineup;
   bench: string[];
+  ir: string[];
 };
 
 export type Contract = {

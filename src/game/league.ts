@@ -53,14 +53,14 @@ export function emptyLineup(): Lineup {
 }
 
 export function emptyRoster(): Roster {
-  return { lineup: emptyLineup(), bench: [] };
+  return { lineup: emptyLineup(), bench: [], ir: [] };
 }
 
 export function rosterPlayerIds(roster: Roster): string[] {
   const starters = STARTER_SLOTS.map((s) => roster.lineup[s]).filter(
     (id): id is string => Boolean(id),
   );
-  return [...starters, ...roster.bench];
+  return [...starters, ...roster.bench, ...(roster.ir ?? [])];
 }
 
 export function slotAccepts(slot: Slot, pos: Position): boolean {
@@ -93,11 +93,12 @@ export function placePlayer(roster: Roster, playerId: string): Roster {
   const player = getPlayer(playerId);
   const slot = preferredSlot(player.pos, roster.lineup);
   if (slot === "BENCH") {
-    return { ...roster, bench: [...roster.bench, playerId] };
+    return { ...roster, bench: [...roster.bench, playerId], ir: roster.ir ?? [] };
   }
   return {
     lineup: { ...roster.lineup, [slot]: playerId },
     bench: roster.bench,
+    ir: roster.ir ?? [],
   };
 }
 
@@ -105,11 +106,25 @@ export function dropPlayer(roster: Roster, playerId: string): Roster {
   const next: Roster = {
     lineup: { ...roster.lineup },
     bench: roster.bench.filter((id) => id !== playerId),
+    ir: (roster.ir ?? []).filter((id) => id !== playerId),
   };
   for (const slot of STARTER_SLOTS) {
     if (next.lineup[slot] === playerId) next.lineup[slot] = null;
   }
   return next;
+}
+
+export function toIr(roster: Roster, playerId: string): Roster | null {
+  const ir = roster.ir ?? [];
+  if (ir.includes(playerId) || ir.length >= 2) return null;
+  const next = dropPlayer(roster, playerId);
+  return { ...next, ir: [...(next.ir ?? []), playerId] };
+}
+
+export function fromIr(roster: Roster, playerId: string): Roster | null {
+  if (!(roster.ir ?? []).includes(playerId)) return null;
+  const ir = (roster.ir ?? []).filter((id) => id !== playerId);
+  return placePlayer({ ...roster, ir }, playerId);
 }
 
 export function swapLineup(roster: Roster, slot: Slot, benchId: string): Roster | null {
@@ -121,6 +136,7 @@ export function swapLineup(roster: Roster, slot: Slot, benchId: string): Roster 
   return {
     lineup: { ...roster.lineup, [slot]: benchId },
     bench,
+    ir: roster.ir ?? [],
   };
 }
 
@@ -130,11 +146,13 @@ export function moveStarterToBench(roster: Roster, slot: Slot): Roster | null {
   return {
     lineup: { ...roster.lineup, [slot]: null },
     bench: [...roster.bench, id],
+    ir: roster.ir ?? [],
   };
 }
 
 export function autoSetLineup(roster: Roster, week: number, rank: (id: string) => number): Roster {
-  const ids = rosterPlayerIds(roster);
+  const ir = new Set(roster.ir ?? []);
+  const ids = rosterPlayerIds(roster).filter((id) => !ir.has(id));
   const available = ids
     .map((id) => getPlayer(id))
     .filter((pl) => pl.bye !== week)
@@ -160,8 +178,8 @@ export function autoSetLineup(roster: Roster, week: number, rank: (id: string) =
   lineup.K = take((pl) => pl.pos === "K");
   lineup.DST = take((pl) => pl.pos === "DST");
 
-  const bench = ids.filter((id) => !used.has(id));
-  return { lineup, bench };
+  const bench = ids.filter((id) => !used.has(id) && !(roster.ir ?? []).includes(id));
+  return { lineup, bench, ir: roster.ir ?? [] };
 }
 
 export function roundRobin(teamIds: string[]): Matchup[][] {

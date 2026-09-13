@@ -217,9 +217,10 @@ async function build(weekHint = 0) {
   const season = num(stateJ.season) || 2026;
   const week = weekHint > 0 ? weekHint : liveWeek;
 
-  const [statsRaw, projRaw] = await Promise.allSettled([
+  const [statsRaw, projRaw, trendRaw] = await Promise.allSettled([
     getJson(`https://api.sleeper.app/v1/stats/nfl/regular/${season}/${week}`),
     getJson(`https://api.sleeper.app/v1/projections/nfl/regular/${season}/${week}`),
+    getJson("https://api.sleeper.app/v1/players/nfl/trending/add?lookback_hours=24&limit=40"),
   ]);
   const stats =
     statsRaw.status === "fulfilled"
@@ -273,6 +274,24 @@ async function build(weekHint = 0) {
     };
   }
 
+  const trendList =
+    trendRaw.status === "fulfilled" && Array.isArray(trendRaw.value)
+      ? (trendRaw.value as Array<{ player_id?: string; count?: number }>)
+      : [];
+  const sidToId = new Map<string, string>();
+  for (const pl of pool) {
+    const sid = sleeperRows ? sleeperIdFor(pl, sleeperRows) ?? SLEEPER_IDS[pl.id] : SLEEPER_IDS[pl.id];
+    if (sid) sidToId.set(sid, pl.id);
+  }
+  const trending = trendList
+    .map((row) => {
+      const id = sidToId.get(String(row.player_id ?? ""));
+      if (!id) return null;
+      return { id, count: num(row.count) };
+    })
+    .filter((x): x is { id: string; count: number } => Boolean(x))
+    .slice(0, 20);
+
   return {
     season,
     week,
@@ -280,6 +299,7 @@ async function build(weekHint = 0) {
     news: news.slice(0, 10),
     stats: mapped,
     board: extra,
+    trending,
     updated: Date.now(),
   };
 }

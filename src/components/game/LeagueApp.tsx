@@ -102,6 +102,44 @@ function StarterDesk({ roster, week }: { roster: import("@/game/types").Roster; 
   );
 }
 
+function ChatDock() {
+  const log = useGame((s) => s.chatLog);
+  const sendChat = useGame((s) => s.sendChat);
+  const [text, setText] = useState("");
+  return (
+    <section className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+      <p className="font-mono text-[11px] tracking-wide text-muted uppercase">League chat</p>
+      <ul className="mt-2 max-h-32 space-y-1 overflow-y-auto">
+        {log.length === 0 && <li className="text-sm text-muted">Trash talk goes here.</li>}
+        {log.map((row) => (
+          <li key={row.id} className="text-sm">
+            <span className="font-mono text-[11px] text-muted">{row.name}</span> {row.text}
+          </li>
+        ))}
+      </ul>
+      <form
+        className="mt-3 flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          sendChat(text);
+          setText("");
+        }}
+      >
+        <input
+          value={text}
+          maxLength={140}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Message the room"
+          className="h-11 min-w-0 flex-1 rounded-lg bg-surface-2 px-3 text-sm text-fg outline-none"
+        />
+        <Button type="submit" size="sm" disabled={!text.trim()}>
+          Send
+        </Button>
+      </form>
+    </section>
+  );
+}
+
 function HomeScreen() {
   const teams = useGame((s) => s.teams);
   const you = useGame((s) => s.playerTeamId);
@@ -173,6 +211,7 @@ function HomeScreen() {
       {roster && (
         <StarterDesk roster={roster} week={week} />
       )}
+      <ChatDock />
 
       {phase === "complete" && bracket?.championId && (
         <section className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
@@ -290,6 +329,8 @@ function RosterScreen() {
   const rosters = useGame((s) => s.rosters);
   const claimWaiver = useGame((s) => s.claimWaiver);
   const skipWaiver = useGame((s) => s.skipWaiver);
+  const sendToIr = useGame((s) => s.sendToIr);
+  const activateIr = useGame((s) => s.activateIr);
   const { data: wire } = useWire();
   const [pickedSlot, setPickedSlot] = useState<Slot | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
@@ -299,7 +340,10 @@ function RosterScreen() {
   const showWaiver =
     phase === "regular" && week > 1 && used < WAIVER_MAX && Boolean(results[week - 1]);
   const owned = ownedSet(rosters);
-  const fa = freeAgents(owned).slice(0, 8);
+  const trend = new Map((wire?.trending ?? []).map((t) => [t.id, t.count]));
+  const fa = freeAgents(owned)
+    .sort((a, b) => (trend.get(b.id) ?? 0) - (trend.get(a.id) ?? 0) || b.ovr - a.ovr)
+    .slice(0, 12);
   const live = scoreRosterLive(roster, week, seasonSeed, wire?.stats, wire?.games, false);
 
   return (
@@ -384,14 +428,37 @@ function RosterScreen() {
                   if (pickedSlot) {
                     swapSlot(pickedSlot, id);
                     setPickedSlot(null);
+                  } else if ((pl.injury === "OUT" || pl.injury === "D") && dropId === id) {
+                    sendToIr(id);
+                    setDropId(null);
                   } else {
                     setDropId(dropId === id ? null : id);
                   }
                 }}
+                trailing={
+                  pl.injury === "OUT" || pl.injury === "D" ? (
+                    <span className="font-mono text-[10px] text-loss">IR</span>
+                  ) : undefined
+                }
               />
             </li>
           );
         })}
+      </ul>
+
+      <h2 className="mt-8 font-display text-xl font-semibold">IR</h2>
+      <p className="mt-1 text-sm text-muted">Two slots. Doesn't score. Sleeper-style stash for OUT.</p>
+      <ul className="mt-3 flex flex-col gap-1.5">
+        {(roster.ir ?? []).length === 0 && <li className="text-sm text-muted">Empty.</li>}
+        {(roster.ir ?? []).map((id) => (
+          <li key={id}>
+            <PlayerRow
+              player={getPlayer(id)}
+              onClick={() => activateIr(id)}
+              trailing={<span className="font-mono text-[10px] text-muted">Activate</span>}
+            />
+          </li>
+        ))}
       </ul>
 
       {showWaiver && (
@@ -406,7 +473,9 @@ function RosterScreen() {
                 <PlayerRow
                   player={pl}
                   trailing={
-                    <span className="font-mono text-[11px] text-muted">{remainingValue(pl, week).toFixed(0)} rest</span>
+                    <span className="font-mono text-[11px] text-muted">
+                      {trend.get(pl.id) ? `+${trend.get(pl.id)} adds` : `${remainingValue(pl, week).toFixed(0)} rest`}
+                    </span>
                   }
                   onClick={() => {
                     const drop = dropId ?? roster.bench[0];
