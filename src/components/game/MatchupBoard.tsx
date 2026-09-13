@@ -139,9 +139,9 @@ export function MatchupBoard({
                 "shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-live)_35%,transparent)]",
             )}
           >
-            <SlotSide player={row.hp} mark={row.hm} games={games} align="left" />
+            <SlotSide player={row.hp} mark={row.hm} games={games} align="left" win={(row.hm?.pts ?? 0) > (row.am?.pts ?? 0) && (row.hm?.pts ?? 0) > 0} />
             <span className="font-mono text-[10px] tracking-wide text-subtle uppercase">{slotLabel(row.slot)}</span>
-            <SlotSide player={row.ap} mark={row.am} games={games} align="right" />
+            <SlotSide player={row.ap} mark={row.am} games={games} align="right" win={(row.am?.pts ?? 0) > (row.hm?.pts ?? 0) && (row.am?.pts ?? 0) > 0} />
           </li>
         ))}
       </ul>
@@ -157,9 +157,9 @@ export function MatchupBoard({
                   key={`b-${i}`}
                   className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-lg bg-surface px-3 py-2 shadow-[var(--shadow-border)]"
                 >
-                  <SlotSide player={hb?.p ?? null} mark={hb?.m ?? null} games={games} align="left" />
+                  <SlotSide player={hb?.p ?? null} mark={hb?.m ?? null} games={games} align="left" win={false} />
                   <span className="font-mono text-[10px] tracking-wide text-subtle uppercase">BN</span>
-                  <SlotSide player={ab?.p ?? null} mark={ab?.m ?? null} games={games} align="right" />
+                  <SlotSide player={ab?.p ?? null} mark={ab?.m ?? null} games={games} align="right" win={false} />
                 </li>
               );
             })}
@@ -175,11 +175,13 @@ function SlotSide({
   mark,
   games,
   align,
+  win,
 }: {
   player: ReturnType<typeof getPlayer> | null;
   mark: ReturnType<typeof liveMark> | null;
   games: WireGame[] | undefined;
   align: "left" | "right";
+  win: boolean;
 }) {
   if (!player || !mark) {
     return <p className={cn("text-sm text-subtle", align === "right" && "text-right")}>—</p>;
@@ -192,17 +194,27 @@ function SlotSide({
     mark.line && mark.line !== ctx?.clock && mark.line !== "Yet to play" ? mark.line : ctx?.clock || mark.line;
   return (
     <div className={cn("min-w-0", align === "right" && "text-right")}>
-      <p className="truncate text-sm font-medium">{player.name}</p>
+      <p className="truncate text-sm font-medium">
+        {player.name}
+        {player.injury ? <span className="ml-1 font-mono text-[10px] text-loss">{player.injury}</span> : null}
+      </p>
       <p
         className={cn(
-          "flex items-center gap-1.5 font-mono text-[11px] tabular-nums text-muted",
+          "flex items-baseline gap-1.5 font-mono tabular-nums",
           align === "right" && "justify-end",
         )}
       >
         {align === "right" && <PosChip pos={player.pos} />}
         {live && <LiveDot />}
-        <span className={cn(live ? "text-live" : done ? "text-fg" : "text-subtle")}>{fmtPts(mark.pts)}</span>
-        <span className="text-subtle">/{fmtPts(mark.proj)}</span>
+        <span
+          className={cn(
+            "font-display text-xl font-semibold leading-none",
+            live ? "text-live" : win ? "text-win" : done ? "text-fg" : "text-subtle",
+          )}
+        >
+          {fmtPts(mark.pts)}
+        </span>
+        <span className="text-[11px] text-subtle">/{fmtPts(mark.proj)}</span>
         {align === "left" && <PosChip pos={player.pos} />}
       </p>
       <p className="truncate text-[11px] text-subtle">

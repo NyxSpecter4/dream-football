@@ -11,6 +11,9 @@ export type RemoteAct =
   | { k: "closeTicker" }
   | { k: "claimWaiver"; addId: string; dropId: string }
   | { k: "skipWaiver" }
+  | { k: "trade"; toId: string; giveId: string; getId: string }
+  | { k: "takeTrade"; id: string }
+  | { k: "passTrade"; id: string }
   | { k: "bet"; toId: string; stake: number }
   | { k: "takeBet"; id: string }
   | { k: "passBet"; id: string };
@@ -82,6 +85,8 @@ export function pickSave(s: SaveState): SaveState {
     playoffBracket: s.playoffBracket,
     waiverUsedWeek: s.waiverUsedWeek,
     waiverClaims: s.waiverClaims,
+    faab: s.faab ?? {},
+    trades: s.trades ?? [],
     cash: s.cash,
     bets: s.bets,
     mode: s.mode,

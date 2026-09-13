@@ -28,6 +28,19 @@ export const HOUSE_CASH = 100_000;
 /** Cap that must stay for each remaining skill hole. */
 export const SKILL_RESERVE = 8_000;
 
+export const FAAB_BUDGET = 100;
+export const WAIVER_MAX = 3;
+
+export type TradeOffer = {
+  id: string;
+  week: number;
+  fromId: string;
+  toId: string;
+  giveId: string;
+  getId: string;
+  status: "open" | "done" | "dead";
+};
+
 export type SideBet = {
   id: string;
   week: number;
@@ -169,6 +182,8 @@ export type SaveState = {
   } | null;
   waiverUsedWeek: number;
   waiverClaims: string[];
+  faab: Record<string, number>;
+  trades: TradeOffer[];
   cash: Record<string, number>;
   bets: SideBet[];
   mode: "solo" | "online";

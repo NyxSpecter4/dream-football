@@ -15,7 +15,7 @@ import { STAKES } from "@/game/cash";
 import { cn } from "@/lib/utils";
 import { sfxWin, sfxLoss } from "@/game/audio";
 import { salaryOf } from "@/game/franchise";
-import { SALARY_CAP, ROSTER_SIZE, CHAMPIONSHIP_WEEK, PLAYOFF_WEEK, REGULAR_WEEKS, STARTER_SLOTS, type LeagueTeam, type Screen, type SideBet, type Slot } from "@/game/types";
+import { SALARY_CAP, ROSTER_SIZE, CHAMPIONSHIP_WEEK, PLAYOFF_WEEK, REGULAR_WEEKS, STARTER_SLOTS, FAAB_BUDGET, WAIVER_MAX, type LeagueTeam, type Screen, type SideBet, type Slot } from "@/game/types";
 import { pickWireForOwned, useWire } from "@/game/wire";
 import { LiveScorePeek, MatchupBoard, ScoringCard } from "./MatchupBoard";
 import { BoardGuide, GuideLink } from "./BoardGuide";
@@ -285,6 +285,7 @@ function RosterScreen() {
   const seasonSeed = useGame((s) => s.seasonSeed);
   const swapSlot = useGame((s) => s.swapSlot);
   const waiverClaims = useGame((s) => s.waiverClaims);
+  const faab = useGame((s) => s.faab?.[s.playerTeamId] ?? FAAB_BUDGET);
   const results = useGame((s) => s.results);
   const rosters = useGame((s) => s.rosters);
   const claimWaiver = useGame((s) => s.claimWaiver);
@@ -294,8 +295,9 @@ function RosterScreen() {
   const [dropId, setDropId] = useState<string | null>(null);
 
   if (!roster) return null;
+  const used = waiverClaims.filter((id) => id === you).length;
   const showWaiver =
-    phase === "regular" && week > 1 && !waiverClaims.includes(you) && Boolean(results[week - 1]);
+    phase === "regular" && week > 1 && used < WAIVER_MAX && Boolean(results[week - 1]);
   const owned = ownedSet(rosters);
   const fa = freeAgents(owned).slice(0, 8);
   const live = scoreRosterLive(roster, week, seasonSeed, wire?.stats, wire?.games, false);
@@ -395,7 +397,9 @@ function RosterScreen() {
       {showWaiver && (
         <section className="mt-10">
           <h2 className="font-display text-xl font-semibold">Waivers</h2>
-          <p className="mt-1 text-sm text-muted">One add this week. Tap a bench name to drop, then a free agent.</p>
+          <p className="mt-1 text-sm text-muted">
+            FAAB ${faab}. Each add $15. {WAIVER_MAX - used} left this week. Tap bench to drop, then a free agent.
+          </p>
           <ul className="mt-3 flex flex-col gap-1.5">
             {fa.map((pl) => (
               <li key={pl.id}>
@@ -498,6 +502,8 @@ function MatchupScreen() {
           lockUnplayed={locking}
         />
       </div>
+
+      {!locking && away !== you && <TradePad you={you} them={away} />}
 
       <div className="mt-8">
         <NightBroadcast
@@ -677,6 +683,73 @@ function OffseasonScreen() {
         {holes > 0 ? "Open the auction" : "Open the season"}
       </Button>
     </main>
+  );
+}
+
+function TradePad({ you, them }: { you: string; them: string }) {
+  const rosters = useGame((s) => s.rosters);
+  const teams = useGame((s) => s.teams);
+  const trades = useGame((s) => s.trades ?? []);
+  const offerTrade = useGame((s) => s.offerTrade);
+  const takeTrade = useGame((s) => s.takeTrade);
+  const passTrade = useGame((s) => s.passTrade);
+  const [giveId, setGive] = useState<string | null>(null);
+  const [getId, setGet] = useState<string | null>(null);
+  const mine = rosterPlayerIds(rosters[you]!);
+  const theirs = rosterPlayerIds(rosters[them]!);
+  const open = trades.filter((t) => t.status === "open" && (t.toId === you || t.fromId === you));
+  return (
+    <section className="mt-8 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+      <p className="font-mono text-[11px] tracking-wide text-muted uppercase">Trade</p>
+      <h2 className="mt-2 font-display text-2xl font-semibold">1-for-1 vs {teamById(teams, them).name}</h2>
+      <p className="mt-1 text-sm text-muted">Tap yours, tap theirs, send. Bots take it if the ovr is close.</p>
+      <p className="mt-4 font-mono text-[11px] text-muted uppercase">You send</p>
+      <ul className="mt-2 flex flex-col gap-1">
+        {mine.map((id) => (
+          <li key={id}>
+            <PlayerRow player={getPlayer(id)} dense active={giveId === id} onClick={() => setGive(id)} />
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 font-mono text-[11px] text-muted uppercase">You get</p>
+      <ul className="mt-2 flex flex-col gap-1">
+        {theirs.map((id) => (
+          <li key={id}>
+            <PlayerRow player={getPlayer(id)} dense active={getId === id} onClick={() => setGet(id)} />
+          </li>
+        ))}
+      </ul>
+      <Button
+        className="mt-4"
+        disabled={!giveId || !getId}
+        onClick={() => {
+          if (!giveId || !getId) return;
+          offerTrade(them, giveId, getId);
+          setGive(null);
+          setGet(null);
+        }}
+      >
+        Send trade
+      </Button>
+      {open.map((t) => (
+        <div key={t.id} className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+          <span>
+            {getPlayer(t.giveId).name} for {getPlayer(t.getId).name}
+          </span>
+          {t.toId === you && t.status === "open" && (
+            <>
+              <Button size="sm" onClick={() => takeTrade(t.id)}>
+                Accept
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => passTrade(t.id)}>
+                Pass
+              </Button>
+            </>
+          )}
+          {t.fromId === you && t.status === "open" && <span className="text-muted">Waiting</span>}
+        </div>
+      ))}
+    </section>
   );
 }
 

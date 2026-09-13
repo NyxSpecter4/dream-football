@@ -9,6 +9,8 @@ import {
   REGULAR_WEEKS,
   ROSTER_SIZE,
   SALARY_CAP,
+  FAAB_BUDGET,
+  WAIVER_MAX,
   STARTER_SLOTS,
   type Career,
   type Contract,
@@ -19,6 +21,7 @@ import {
   type Screen,
   type Slot,
   type TickerState,
+  type TradeOffer,
 } from "./types";
 import { emptyRoster, placePlayer, dropPlayer, swapLineup, autoSetLineup, buildLeague, buildOnlineLeague, seasonSchedule, rosterPlayerIds, ensureClubHomes } from "./league";
 import {
@@ -50,7 +53,7 @@ import { capSpace, cpuRefresh, cutPlayerFromClub } from "./franchise";
 import { anyHumanCanBid, type LobbyIdentity, type MeshPeer, type RemoteAct } from "./net";
 import type { WireGame, WireStat } from "./wire";
 
-const SAVE_VERSION = 10;
+const SAVE_VERSION = 11;
 const CAREER_KEY = "night-league-career";
 let remoteApplying = false;
 let lastSoloPersist: Record<string, unknown> | null = null;
@@ -107,6 +110,8 @@ function emptySave(): SaveState {
     playoffBracket: null,
     waiverUsedWeek: 0,
     waiverClaims: [],
+    faab: {},
+    trades: [],
     cash: {},
     bets: [],
     mode: "solo",
@@ -189,6 +194,9 @@ type GameStore = SaveState & {
   closeTicker: () => void;
   claimWaiver: (addId: string, dropId: string, teamId?: string) => void;
   skipWaiver: (teamId?: string) => void;
+  offerTrade: (toId: string, giveId: string, getId: string, teamId?: string) => void;
+  takeTrade: (id: string, teamId?: string) => void;
+  passTrade: (id: string, teamId?: string) => void;
   offerBet: (toId: string, stake: number, teamId?: string) => void;
   takeBet: (id: string, teamId?: string) => void;
   passBet: (id: string, teamId?: string) => void;
@@ -332,10 +340,12 @@ export const useGame = create<GameStore>()(
         const rosters: SaveState["rosters"] = {};
         const budgets: Record<string, number> = {};
         const cash: Record<string, number> = {};
+        const faab: Record<string, number> = {};
         for (const t of teams) {
           rosters[t.id] = emptyRoster();
           budgets[t.id] = SALARY_CAP;
           cash[t.id] = HOUSE_CASH;
+          faab[t.id] = FAAB_BUDGET;
         }
         const boot = () =>
           set({
@@ -345,6 +355,7 @@ export const useGame = create<GameStore>()(
             rosters,
             budgets,
             cash,
+            faab,
             screen: "draft",
             phase: "draft",
             career: get().career,
@@ -373,10 +384,12 @@ export const useGame = create<GameStore>()(
         const rosters: SaveState["rosters"] = {};
         const budgets: Record<string, number> = {};
         const cash: Record<string, number> = {};
+        const faab: Record<string, number> = {};
         for (const t of teams) {
           rosters[t.id] = emptyRoster();
           budgets[t.id] = SALARY_CAP;
           cash[t.id] = HOUSE_CASH;
+          faab[t.id] = FAAB_BUDGET;
         }
         const myTeam = peerTeams[localPeerId] ?? teams[0]!.id;
         const boot = () =>
@@ -387,6 +400,7 @@ export const useGame = create<GameStore>()(
             rosters,
             budgets,
             cash,
+            faab,
             screen: "draft",
             phase: "draft",
             playerTeamId: myTeam,
@@ -878,16 +892,20 @@ export const useGame = create<GameStore>()(
         const s = get();
         if (s.week > REGULAR_WEEKS) return;
         const who = teamId ?? s.playerTeamId;
-        if (s.waiverClaims.includes(who)) return;
+        const used = s.waiverClaims.filter((id) => id === who).length;
+        if (used >= WAIVER_MAX) return;
+        const faab = { ...(s.faab ?? {}) };
+        const bid = 15;
+        if ((faab[who] ?? 0) < bid) return;
         let roster = s.rosters[who]!;
         if (dropId) roster = dropPlayer(roster, dropId);
         if (rosterPlayerIds(roster).length >= ROSTER_SIZE) return;
         roster = placePlayer(roster, addId);
         const next = { ...s.rosters, [who]: roster };
         const claims = [...s.waiverClaims, who];
+        faab[who] = (faab[who] ?? 0) - bid;
 
-        const humansLeft = s.teams.filter((t) => t.human && !claims.includes(t.id));
-        if (humansLeft.length === 0) {
+        if (s.teams.filter((t) => t.human).every((t) => claims.includes(t.id) || t.id === who)) {
           const owned = ownedSet(next);
           const fas = freeAgents(owned);
           for (const team of s.teams) {
@@ -901,12 +919,13 @@ export const useGame = create<GameStore>()(
             const best = fas.find(
               (p) => !owned.has(p.id) && remainingValue(p, s.week) > (worst ? remainingValue(worst, s.week) + 4 : 0),
             );
-            if (best && worst) {
+            if (best && worst && (faab[team.id] ?? 0) >= bid) {
               r = dropPlayer(r, worst.id);
               r = placePlayer(r, best.id);
               next[team.id] = autoSetLineup(r, s.week, rankPlayer);
               owned.delete(worst.id);
               owned.add(best.id);
+              faab[team.id] = (faab[team.id] ?? 0) - bid;
             }
           }
         }
@@ -915,7 +934,8 @@ export const useGame = create<GameStore>()(
           rosters: next,
           waiverClaims: claims,
           waiverUsedWeek: s.week,
-          screen: "home",
+          faab,
+          screen: used + 1 >= WAIVER_MAX ? "home" : "roster",
         });
       },
 
@@ -925,6 +945,85 @@ export const useGame = create<GameStore>()(
         const who = teamId ?? s.playerTeamId;
         const claims = s.waiverClaims.includes(who) ? s.waiverClaims : [...s.waiverClaims, who];
         set({ waiverClaims: claims, waiverUsedWeek: s.week, screen: "home" });
+      },
+
+      offerTrade: (toId, giveId, getId, teamId) => {
+        if (guestSend(get, { k: "trade", toId, giveId, getId })) return;
+        const s = get();
+        const who = teamId ?? s.playerTeamId;
+        if (who === toId) return;
+        if (s.phase !== "regular" && s.phase !== "playoffs") return;
+        if (!rosterPlayerIds(s.rosters[who]!).includes(giveId)) return;
+        if (!rosterPlayerIds(s.rosters[toId]!).includes(getId)) return;
+        const offer: TradeOffer = {
+          id: `tr-${Date.now().toString(36)}`,
+          week: s.week,
+          fromId: who,
+          toId,
+          giveId,
+          getId,
+          status: "open",
+        };
+        const them = s.teams.find((t) => t.id === toId);
+        const apply = () => {
+          let a = s.rosters[who]!;
+          let b = s.rosters[toId]!;
+          a = dropPlayer(a, giveId);
+          b = dropPlayer(b, getId);
+          a = placePlayer(a, getId);
+          b = placePlayer(b, giveId);
+          const contracts = s.contracts.map((c) => {
+            if (c.playerId === giveId) return { ...c, teamId: toId };
+            if (c.playerId === getId) return { ...c, teamId: who };
+            return c;
+          });
+          return { rosters: { ...s.rosters, [who]: a, [toId]: b }, contracts };
+        };
+        if (them && !them.human) {
+          const give = getPlayer(giveId);
+          const getp = getPlayer(getId);
+          if (getp.ovr >= give.ovr - 3) {
+            set({ ...apply(), trades: [...(s.trades ?? []), { ...offer, status: "done" }] });
+            return;
+          }
+          set({ trades: [...(s.trades ?? []), { ...offer, status: "dead" }] });
+          return;
+        }
+        set({ trades: [...(s.trades ?? []), offer] });
+      },
+
+      takeTrade: (id, teamId) => {
+        if (guestSend(get, { k: "takeTrade", id })) return;
+        const s = get();
+        const who = teamId ?? s.playerTeamId;
+        const offer = (s.trades ?? []).find((t) => t.id === id);
+        if (!offer || offer.status !== "open") return;
+        if (offer.toId !== who && offer.fromId !== who) return;
+        let a = s.rosters[offer.fromId]!;
+        let b = s.rosters[offer.toId]!;
+        a = dropPlayer(a, offer.giveId);
+        b = dropPlayer(b, offer.getId);
+        a = placePlayer(a, offer.getId);
+        b = placePlayer(b, offer.giveId);
+        const contracts = s.contracts.map((c) => {
+          if (c.playerId === offer.giveId) return { ...c, teamId: offer.toId };
+          if (c.playerId === offer.getId) return { ...c, teamId: offer.fromId };
+          return c;
+        });
+        set({
+          rosters: { ...s.rosters, [offer.fromId]: a, [offer.toId]: b },
+          contracts,
+          trades: (s.trades ?? []).map((t) => (t.id === id ? { ...t, status: "done" as const } : t)),
+        });
+      },
+
+      passTrade: (id, teamId) => {
+        if (guestSend(get, { k: "passTrade", id })) return;
+        const s = get();
+        set({
+          trades: (s.trades ?? []).map((t) => (t.id === id ? { ...t, status: "dead" as const } : t)),
+        });
+        void teamId;
       },
 
       offerBet: (toId, stake, teamId) => {
@@ -1198,6 +1297,9 @@ export const useGame = create<GameStore>()(
           else if (act.k === "closeTicker") get().closeTicker();
           else if (act.k === "claimWaiver") get().claimWaiver(act.addId, act.dropId, teamId);
           else if (act.k === "skipWaiver") get().skipWaiver(teamId);
+          else if (act.k === "trade") get().offerTrade(act.toId, act.giveId, act.getId, teamId);
+          else if (act.k === "takeTrade") get().takeTrade(act.id, teamId);
+          else if (act.k === "passTrade") get().passTrade(act.id, teamId);
           else if (act.k === "bet") get().offerBet(act.toId, act.stake, teamId);
           else if (act.k === "takeBet") get().takeBet(act.id, teamId);
           else if (act.k === "passBet") get().passBet(act.id, teamId);
@@ -1236,6 +1338,8 @@ export const useGame = create<GameStore>()(
           playoffBracket: null,
           waiverUsedWeek: 0,
           waiverClaims: [] as string[],
+          faab: {} as Record<string, number>,
+          trades: [] as SaveState["trades"],
           cash: {} as Record<string, number>,
           bets: [] as SaveState["bets"],
           mode: "solo" as const,
@@ -1274,6 +1378,8 @@ export const useGame = create<GameStore>()(
           playoffBracket: s.playoffBracket,
           waiverUsedWeek: s.waiverUsedWeek,
           waiverClaims: s.waiverClaims ?? [],
+          faab: s.faab ?? {},
+          trades: s.trades ?? [],
           cash: s.cash ?? {},
           bets: s.bets ?? [],
           mode: "solo" as const,
