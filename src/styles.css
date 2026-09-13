@@ -260,6 +260,8 @@
 .stat-chip-live {
   animation: going 900ms ease-in-out infinite;
 }
+
+.player-mark {
   display: inline-flex;
   width: 2.5rem;
   height: 2.5rem;
