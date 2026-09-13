@@ -69,11 +69,13 @@ export function PlayerRow({
   trailing,
   onClick,
   active,
+  dense,
 }: {
   player: Player;
   trailing?: ReactNode;
   onClick?: () => void;
   active?: boolean;
+  dense?: boolean;
 }) {
   const { data } = useWire();
   const st = data?.stats[player.id];
@@ -106,7 +108,7 @@ export function PlayerRow({
             ? ` · ${st.pts.toFixed(1)}/${d.mid.toFixed(1)} PPR`
             : ` · ${d.mid.toFixed(1)} proj · ${d.floor.toFixed(0)}–${d.ceil.toFixed(0)}`}
         </span>
-        {chips.length > 0 && (
+        {chips.length > 0 && !dense && (
           <span className="stagger-in mt-1.5 flex flex-wrap gap-1.5">
             {chips.map((c) => (
               <span

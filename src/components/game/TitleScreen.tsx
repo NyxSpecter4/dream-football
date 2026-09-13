@@ -13,7 +13,7 @@ export function TitleScreen() {
   const career = useGame((s) => s.career);
   const teams = useGame((s) => s.teams);
   const phase = useGame((s) => s.phase);
-  const startSetup = useGame((s) => s.startSetup);
+  const startSeason = useGame((s) => s.startSeason);
   const setScreen = useGame((s) => s.setScreen);
   const resetSeason = useGame((s) => s.resetSeason);
   const watchNight = useGame((s) => s.watchNight);
@@ -62,7 +62,7 @@ export function TitleScreen() {
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            $301.2M cap. $885K floor. This week's NFL scores. Eight clubs.
+            Draft 10 NFL players. $301.2M. Score this Sunday.
           </p>
         </div>
 
@@ -70,29 +70,32 @@ export function TitleScreen() {
           {hasSave && (
             <Button
               size="lg"
+              className="min-h-14"
               onClick={() => {
                 unlockAudio();
                 startBed();
                 setScreen(phase === "draft" ? "draft" : phase === "offseason" ? "offseason" : "home");
               }}
             >
-              Continue your season
+              Continue
             </Button>
           )}
           <Button
             size="lg"
+            className="min-h-14"
             variant={hasSave ? "secondary" : "primary"}
             onClick={() => {
               unlockAudio();
               startBed();
               if (hasSave) resetSeason();
-              startSetup();
+              startSeason("Dream", "DRM", "midnight", "Dallas", "Trinity Field");
             }}
           >
-            Start a season
+            Start the draft
           </Button>
           <Button
             size="lg"
+            className="min-h-14"
             variant="secondary"
             onClick={() => {
               unlockAudio();

@@ -244,6 +244,7 @@ export function AuctionScreen() {
                 <li key={pl.id}>
                   <PlayerRow
                     player={pl}
+                    dense
                     active={selected === pl.id}
                     onClick={
                       myNomination
