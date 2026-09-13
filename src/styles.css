@@ -528,3 +528,41 @@
     text-shadow: none;
   }
 }
+
+.plugin-bar {
+  background: color-mix(in oklab, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-border);
+}
+
+html[data-platform="espn"] {
+  --color-accent: #de041c;
+  --color-accent-fg: #fff;
+  --color-field: #c8102e;
+  --color-live: #ff4d4d;
+  --color-win: #1a7f3c;
+}
+html[data-platform="yahoo"] {
+  --color-bg: #1a0b2e;
+  --color-surface: #2a1648;
+  --color-surface-2: #3b1d63;
+  --color-accent: #7b1fa2;
+  --color-accent-fg: #fff;
+  --color-field: #6001d2;
+  --color-live: #e9b3ff;
+}
+html[data-platform="sleeper"] {
+  --color-bg: #0d0a16;
+  --color-surface: #1a1430;
+  --color-surface-2: #261e45;
+  --color-accent: #b9a8ff;
+  --color-accent-fg: #120c22;
+  --color-field: #6c5ce7;
+  --color-live: #9b8cff;
+}
+
+html[data-platform="espn"] .plugin-bar,
+html[data-platform="yahoo"] .plugin-bar,
+html[data-platform="sleeper"] .plugin-bar {
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--color-accent) 35%, transparent);
+}

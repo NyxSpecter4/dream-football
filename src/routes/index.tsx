@@ -8,6 +8,7 @@ import { LeagueApp } from "@/components/game/LeagueApp";
 import { OnlineBridge } from "@/components/game/OnlineBridge";
 import { useGame } from "@/game/store";
 import { parseRoomCode } from "@/game/net";
+import { PluginBar } from "@/components/game/PluginBar";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -48,6 +49,7 @@ function Home() {
 
   return (
     <>
+      <PluginBar />
       {online && roomCode && identity ? <OnlineBridge key={roomCode} /> : null}
       {screen === "title" || (league && teams.length === 0) ? <TitleScreen /> : null}
       {screen === "setup" ? <SetupScreen /> : null}

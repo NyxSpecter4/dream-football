@@ -58,13 +58,13 @@ export function TitleScreen() {
             <circle cx="24" cy="3" r="1.6" fill="currentColor" />
           </svg>
           <p className="mb-3 font-mono text-[11px] tracking-[0.22em] text-muted uppercase">
-            Fantasy manager
+            ESPN · Yahoo · Sleeper companion
           </p>
           <h1 className="wordmark font-display text-6xl font-semibold tracking-tight text-fg sm:text-7xl">
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            Your club. The Sunday desk. Cindy if she shows.
+            Looks like their overlay. Plays as our league. Link a public Sleeper name or ESPN ID up top.
           </p>
           <div className="mt-8">
             <RoundTable />
