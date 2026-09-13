@@ -47,6 +47,7 @@ import {
   standings,
 } from "./simulate";
 import { adoptBoard, getPlayer } from "./players";
+import { botHelloLines } from "./bots";
 import { calendarNight } from "./nfl";
 import { autoTakeCpu, canStake, newBetId, settleWeek } from "./cash";
 import { capSpace, cpuRefresh, cutPlayerFromClub } from "./franchise";
@@ -362,6 +363,7 @@ export const useGame = create<GameStore>()(
             budgets,
             cash,
             faab,
+            chatLog: botHelloLines(),
             screen: "draft",
             phase: "draft",
             career: get().career,
@@ -407,6 +409,7 @@ export const useGame = create<GameStore>()(
             budgets,
             cash,
             faab,
+            chatLog: botHelloLines().slice(0, Math.max(0, teams.filter((t) => !t.human).length)),
             screen: "draft",
             phase: "draft",
             playerTeamId: myTeam,

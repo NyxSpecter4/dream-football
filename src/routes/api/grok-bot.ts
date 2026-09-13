@@ -1,19 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-const CANNED: Record<string, string[]> = {
-  "Grok Zero": ["Stars cost stars. I'm not scared of the cap.", "If he's a WR1 I'm in."],
-  "Grok Fade": ["That's a year late. I'll wait.", "Value or I pass."],
-  "Grok Smash": ["Give me the back. I'll pay.", "RBs don't grow on waivers."],
-  "Grok Cold": ["Weather's a factor. I'm fading that card.", "Sit him. I'm not cute."],
-  "Grok Prime": ["That's the pick. Don't overthink it.", "I like the spot."],
-  "Grok Pack": ["Titletown doesn't panic.", "We'll see him in January."],
-  "Grok Wire": ["Trending for a reason. I filed."],
-};
+import { GROK_BOTS } from "@/game/bots";
 
 function canned(manager: string, human: string) {
-  const pool = CANNED[manager] ?? ["Noted."];
-  const line = pool[Math.floor(Math.random() * pool.length)]!;
-  return `${human}? ${line}`;
+  const bot = GROK_BOTS.find((b) => b.manager === manager);
+  return `${human}? ${bot?.hello ?? "Noted."}`;
 }
 
 const handle = async ({ request }: { request: Request }) => {
@@ -28,6 +18,7 @@ const handle = async ({ request }: { request: Request }) => {
   const manager = (body.manager || "Grok Zero").slice(0, 24);
   const human = (body.human || "You").slice(0, 22);
   const text = (body.text || "").slice(0, 140);
+  const vibe = GROK_BOTS.find((b) => b.manager === manager)?.vibe ?? "sharp, short.";
 
   const apiKey = process.env.XAI_API_KEY;
   if (!apiKey) {
@@ -48,7 +39,7 @@ const handle = async ({ request }: { request: Request }) => {
         messages: [
           {
             role: "system",
-            content: `You are ${manager}, a rival fantasy football manager in Dream Football. One short trash-talk line. No emojis. No hashtags. Under 18 words.`,
+            content: `You are ${manager}, a rival fantasy manager in Dream Football. Voice: ${vibe} One trash-talk line. No emojis. No hashtags. Under 18 words.`,
           },
           { role: "user", content: `${human} said: ${text}` },
         ],

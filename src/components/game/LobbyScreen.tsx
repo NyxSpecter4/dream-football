@@ -75,21 +75,21 @@ function LobbyGate() {
           Back
         </button>
         <h1 className="mt-8 font-display text-4xl font-semibold tracking-tight">
-          {pending ? "Join the room" : "Play with a friend"}
+          {pending ? "Cindy's joining" : "You and Cindy"}
         </h1>
         <p className="mt-2 text-sm text-muted">
           {pending
-            ? "Type your name. Tap Join. Stay on this page."
+            ? "Your name. Join. Six Grok bots already sit the other seats."
             : isLiveShareHost()
-              ? "You host. She opens this same site, types your 4-letter code, taps Join."
-              : "Both of you must use nl-play.vercel.app — this preview will not reach her phone."}
+              ? "Host. Send Cindy the 4-letter code. Six Grok bots fill the table."
+              : "Both of you open nl-play.vercel.app. Six Grok bots take the other seats."}
         </p>
 
         <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Your name</label>
         <input
           value={name}
           maxLength={22}
-          placeholder="Your name"
+          placeholder="You or Cindy"
           onChange={(e) => setName(e.target.value)}
           className="mt-2 h-12 rounded-lg bg-surface px-4 text-base text-fg shadow-[var(--shadow-border)] outline-none focus:ring-2 focus:ring-accent/40"
         />
