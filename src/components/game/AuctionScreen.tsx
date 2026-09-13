@@ -12,6 +12,7 @@ import { canTeamBid } from "@/game/net";
 import { sfxBid, sfxSold, sfxTick, sfxWhoosh } from "@/game/audio";
 import { BID_STEP, MIN_BID, ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
 import { BoardGuide } from "./BoardGuide";
+import { RoundTable } from "./RoundTable";
 import { cn } from "@/lib/utils";
 
 const POS_FILTERS: Array<Position | "ALL"> = ["ALL", "QB", "RB", "WR", "TE", "K", "DST"];
@@ -131,6 +132,10 @@ export function AuctionScreen() {
             )}
           </div>
         </header>
+
+        <div className="mt-4">
+          <RoundTable compact hotId={block?.highBidderId} />
+        </div>
 
         {online && <RoomBar className="mt-3" />}
 

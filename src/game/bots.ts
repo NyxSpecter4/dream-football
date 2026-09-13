@@ -18,6 +18,7 @@ export type GrokBot = {
   hello: string;
   aggression: number;
   style: DeskStyle;
+  avatar: string;
 };
 
 export const GROK_BOTS: GrokBot[] = [
@@ -34,6 +35,7 @@ export const GROK_BOTS: GrokBot[] = [
     hello: "Harlan. The board is the board. I'm not here to be interesting.",
     aggression: 1.08,
     style: "chalk",
+    avatar: "/art/desk/harlan.jpg",
   },
   {
     manager: "Tess Voss",
@@ -48,6 +50,7 @@ export const GROK_BOTS: GrokBot[] = [
     hello: "Voss. I watched the tape. Your crush is a scheme guy.",
     aggression: 0.96,
     style: "film",
+    avatar: "/art/desk/voss.jpg",
   },
   {
     manager: "Boone Gantry",
@@ -62,6 +65,7 @@ export const GROK_BOTS: GrokBot[] = [
     hello: "Gantry. Give me the passer. I'll find him the ball.",
     aggression: 1.12,
     style: "qb",
+    avatar: "/art/desk/gantry.jpg",
   },
   {
     manager: "Kit Rourke",
@@ -76,6 +80,7 @@ export const GROK_BOTS: GrokBot[] = [
     hello: "Rourke. If the room loves him, I'm out.",
     aggression: 1.04,
     style: "fade",
+    avatar: "/art/desk/rourke.jpg",
   },
   {
     manager: "Marlo Quinn",
@@ -90,6 +95,7 @@ export const GROK_BOTS: GrokBot[] = [
     hello: "Quinn. Practice squad today, your WR1 on Thursday.",
     aggression: 1.06,
     style: "wire",
+    avatar: "/art/desk/quinn.jpg",
   },
   {
     manager: "Cal Decker",
@@ -104,6 +110,7 @@ export const GROK_BOTS: GrokBot[] = [
     hello: "Decker. Running backs. That's the sport.",
     aggression: 1.22,
     style: "rb",
+    avatar: "/art/desk/decker.jpg",
   },
   {
     manager: "Wes Prynne",
@@ -118,6 +125,7 @@ export const GROK_BOTS: GrokBot[] = [
     hello: "Prynne. If the flags are out, sit him.",
     aggression: 0.94,
     style: "weather",
+    avatar: "/art/desk/prynne.jpg",
   },
 ];
 

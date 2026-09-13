@@ -8,6 +8,7 @@ import { useGame } from "@/game/store";
 import { unlockAudio, startBed, stopBed } from "@/game/audio";
 import { teamOf } from "@/game/nfl";
 import { pickWireFeatured, useWire, watchPool } from "@/game/wire";
+import { RoundTable } from "./RoundTable";
 
 export function TitleScreen() {
   const career = useGame((s) => s.career);
@@ -64,6 +65,9 @@ export function TitleScreen() {
           <p className="mt-4 max-w-sm text-base text-muted">
             You, Cindy, and the Sunday desk. They bid like the show. They remember who beat them.
           </p>
+          <div className="mt-8">
+            <RoundTable />
+          </div>
         </div>
 
         <div className="flex flex-col gap-3">

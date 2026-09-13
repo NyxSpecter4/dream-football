@@ -9,6 +9,7 @@ import { newRoomCode, parseRoomCode, isLiveShareHost, roomShareUrl } from "@/gam
 import { TEAM_COUNT, type JerseyId } from "@/game/types";
 import { cn } from "@/lib/utils";
 import { unlockAudio } from "@/game/audio";
+import { RoundTable } from "./RoundTable";
 
 export function LobbyScreen() {
   const online = useGame((s) => s.online);
@@ -255,6 +256,9 @@ function WaitingRoom() {
         </button>
         <p className="mt-8 font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Private room</p>
         <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Dream Football</h1>
+        <div className="mt-6">
+          <RoundTable compact />
+        </div>
         <p className="mt-2 text-sm text-muted">
           {lateJoinBlocked
             ? "This game already started. Leave and host a new room."

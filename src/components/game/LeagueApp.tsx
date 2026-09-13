@@ -20,6 +20,7 @@ import { pickWireForOwned, useWire } from "@/game/wire";
 import { LiveScorePeek, MatchupBoard, ScoringCard } from "./MatchupBoard";
 import { BoardGuide, GuideLink } from "./BoardGuide";
 import { StadiumHero } from "./StadiumHero";
+import { RoundTable } from "./RoundTable";
 import { nflContext, weekLocked } from "@/game/scoring";
 import { GROK_BOTS, botByManager } from "@/game/bots";
 import { memOf } from "@/game/bot-memory";
@@ -222,6 +223,9 @@ function HomeScreen() {
           jersey={youTeam.jersey}
           club={youTeam.name}
         />
+      </div>
+      <div className="mt-4">
+        <RoundTable compact />
       </div>
       <p className="mt-2 font-mono text-sm tabular-nums text-muted">
         {youRow ? `${youRow.wins}–${youRow.losses}` : "0–0"}
@@ -695,6 +699,13 @@ function StandingsScreen() {
               return (
                 <li key={t.id} className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
                   <p className="font-display text-lg font-semibold">{t.manager}</p>
+                  {bot?.avatar && (
+                    <img
+                      src={bot.avatar}
+                      alt=""
+                      className="mt-2 size-16 rounded-full object-cover ring-2 ring-white/15"
+                    />
+                  )}
                   <p className="mt-0.5 text-xs text-muted">
                     {bot?.desk} · {t.name} · {t.city}
                   </p>
