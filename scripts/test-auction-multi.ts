@@ -2,7 +2,7 @@
  * Two-human auction: both bags can bid the same name.
  * Run: npx tsx scripts/test-auction-multi.ts
  */
-import { PLAYERS } from "../src/game/players.ts";
+import { PLAYERS, getPlayer } from "../src/game/players.ts";
 import { marketValue, nextRaise, maxAffordable, spotsLeft, openBlock } from "../src/game/draft.ts";
 import { canTeamBid } from "../src/game/net.ts";
 import { emptyRoster } from "../src/game/league.ts";
@@ -83,10 +83,10 @@ const g = useGame.getState();
 const dream = g.teams.find((t) => t.peerId === "p1")!;
 const cindy = g.teams.find((t) => t.peerId === "p2")!;
 useGame.setState({ playerTeamId: dream.id, isHost: true, online: true, mode: "online" });
-useGame.getState().nominate("qb-allen", dream.id);
+for (let i = 0; i < 16 && !useGame.getState().block; i++) useGame.getState().cpuStep();
 let st = useGame.getState();
 if (!st.block) {
-  console.error("FAIL nominate did not open the block");
+  console.error("FAIL desk did not open the block");
   process.exit(1);
 }
 useGame.getState().bid(nextRaise(st.block.highBid), cindy.id);
@@ -102,7 +102,9 @@ if (st.block?.highBidderId !== dream.id) {
   process.exit(1);
 }
 console.log(
-  "Store: Dream nominated Allen, Cindy bid",
+  "Store:",
+  getPlayer(st.block.playerId).name,
+  "Cindy bid",
   fmtMoney(cindyBid),
   "Dream raised to",
   fmtMoney(st.block.highBid),
