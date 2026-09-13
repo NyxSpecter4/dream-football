@@ -47,7 +47,7 @@ import {
   standings,
 } from "./simulate";
 import { adoptBoard, getPlayer } from "./players";
-import { botHelloLines } from "./bots";
+import { botHelloLines, botByManager } from "./bots";
 import { calendarNight } from "./nfl";
 import { autoTakeCpu, canStake, newBetId, settleWeek } from "./cash";
 import { capSpace, cpuRefresh, cutPlayerFromClub } from "./franchise";
@@ -127,7 +127,8 @@ function aggressionMap(teams: SaveState["teams"], seed: number): Record<string, 
   const rand = mulberry32(hashSeed(seed, "agg"));
   const map: Record<string, number> = {};
   for (const t of teams) {
-    map[t.id] = t.human ? 1 : 0.88 + rand() * 0.34;
+    const bot = t.manager ? botByManager(t.manager) : undefined;
+    map[t.id] = t.human ? 1 : (bot?.aggression ?? 0.88 + rand() * 0.34);
   }
   return map;
 }
