@@ -22,6 +22,7 @@ import { BoardGuide, GuideLink } from "./BoardGuide";
 import { StadiumHero } from "./StadiumHero";
 import { nflContext, weekLocked } from "@/game/scoring";
 import { GROK_BOTS, botByManager } from "@/game/bots";
+import { memOf } from "@/game/bot-memory";
 
 export function LeagueApp() {
   const screen = useGame((s) => s.screen);
@@ -114,7 +115,7 @@ function ChatDock() {
   return (
     <section className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
       <p className="font-mono text-[11px] tracking-wide text-muted uppercase">League chat</p>
-      <p className="mt-1 text-xs text-muted">You, Cindy, Grok Zero, Fade, Smash, Cold, Prime, Pack, Wire.</p>
+      <p className="mt-1 text-xs text-muted">You, Cindy, and the desk — Harlan, Voss, Gantry, Rourke, Quinn, Decker, Prynne.</p>
       <ul className="mt-2 max-h-32 space-y-1 overflow-y-auto">
         {log.length === 0 && <li className="text-sm text-muted">Talk. A Grok manager will answer.</li>}
         {log.map((row) => (
@@ -136,7 +137,7 @@ function ChatDock() {
           void fetch("/api/grok-bot", {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ manager: bot?.manager ?? "Grok Zero", human, text: msg }),
+            body: JSON.stringify({ manager: bot?.manager ?? "Lane Harlan", human, text: msg }),
           })
             .then((r) => r.json())
             .then((d: { reply?: string; manager?: string }) => {
@@ -650,7 +651,7 @@ function StandingsScreen() {
     <main className="px-5 pt-8">
       <p className="font-mono text-[11px] tracking-[0.18em] text-muted uppercase">Dream Football</p>
       <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Table</h1>
-      <p className="mt-2 text-sm text-muted">You, Cindy, six Grok bots. Top four after week {REGULAR_WEEKS}.</p>
+      <p className="mt-2 text-sm text-muted">You, Cindy, the Sunday desk. Top four after week {REGULAR_WEEKS}.</p>
       <ol className="mt-6 divide-y divide-border rounded-xl bg-surface shadow-[var(--shadow-border)]">
         {rows.map((row, i) => {
           const team = teamById(teams, row.teamId);
@@ -684,19 +685,25 @@ function StandingsScreen() {
       </ol>
 
       <section className="mt-8">
-        <h2 className="font-display text-xl font-semibold">The bots</h2>
+        <h2 className="font-display text-xl font-semibold">The desk</h2>
         <ul className="mt-3 flex flex-col gap-2">
           {teams
             .filter((t) => t.manager)
             .map((t) => {
               const bot = botByManager(t.manager!);
+              const mem = memOf(t.manager!);
               return (
                 <li key={t.id} className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
                   <p className="font-display text-lg font-semibold">{t.manager}</p>
                   <p className="mt-0.5 text-xs text-muted">
-                    {t.name} · {t.city}
+                    {bot?.desk} · {t.name} · {t.city}
                   </p>
                   <p className="mt-2 text-sm text-muted">{bot?.vibe}</p>
+                  {mem.seasons > 0 && (
+                    <p className="mt-2 font-mono text-[11px] text-subtle">
+                      {mem.seasons} yr · {mem.titles} titles · {mem.lesson}
+                    </p>
+                  )}
                 </li>
               );
             })}

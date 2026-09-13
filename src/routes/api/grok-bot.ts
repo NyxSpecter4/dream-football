@@ -15,10 +15,12 @@ const handle = async ({ request }: { request: Request }) => {
     human?: string;
     text?: string;
   };
-  const manager = (body.manager || "Grok Zero").slice(0, 24);
+  const manager = (body.manager || "Lane Harlan").slice(0, 24);
   const human = (body.human || "You").slice(0, 22);
   const text = (body.text || "").slice(0, 140);
-  const vibe = GROK_BOTS.find((b) => b.manager === manager)?.vibe ?? "sharp, short.";
+  const bot = GROK_BOTS.find((b) => b.manager === manager);
+  const vibe = bot?.vibe ?? "sharp, short.";
+  const desk = bot?.desk ?? "the desk";
 
   const apiKey = process.env.XAI_API_KEY;
   if (!apiKey) {
@@ -41,7 +43,7 @@ const handle = async ({ request }: { request: Request }) => {
           messages: [
             {
               role: "system",
-              content: `You are ${manager}, a rival fantasy manager in Dream Football. Voice: ${vibe} One trash-talk line. No emojis. Under 16 words.`,
+              content: `You are ${manager} (${desk}) on a Sunday NFL pregame desk in Dream Football. Voice: ${vibe} You bid like a professional fantasy manager. One trash-talk line. No emojis. Under 16 words.`,
             },
             { role: "user", content: `${human} said: ${text}` },
           ],

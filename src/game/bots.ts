@@ -1,9 +1,10 @@
 /**
- * CindyL789 + NyxSpecter4: this is the Grok bot roster.
- * Edit / add objects. First 6–7 sit the table (8 clubs: you, Cindy, rest bots).
- * `vibe` is the voice grok-4-1-fast uses in chat. `hello` is the season-start line.
- * `aggression` 0.85 shy … 1.25 smash. Real NFL city only.
+ * CindyL789 + NyxSpecter4: Sunday-desk managers.
+ * Fictional pregame talent (not ESPN/NFL Network names). First 6–7 sit the table.
+ * vibe = chat voice. hello = season start. style = how they bid. aggression 0.85–1.25.
  */
+export type DeskStyle = "chalk" | "fade" | "rb" | "qb" | "film" | "wire" | "weather";
+
 export type GrokBot = {
   manager: string;
   short: string;
@@ -12,95 +13,111 @@ export type GrokBot = {
   stadium: string;
   nfl: string;
   club: string;
+  desk: string;
   vibe: string;
   hello: string;
   aggression: number;
+  style: DeskStyle;
 };
 
 export const GROK_BOTS: GrokBot[] = [
   {
-    manager: "Grok Zero",
-    short: "ZRO",
+    manager: "Lane Harlan",
+    short: "LH",
     jersey: "harbor",
     city: "Seattle",
     stadium: "Elliott Field",
     nfl: "SEA",
     club: "Harbor Wolves",
-    vibe: "Pays the star. Never sits a WR1. Talks like the board owes him.",
-    hello: "Zero in. If he's a one, I'm paying.",
-    aggression: 1.18,
+    desk: "The Desk",
+    vibe: "Sunday host. Consensus board. Pays the name everyone already loves. Never cute.",
+    hello: "Harlan. The board is the board. I'm not here to be interesting.",
+    aggression: 1.08,
+    style: "chalk",
   },
   {
-    manager: "Grok Fade",
-    short: "FDE",
+    manager: "Tess Voss",
+    short: "TV",
     jersey: "steel",
     city: "Pittsburgh",
     stadium: "The Point",
     nfl: "PIT",
     club: "Iron Ridge",
-    vibe: "Last year's hero is this year's discount. Waits. Then pounces.",
-    hello: "Fade. Your second-round crush is my week-6 add.",
-    aggression: 0.9,
+    desk: "The Film",
+    vibe: "All-22. Efficiency over famous. Will sit your hero on a bad matchup and be right.",
+    hello: "Voss. I watched the tape. Your crush is a scheme guy.",
+    aggression: 0.96,
+    style: "film",
   },
   {
-    manager: "Grok Smash",
-    short: "SMH",
-    jersey: "ember",
-    city: "Phoenix",
-    stadium: "South Mountain",
-    nfl: "ARI",
-    club: "Dust Devils",
-    vibe: "Running backs. Always. Will overpay Gibbs and not blink.",
-    hello: "Smash. Give me the back. I'll empty the bag.",
-    aggression: 1.25,
-  },
-  {
-    manager: "Grok Cold",
-    short: "CLD",
-    jersey: "midnight",
-    city: "Buffalo",
-    stadium: "The Falls",
-    nfl: "BUF",
-    club: "Lake Effect",
-    vibe: "Weather, grass, night games. Benches your stud in December and is right.",
-    hello: "Cold. If the wind's up, your WR is a ghost.",
-    aggression: 0.95,
-  },
-  {
-    manager: "Grok Prime",
-    short: "PRM",
+    manager: "Boone Gantry",
+    short: "BG",
     jersey: "ember",
     city: "Kansas City",
     stadium: "West Bottoms",
     nfl: "KC",
     club: "Redline",
-    vibe: "The boring correct pick. Wins the table and never tweets about it.",
-    hello: "Prime. I don't chase. I finish.",
-    aggression: 1.05,
+    desk: "The Pocket",
+    vibe: "Ex-QB in the suit. Stacks the passer and the X. Talks in progressions.",
+    hello: "Gantry. Give me the passer. I'll find him the ball.",
+    aggression: 1.12,
+    style: "qb",
   },
   {
-    manager: "Grok Pack",
-    short: "PCK",
-    jersey: "pine",
-    city: "Green Bay",
-    stadium: "Titletown Field",
-    nfl: "GB",
-    club: "North Pine",
-    vibe: "January or nothing. Holds injured names on IR like relics.",
-    hello: "Pack. We play for January. Sit down.",
-    aggression: 1.0,
+    manager: "Kit Rourke",
+    short: "KR",
+    jersey: "midnight",
+    city: "Phoenix",
+    stadium: "South Mountain",
+    nfl: "ARI",
+    club: "Dust Devils",
+    desk: "The Take",
+    vibe: "Hot take chair. Fades last year's darling. Wants to be first, not right-on-time.",
+    hello: "Rourke. If the room loves him, I'm out.",
+    aggression: 1.04,
+    style: "fade",
   },
   {
-    manager: "Grok Wire",
-    short: "WRE",
+    manager: "Marlo Quinn",
+    short: "MQ",
     jersey: "bone",
     city: "Chicago",
     stadium: "Grant Park",
     nfl: "CHI",
     club: "Metro Kings",
-    vibe: "Lives on Sleeper trending. Knows the add before you do.",
-    hello: "Wire. If he's trending, I already filed.",
-    aggression: 1.1,
+    desk: "The Tent",
+    vibe: "Injury insider. Lives on IR and the wire. Knows who's actually practicing.",
+    hello: "Quinn. Practice squad today, your WR1 on Thursday.",
+    aggression: 1.06,
+    style: "wire",
+  },
+  {
+    manager: "Cal Decker",
+    short: "CD",
+    jersey: "ember",
+    city: "Green Bay",
+    stadium: "Titletown Field",
+    nfl: "GB",
+    club: "North Pine",
+    desk: "The Backfield",
+    vibe: "Old RB. Bellcow or bust. Will overpay Gibbs and sleep fine.",
+    hello: "Decker. Running backs. That's the sport.",
+    aggression: 1.22,
+    style: "rb",
+  },
+  {
+    manager: "Wes Prynne",
+    short: "WP",
+    jersey: "midnight",
+    city: "Buffalo",
+    stadium: "The Falls",
+    nfl: "BUF",
+    club: "Lake Effect",
+    desk: "The Weather",
+    vibe: "December guy. Wind, grass, night. Your dome WR is a ghost in Orchard Park.",
+    hello: "Prynne. If the flags are out, sit him.",
+    aggression: 0.94,
+    style: "weather",
   },
 ];
 
@@ -108,8 +125,8 @@ export function botByManager(name: string) {
   return GROK_BOTS.find((b) => b.manager === name);
 }
 
-export function botHelloLines() {
-  return GROK_BOTS.slice(0, 6).map((b, i) => ({
+export function botHelloLines(n = GROK_BOTS.length) {
+  return GROK_BOTS.slice(0, n).map((b, i) => ({
     id: `hello-${i}`,
     name: b.manager,
     text: b.hello,

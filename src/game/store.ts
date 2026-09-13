@@ -48,6 +48,7 @@ import {
 } from "./simulate";
 import { adoptBoard, getPlayer } from "./players";
 import { botHelloLines, botByManager } from "./bots";
+import { deskAggression, learnSeason } from "./bot-memory";
 import { calendarNight } from "./nfl";
 import { autoTakeCpu, canStake, newBetId, settleWeek } from "./cash";
 import { capSpace, cpuRefresh, cutPlayerFromClub } from "./franchise";
@@ -128,7 +129,7 @@ function aggressionMap(teams: SaveState["teams"], seed: number): Record<string, 
   const map: Record<string, number> = {};
   for (const t of teams) {
     const bot = t.manager ? botByManager(t.manager) : undefined;
-    map[t.id] = t.human ? 1 : (bot?.aggression ?? 0.88 + rand() * 0.34);
+    map[t.id] = t.human ? 1 : deskAggression(t.manager, bot?.aggression ?? 0.88 + rand() * 0.34);
   }
   return map;
 }
@@ -563,6 +564,8 @@ export const useGame = create<GameStore>()(
             s.rosters[nom.teamId]!,
             s.budgets[nom.teamId] ?? 0,
             agg[nom.teamId] ?? 1,
+            botByManager(s.teams.find((t) => t.id === nom.teamId)?.manager ?? "")?.style,
+            s.teams.find((t) => t.id === nom.teamId)?.manager,
           );
           const youRoster = s.rosters[s.playerTeamId];
           const pause =
@@ -784,6 +787,7 @@ export const useGame = create<GameStore>()(
           if (career.bestFinish === null || finish < career.bestFinish) career.bestFinish = finish;
           saveCareer(career);
           set({ career });
+          learnSeason(s.teams, nextResults, championId, s.rosters);
         }
 
         const you = s.playerTeamId;

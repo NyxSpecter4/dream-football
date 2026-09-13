@@ -62,7 +62,7 @@ export function TitleScreen() {
             Dream Football
           </h1>
           <p className="mt-4 max-w-sm text-base text-muted">
-            You, Cindy, and six Grok bots. Sign the roster. Run the club. This NFL Sunday.
+            You, Cindy, and the Sunday desk. They bid like the show. They remember who beat them.
           </p>
         </div>
 

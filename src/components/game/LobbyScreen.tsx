@@ -79,10 +79,10 @@ function LobbyGate() {
         </h1>
         <p className="mt-2 text-sm text-muted">
           {pending
-            ? "Your name. Join. Six Grok bots already sit the other seats."
+            ? "Your name. Join. The Sunday desk already sits the other seats."
             : isLiveShareHost()
-              ? "Host. Send Cindy the 4-letter code. Six Grok bots fill the table."
-              : "Both of you open nl-play.vercel.app. Six Grok bots take the other seats."}
+              ? "Host. Send Cindy the 4-letter code. The desk fills the table."
+              : "Both of you open nl-play.vercel.app. The Sunday desk takes the other seats."}
         </p>
 
         <label className="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Your name</label>

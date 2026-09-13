@@ -1,6 +1,8 @@
 import { allPlayers, getPlayer, PLAYERS } from "./players";
 import { placePlayer, preferredSlot, rosterPlayerIds, slotAccepts } from "./league";
 import { ownedSet, projection } from "./simulate";
+import { botByManager, type DeskStyle } from "./bots";
+import { deskPosBias } from "./bot-memory";
 import {
   BID_STEP,
   MIN_BID,
@@ -108,21 +110,43 @@ export function rankPlayer(id: string): number {
   return projection(getPlayer(id));
 }
 
+function styleStretch(style: DeskStyle | undefined, pos: Position, ovr: number, spots: number): number {
+  switch (style) {
+    case "fade":
+      return ovr >= 90 ? 0.82 : 1.08;
+    case "rb":
+      return pos === "RB" ? 1.2 : pos === "WR" ? 0.9 : 0.95;
+    case "qb":
+      return pos === "QB" || pos === "WR" ? 1.16 : 0.92;
+    case "film":
+      return 0.97;
+    case "wire":
+      return spots <= 4 && ovr < 86 ? 1.14 : 0.94;
+    case "weather":
+      return pos === "K" || pos === "DST" ? (spots <= 3 ? 1.2 : 0.2) : 1;
+    default:
+      return 1;
+  }
+}
+
 export function cpuMaxBid(
   playerId: string,
   roster: Roster,
   budget: number,
   aggression: number,
+  style?: DeskStyle,
+  manager?: string,
 ): number {
   const spots = spotsLeft(roster);
   const cap = maxAffordable(budget, spots);
   if (cap < MIN_BID || spots <= 0) return 0;
   const pl = getPlayer(playerId);
   const fair = marketValue(playerId);
-  const need = needMultiplier(roster, pl.pos);
+  const need = needMultiplier(roster, pl.pos) * deskPosBias(manager, pl.pos);
+  const flavor = styleStretch(style, pl.pos, pl.ovr, spots);
   const stretch = Math.max(
-    0.45,
-    Math.min(1.1, 0.72 + need * 0.16 + (aggression - 1) * 0.28),
+    0.4,
+    Math.min(1.18, 0.7 + need * 0.16 + (aggression - 1) * 0.28) * flavor,
   );
   const raw = fair * stretch;
   const late = spots <= 2 ? Math.min(cap, Math.max(fair * 0.35, MIN_BID)) : raw;
@@ -134,6 +158,8 @@ export function cpuNominate(
   roster: Roster,
   budget: number,
   aggression: number,
+  style?: DeskStyle,
+  manager?: string,
 ): string {
   let best = available[0]!;
   let bestScore = -Infinity;
@@ -143,7 +169,15 @@ export function cpuNominate(
     const pl = getPlayer(id);
     const fair = marketValue(id);
     if (fair > cap + SKILL_RESERVE && spots > 1) continue;
-    const score = fair * needMultiplier(roster, pl.pos) * NEED_WEIGHT[pl.pos] * aggression;
+    if ((pl.pos === "K" || pl.pos === "DST") && spots > 3) continue;
+    const flavor = styleStretch(style, pl.pos, pl.ovr, spots);
+    const score =
+      fair *
+      needMultiplier(roster, pl.pos) *
+      deskPosBias(manager, pl.pos) *
+      NEED_WEIGHT[pl.pos] *
+      aggression *
+      flavor;
     if (score > bestScore) {
       bestScore = score;
       best = id;
@@ -197,6 +231,8 @@ export function nextCpuRaise(
       rosters[team.id]!,
       budgets[team.id] ?? 0,
       aggression[team.id] ?? 1,
+      botByManager(team.manager ?? "")?.style,
+      team.manager,
     );
     if (max > block.highBid) {
       const gap = max - block.highBid;
