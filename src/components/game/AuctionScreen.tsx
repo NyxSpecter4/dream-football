@@ -10,6 +10,7 @@ import { ownedSet } from "@/game/simulate";
 import { rosterPlayerIds, slotLabel, teamById } from "@/game/league";
 import { canTeamBid } from "@/game/net";
 import { sfxBid, sfxSold, sfxTick, sfxWhoosh } from "@/game/audio";
+import { buzz } from "@/game/haptics";
 import { BID_STEP, MIN_BID, ROSTER_SIZE, STARTER_SLOTS, type Position } from "@/game/types";
 import { BoardGuide } from "./BoardGuide";
 import { cn } from "@/lib/utils";
@@ -105,6 +106,8 @@ export function AuctionScreen() {
   useEffect(() => {
     if (!lastSold) return;
     sfxSold();
+    // The gavel you can feel: 20-45-20 lands in the hand while the flash fades on screen.
+    buzz("sold");
     setSoldFlash(lastSold);
     const t = window.setTimeout(() => setSoldFlash(null), 1400);
     return () => window.clearTimeout(t);
@@ -171,10 +174,12 @@ export function AuctionScreen() {
             plan={plan}
             onBid={(n) => {
               sfxBid();
+              buzz("bid");
               bid(n);
             }}
             onPass={() => {
               sfxTick();
+              buzz("tick");
               pass();
             }}
             cap={cap}

@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiGrokBotRouteImport } from './routes/api/grok-bot'
 import { Route as ApiNflRouteImport } from './routes/api/nfl'
 import { Route as ApiRtcRouteImport } from './routes/api/rtc'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGrokBotRoute = ApiGrokBotRouteImport.update({
+  id: '/api/grok-bot',
+  path: '/api/grok-bot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiNflRoute = ApiNflRouteImport.update({
@@ -31,30 +37,34 @@ const ApiRtcRoute = ApiRtcRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/grok-bot': typeof ApiGrokBotRoute
   '/api/nfl': typeof ApiNflRoute
   '/api/rtc': typeof ApiRtcRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/grok-bot': typeof ApiGrokBotRoute
   '/api/nfl': typeof ApiNflRoute
   '/api/rtc': typeof ApiRtcRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/grok-bot': typeof ApiGrokBotRoute
   '/api/nfl': typeof ApiNflRoute
   '/api/rtc': typeof ApiRtcRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/nfl' | '/api/rtc'
+  fullPaths: '/' | '/api/grok-bot' | '/api/nfl' | '/api/rtc'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/nfl' | '/api/rtc'
-  id: '__root__' | '/' | '/api/nfl' | '/api/rtc'
+  to: '/' | '/api/grok-bot' | '/api/nfl' | '/api/rtc'
+  id: '__root__' | '/' | '/api/grok-bot' | '/api/nfl' | '/api/rtc'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiGrokBotRoute: typeof ApiGrokBotRoute
   ApiNflRoute: typeof ApiNflRoute
   ApiRtcRoute: typeof ApiRtcRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/grok-bot': {
+      id: '/api/grok-bot'
+      path: '/api/grok-bot'
+      fullPath: '/api/grok-bot'
+      preLoaderRoute: typeof ApiGrokBotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/nfl': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiGrokBotRoute: ApiGrokBotRoute,
   ApiNflRoute: ApiNflRoute,
   ApiRtcRoute: ApiRtcRoute,
 }

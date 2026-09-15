@@ -14,6 +14,7 @@ import { lineupIds } from "@/game/broadcast";
 import { STAKES } from "@/game/cash";
 import { cn } from "@/lib/utils";
 import { sfxWin, sfxLoss } from "@/game/audio";
+import { buzz } from "@/game/haptics";
 import { salaryOf } from "@/game/franchise";
 import { SALARY_CAP, ROSTER_SIZE, CHAMPIONSHIP_WEEK, PLAYOFF_WEEK, REGULAR_WEEKS, STARTER_SLOTS, FAAB_BUDGET, WAIVER_MAX, type LeagueTeam, type Screen, type SideBet, type Slot } from "@/game/types";
 import { pickWireForOwned, useWire } from "@/game/wire";
@@ -539,8 +540,15 @@ function MatchupScreen() {
 
   useEffect(() => {
     if (!ticker?.done || !box) return;
-    if (box.won) sfxWin();
-    else sfxLoss();
+    // Sunday's verdict should land in the hand, not just the ear: win = triple-pulse,
+    // loss = a long double thud.
+    if (box.won) {
+      sfxWin();
+      buzz("win");
+    } else {
+      sfxLoss();
+      buzz("loss");
+    }
   }, [ticker?.done, box]);
 
   const home = ticker?.homeId ?? you;

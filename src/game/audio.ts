@@ -31,6 +31,45 @@ export function unlockAudio() {
   if (c && c.state === "suspended") void c.resume();
 }
 
+/**
+ * Master mute, persisted. Every cue in this module routes through `bus()`, so pulling the
+ * master gain is enough to silence the whole game (sfx, crowd and bed alike) — and it means
+ * a new cue added later is muted by default rather than escaping the switch.
+ */
+const MUTE_KEY = "dream-football:muted";
+const MASTER_LEVEL = 0.9;
+
+export function audioMuted(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(MUTE_KEY) === "on";
+  } catch {
+    return false;
+  }
+}
+
+export function setAudioMuted(muted: boolean) {
+  try {
+    window.localStorage.setItem(MUTE_KEY, muted ? "on" : "off");
+  } catch {
+    // Storage blocked — the choice holds for this session only.
+  }
+  const m = bus();
+  const c = context();
+  if (m && c) m.gain.setTargetAtTime(muted ? 0.0001 : MASTER_LEVEL, c.currentTime, 0.05);
+  // Stop generating the bed while muted (a silent oscillator is still work) and bring it
+  // back on unmute — this is called from a click handler, so the context is unlocked.
+  if (muted) stopBed();
+  else startBed();
+}
+
+/** Apply a stored mute choice on boot, before the first cue can fire. */
+export function applyStoredMute() {
+  if (!audioMuted()) return;
+  const m = bus();
+  if (m) m.gain.value = 0.0001;
+}
+
 function tone(freq: number, dur: number, type: OscillatorType, gain: number, delay = 0) {
   const c = context();
   const out = bus();

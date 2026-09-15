@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Field } from "./chrome";
 import { NightBroadcast } from "./Broadcast";
 import { BoardGuide, GuideLink } from "./BoardGuide";
+import { JuiceControls } from "./JuiceControls";
 import { WireStrip, WireTicker } from "./Wire";
 import { useGame } from "@/game/store";
-import { unlockAudio, startBed, stopBed } from "@/game/audio";
+import { applyStoredMute, unlockAudio, startBed, stopBed } from "@/game/audio";
 import { teamOf } from "@/game/nfl";
 import { pickWireFeatured, useWire, watchPool } from "@/game/wire";
 
@@ -117,6 +118,8 @@ export function TitleScreen() {
             Watch NFL scores
           </Button>
         </div>
+
+        <JuiceControls className="mt-8" />
 
         <div className="stagger-in mt-8 pb-8">
           {feat && featAway && featHome && (
