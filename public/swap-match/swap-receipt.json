@@ -1,0 +1,103 @@
+{
+  "schema": "dream-football-swap-receipt/1.0.0",
+  "repository": "NyxSpecter4/dream-football",
+  "branch": "agent/swap-test",
+  "engine_commit": "f080661e3c66170e2a441a4a26d2717b1d944251",
+  "engine_version": "1.0.0",
+  "test": "world-vs-agent-separation",
+  "description": "ONE change vs the canonical match: baseline policy B replaced by ONE external agent (declared verbatim in agent_configs.B) served via local ollama. World, engine, rules, scorer, seed, and turn count unchanged.",
+  "seed": 20261014,
+  "total_turns": 90,
+  "agent_configs": {
+    "A": {
+      "name": "aggressor",
+      "version": "1.0.0",
+      "kind": "baseline-policy"
+    },
+    "B": {
+      "name": "qwen2.5-0.5b-external",
+      "version": "1.0.0",
+      "kind": "external-llm",
+      "model": "Qwen/Qwen2.5-0.5B-Instruct (external stand-in agent — KIN-3B cannot run in this environment: 1 GiB cgroup memory limit; KIN-3B local run pending)",
+      "quant": "Q4_K_M (ollama qwen2.5:0.5b)",
+      "baseModel": "Qwen/Qwen2.5-0.5B-Instruct",
+      "access": "local ollama serve (kin-fabric tier 1 tier-walk)",
+      "endpoint": "http://127.0.0.1:11434/api/chat",
+      "ollamaModel": "qwen2.5:0.5b",
+      "temperature": 0,
+      "numCtx": 2048,
+      "maxTokens": 48,
+      "declared": true
+    }
+  },
+  "seam": {
+    "policy_contract_unchanged": true,
+    "engine_unchanged": true,
+    "scorer_unchanged": true,
+    "observation_source": "identical FootballEnv.observe(side) for both agents",
+    "agent_output_handling": "parse-only, never repaired; raw strings submitted as-is (engine rejects)"
+  },
+  "initial_state_hash": "90168e56faf83da89c91d597bacc57cadc02dcbf8e9337a9613a25c8aec1cc4b",
+  "event_log_hash": "d201e1a4abf3f16301f9096b70b90b893ddd25ef88ed7360a37ebc268e9dcffa",
+  "terminal_state_hash": "369bb2261f29870dc3f9dfb0136fc672ff8d20efedbda127c47d3ed557c28bb0",
+  "final_score": {
+    "A": 1,
+    "B": 0,
+    "winner": "A"
+  },
+  "action_count": 180,
+  "accepted_action_count": 177,
+  "rejected_action_count": 3,
+  "side_A_rejected": 0,
+  "side_B_rejected": 3,
+  "agent_B_parse_methods": {
+    "direct_json": 90,
+    "embedded_json": 0,
+    "unparseable": 0
+  },
+  "boundary_checks": [
+    {
+      "check": "valid_action_accepted",
+      "input": {
+        "side": "A",
+        "type": "advance"
+      },
+      "status": "accepted",
+      "verdict": "PASS",
+      "stateChanged": true
+    },
+    {
+      "check": "malformed_action_rejected",
+      "input": "advance (raw string, not an object)",
+      "status": "rejected_malformed",
+      "reason": "action must be an object like { side, type }",
+      "turnoverApplied": true,
+      "rngStateUnchanged": true,
+      "verdict": "PASS"
+    },
+    {
+      "check": "illegal_action_rejected",
+      "input": {
+        "side": "B",
+        "type": "shoot"
+      },
+      "status": "rejected_illegal",
+      "reason": "\"shoot\" is not legal for the attacking side here (rule R1)",
+      "documentedRule": "R2",
+      "turnoverApplied": true,
+      "rngStateUnchanged": true,
+      "penaltyRecorded": true,
+      "verdict": "PASS"
+    }
+  ],
+  "trace_replay": {
+    "method": "fresh engine instance; recorded raw actions replayed; hashes recomputed",
+    "event_log_hash_match": true,
+    "terminal_state_hash_match": true,
+    "verdict": "PASS"
+  },
+  "determinism_note": "The engine is deterministic given the recorded action trace. The external LLM agent is NOT deterministic across runs; its 90 raw responses are preserved in swap-evidence.json.",
+  "overall_verdict": "PASS",
+  "executed_at_utc": "2026-10-14T23:27:29.679Z",
+  "runner": "node v22.20.0 (native TypeScript type-stripping)"
+}

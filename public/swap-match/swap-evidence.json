@@ -1,0 +1,6603 @@
+{
+  "schema": "dream-football-swap-evidence/1.0.0",
+  "engine_version": "1.0.0",
+  "seed": 20261014,
+  "total_turns": 90,
+  "agent_configs": {
+    "A": {
+      "name": "aggressor",
+      "version": "1.0.0"
+    },
+    "B": {
+      "name": "qwen2.5-0.5b-external",
+      "version": "1.0.0",
+      "kind": "external-llm",
+      "model": "Qwen/Qwen2.5-0.5B-Instruct (external stand-in agent — KIN-3B cannot run in this environment: 1 GiB cgroup memory limit; KIN-3B local run pending)",
+      "quant": "Q4_K_M (ollama qwen2.5:0.5b)",
+      "baseModel": "Qwen/Qwen2.5-0.5B-Instruct",
+      "access": "local ollama serve (kin-fabric tier 1 tier-walk)",
+      "endpoint": "http://127.0.0.1:11434/api/chat",
+      "ollamaModel": "qwen2.5:0.5b",
+      "temperature": 0,
+      "numCtx": 2048,
+      "maxTokens": 48,
+      "declared": true
+    }
+  },
+  "initialState": {
+    "turn": 0,
+    "totalTurns": 90,
+    "scoreA": 0,
+    "scoreB": 0,
+    "ball": 5,
+    "possession": "A",
+    "defenderPosture": "contain",
+    "rngState": 20261014,
+    "phase": "kickoff"
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "obsA": {
+        "turn": 0,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 0,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 1,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 1851826827
+      }
+    },
+    {
+      "turn": 2,
+      "obsA": {
+        "turn": 1,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 1,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 2,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3683392640
+      }
+    },
+    {
+      "turn": 3,
+      "obsA": {
+        "turn": 2,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 2,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 3,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 1219991157
+      }
+    },
+    {
+      "turn": 4,
+      "obsA": {
+        "turn": 3,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 3,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 4,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": null,
+            "status": "rejected_malformed",
+            "reason": "action.side must be \"B\""
+          }
+        },
+        "outcome": "turnover",
+        "penaltySide": "B",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 1219991157
+      }
+    },
+    {
+      "turn": 5,
+      "obsA": {
+        "turn": 4,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 4,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 5,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3051556970
+      }
+    },
+    {
+      "turn": 6,
+      "obsA": {
+        "turn": 5,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "obsB": {
+        "turn": 5,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 6,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "shoot"
+            },
+            "parsedType": "shoot",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "shot_saved",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 588155487
+      }
+    },
+    {
+      "turn": 7,
+      "obsA": {
+        "turn": 6,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 6,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 7,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 2419721300
+      }
+    },
+    {
+      "turn": 8,
+      "obsA": {
+        "turn": 7,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 7,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 8,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 4251287113
+      }
+    },
+    {
+      "turn": 9,
+      "obsA": {
+        "turn": 8,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 8,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 9,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 1787885630
+      }
+    },
+    {
+      "turn": 10,
+      "obsA": {
+        "turn": 9,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 9,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 10,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3619451443
+      }
+    },
+    {
+      "turn": 11,
+      "obsA": {
+        "turn": 10,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "obsB": {
+        "turn": 10,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 11,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "shoot"
+            },
+            "parsedType": "shoot",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "shot_saved",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 1156049960
+      }
+    },
+    {
+      "turn": 12,
+      "obsA": {
+        "turn": 11,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 11,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 12,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 2987615773
+      }
+    },
+    {
+      "turn": 13,
+      "obsA": {
+        "turn": 12,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 12,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 13,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 524214290
+      }
+    },
+    {
+      "turn": 14,
+      "obsA": {
+        "turn": 13,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 13,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 14,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 2355780103
+      }
+    },
+    {
+      "turn": 15,
+      "obsA": {
+        "turn": 14,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 14,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 15,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 4187345916
+      }
+    },
+    {
+      "turn": 16,
+      "obsA": {
+        "turn": 15,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "obsB": {
+        "turn": 15,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 16,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "shoot"
+            },
+            "parsedType": "shoot",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "shot_saved",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 1723944433
+      }
+    },
+    {
+      "turn": 17,
+      "obsA": {
+        "turn": 16,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 16,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 17,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": null,
+            "status": "rejected_malformed",
+            "reason": "action.side must be \"B\""
+          }
+        },
+        "outcome": "turnover",
+        "penaltySide": "B",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 1723944433
+      }
+    },
+    {
+      "turn": 18,
+      "obsA": {
+        "turn": 17,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 17,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 18,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3555510246
+      }
+    },
+    {
+      "turn": 19,
+      "obsA": {
+        "turn": 18,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 18,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 19,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 1092108763
+      }
+    },
+    {
+      "turn": 20,
+      "obsA": {
+        "turn": 19,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 19,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 20,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 2923674576
+      }
+    },
+    {
+      "turn": 21,
+      "obsA": {
+        "turn": 20,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "obsB": {
+        "turn": 20,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 21,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "shoot"
+            },
+            "parsedType": "shoot",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "shot_saved",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 460273093
+      }
+    },
+    {
+      "turn": 22,
+      "obsA": {
+        "turn": 21,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 21,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 22,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 2291838906
+      }
+    },
+    {
+      "turn": 23,
+      "obsA": {
+        "turn": 22,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 22,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 23,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 4123404719
+      }
+    },
+    {
+      "turn": 24,
+      "obsA": {
+        "turn": 23,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 23,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 24,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 1660003236
+      }
+    },
+    {
+      "turn": 25,
+      "obsA": {
+        "turn": 24,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 24,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 25,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3491569049
+      }
+    },
+    {
+      "turn": 26,
+      "obsA": {
+        "turn": 25,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "obsB": {
+        "turn": 25,
+        "totalTurns": 90,
+        "scoreA": 0,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 26,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "shoot"
+            },
+            "parsedType": "shoot",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "goal",
+        "goalSide": "A",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 1028167566
+      }
+    },
+    {
+      "turn": 27,
+      "obsA": {
+        "turn": 26,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 26,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 27,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 2859733379
+      }
+    },
+    {
+      "turn": 28,
+      "obsA": {
+        "turn": 27,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 27,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 28,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 396331896
+      }
+    },
+    {
+      "turn": 29,
+      "obsA": {
+        "turn": 28,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 28,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 29,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 2227897709
+      }
+    },
+    {
+      "turn": 30,
+      "obsA": {
+        "turn": 29,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 29,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 30,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 4059463522
+      }
+    },
+    {
+      "turn": 31,
+      "obsA": {
+        "turn": 30,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 30,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 31,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 1596062039
+      }
+    },
+    {
+      "turn": 32,
+      "obsA": {
+        "turn": 31,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 31,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 32,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 3427627852
+      }
+    },
+    {
+      "turn": 33,
+      "obsA": {
+        "turn": 32,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 32,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 33,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 964226369
+      }
+    },
+    {
+      "turn": 34,
+      "obsA": {
+        "turn": 33,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 33,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 34,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 2795792182
+      }
+    },
+    {
+      "turn": 35,
+      "obsA": {
+        "turn": 34,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 34,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 35,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 332390699
+      }
+    },
+    {
+      "turn": 36,
+      "obsA": {
+        "turn": 35,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 35,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 36,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 2163956512
+      }
+    },
+    {
+      "turn": 37,
+      "obsA": {
+        "turn": 36,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 36,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 37,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3995522325
+      }
+    },
+    {
+      "turn": 38,
+      "obsA": {
+        "turn": 37,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 37,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 38,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 1532120842
+      }
+    },
+    {
+      "turn": 39,
+      "obsA": {
+        "turn": 38,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 38,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 39,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3363686655
+      }
+    },
+    {
+      "turn": 40,
+      "obsA": {
+        "turn": 39,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 39,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 40,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 900285172
+      }
+    },
+    {
+      "turn": 41,
+      "obsA": {
+        "turn": 40,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "obsB": {
+        "turn": 40,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 41,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "shoot"
+            },
+            "parsedType": "shoot",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "shot_saved",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 2731850985
+      }
+    },
+    {
+      "turn": 42,
+      "obsA": {
+        "turn": 41,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 41,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 42,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 268449502
+      }
+    },
+    {
+      "turn": 43,
+      "obsA": {
+        "turn": 42,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 42,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 43,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 2100015315
+      }
+    },
+    {
+      "turn": 44,
+      "obsA": {
+        "turn": 43,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 43,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 44,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 3931581128
+      }
+    },
+    {
+      "turn": 45,
+      "obsA": {
+        "turn": 44,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 44,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 45,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 1468179645
+      }
+    },
+    {
+      "turn": 46,
+      "obsA": {
+        "turn": 45,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 45,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 46,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3299745458
+      }
+    },
+    {
+      "turn": 47,
+      "obsA": {
+        "turn": 46,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 46,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 47,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 836343975
+      }
+    },
+    {
+      "turn": 48,
+      "obsA": {
+        "turn": 47,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 47,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 48,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 2667909788
+      }
+    },
+    {
+      "turn": 49,
+      "obsA": {
+        "turn": 48,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 48,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 49,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 204508305
+      }
+    },
+    {
+      "turn": 50,
+      "obsA": {
+        "turn": 49,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 49,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 50,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 2036074118
+      }
+    },
+    {
+      "turn": 51,
+      "obsA": {
+        "turn": 50,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 50,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 51,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 3867639931
+      }
+    },
+    {
+      "turn": 52,
+      "obsA": {
+        "turn": 51,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 51,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 52,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 1404238448
+      }
+    },
+    {
+      "turn": 53,
+      "obsA": {
+        "turn": 52,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 52,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 53,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 3235804261
+      }
+    },
+    {
+      "turn": 54,
+      "obsA": {
+        "turn": 53,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 53,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 54,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 772402778
+      }
+    },
+    {
+      "turn": 55,
+      "obsA": {
+        "turn": 54,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 54,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 55,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 2603968591
+      }
+    },
+    {
+      "turn": 56,
+      "obsA": {
+        "turn": 55,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 55,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 56,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 140567108
+      }
+    },
+    {
+      "turn": 57,
+      "obsA": {
+        "turn": 56,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 56,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 57,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 1972132921
+      }
+    },
+    {
+      "turn": 58,
+      "obsA": {
+        "turn": 57,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 57,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 58,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 3803698734
+      }
+    },
+    {
+      "turn": 59,
+      "obsA": {
+        "turn": 58,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 58,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 59,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 1340297251
+      }
+    },
+    {
+      "turn": 60,
+      "obsA": {
+        "turn": 59,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 59,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 60,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 3171863064
+      }
+    },
+    {
+      "turn": 61,
+      "obsA": {
+        "turn": 60,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 60,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 0,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 61,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 708461581
+      }
+    },
+    {
+      "turn": 62,
+      "obsA": {
+        "turn": 61,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 61,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 1,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 62,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 2540027394
+      }
+    },
+    {
+      "turn": 63,
+      "obsA": {
+        "turn": 62,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 62,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 63,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 76625911
+      }
+    },
+    {
+      "turn": 64,
+      "obsA": {
+        "turn": 63,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 63,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 64,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 1908191724
+      }
+    },
+    {
+      "turn": 65,
+      "obsA": {
+        "turn": 64,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 64,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 65,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3739757537
+      }
+    },
+    {
+      "turn": 66,
+      "obsA": {
+        "turn": 65,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 65,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 66,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 1276356054
+      }
+    },
+    {
+      "turn": 67,
+      "obsA": {
+        "turn": 66,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 66,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 67,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3107921867
+      }
+    },
+    {
+      "turn": 68,
+      "obsA": {
+        "turn": 67,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 67,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 68,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 644520384
+      }
+    },
+    {
+      "turn": 69,
+      "obsA": {
+        "turn": 68,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "obsB": {
+        "turn": 68,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 8,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 69,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "shoot"
+            },
+            "parsedType": "shoot",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "shot_saved",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 2476086197
+      }
+    },
+    {
+      "turn": 70,
+      "obsA": {
+        "turn": 69,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 69,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 70,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 12684714
+      }
+    },
+    {
+      "turn": 71,
+      "obsA": {
+        "turn": 70,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 70,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 71,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 1844250527
+      }
+    },
+    {
+      "turn": 72,
+      "obsA": {
+        "turn": 71,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 71,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 72,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 3675816340
+      }
+    },
+    {
+      "turn": 73,
+      "obsA": {
+        "turn": 72,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 72,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass",
+          "shoot"
+        ]
+      },
+      "event": {
+        "turn": 73,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 1212414857
+      }
+    },
+    {
+      "turn": 74,
+      "obsA": {
+        "turn": 73,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 73,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 2,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 74,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3043980670
+      }
+    },
+    {
+      "turn": 75,
+      "obsA": {
+        "turn": 74,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 74,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 75,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 580579187
+      }
+    },
+    {
+      "turn": 76,
+      "obsA": {
+        "turn": 75,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 75,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 76,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 2412145000
+      }
+    },
+    {
+      "turn": 77,
+      "obsA": {
+        "turn": 76,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 76,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 77,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 4243710813
+      }
+    },
+    {
+      "turn": 78,
+      "obsA": {
+        "turn": 77,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 77,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 78,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 1780309330
+      }
+    },
+    {
+      "turn": 79,
+      "obsA": {
+        "turn": 78,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 78,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 3,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 79,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 3611875143
+      }
+    },
+    {
+      "turn": 80,
+      "obsA": {
+        "turn": 79,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 79,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 4,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 80,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 1148473660
+      }
+    },
+    {
+      "turn": 81,
+      "obsA": {
+        "turn": 80,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 80,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 81,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 2980039473
+      }
+    },
+    {
+      "turn": 82,
+      "obsA": {
+        "turn": 81,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 81,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 82,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 516637990
+      }
+    },
+    {
+      "turn": 83,
+      "obsA": {
+        "turn": 82,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 82,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 83,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 2348203803
+      }
+    },
+    {
+      "turn": 84,
+      "obsA": {
+        "turn": 83,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 83,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 84,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "rngState": 4179769616
+      }
+    },
+    {
+      "turn": 85,
+      "obsA": {
+        "turn": 84,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 84,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "A",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 85,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 1716368133
+      }
+    },
+    {
+      "turn": 86,
+      "obsA": {
+        "turn": 85,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 85,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 7,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 86,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 3547933946
+      }
+    },
+    {
+      "turn": 87,
+      "obsA": {
+        "turn": 86,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 86,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 6,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 87,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "advance",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "press",
+        "rngState": 1084532463
+      }
+    },
+    {
+      "turn": 88,
+      "obsA": {
+        "turn": 87,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 87,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 88,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 2916098276
+      }
+    },
+    {
+      "turn": 89,
+      "obsA": {
+        "turn": 88,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "A",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "obsB": {
+        "turn": 88,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "side": "B",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "event": {
+        "turn": 89,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": "advance",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "B",
+              "type": "contain"
+            },
+            "parsedType": "contain",
+            "status": "accepted"
+          }
+        },
+        "outcome": "turnover",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "rngState": 452696793
+      }
+    },
+    {
+      "turn": 90,
+      "obsA": {
+        "turn": 89,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "A",
+        "legal": [
+          "press",
+          "contain"
+        ]
+      },
+      "obsB": {
+        "turn": 89,
+        "totalTurns": 90,
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "B",
+        "defenderPosture": "contain",
+        "side": "B",
+        "legal": [
+          "advance",
+          "pass"
+        ]
+      },
+      "event": {
+        "turn": 90,
+        "actions": {
+          "A": {
+            "side": "A",
+            "raw": {
+              "side": "A",
+              "type": "press"
+            },
+            "parsedType": "press",
+            "status": "accepted"
+          },
+          "B": {
+            "side": "B",
+            "raw": {
+              "side": "A",
+              "type": "advance"
+            },
+            "parsedType": null,
+            "status": "rejected_malformed",
+            "reason": "action.side must be \"B\""
+          }
+        },
+        "outcome": "turnover",
+        "penaltySide": "B",
+        "scoreA": 1,
+        "scoreB": 0,
+        "ball": 5,
+        "possession": "A",
+        "defenderPosture": "press",
+        "rngState": 452696793
+      }
+    }
+  ],
+  "finalState": {
+    "turn": 90,
+    "totalTurns": 90,
+    "scoreA": 1,
+    "scoreB": 0,
+    "ball": 5,
+    "possession": "A",
+    "defenderPosture": "press",
+    "rngState": 452696793,
+    "phase": "terminal"
+  },
+  "result": {
+    "scoreA": 1,
+    "scoreB": 0,
+    "winner": "A"
+  },
+  "agent_B_calls": [
+    {
+      "turn": 1,
+      "latencyMs": 1342,
+      "promptChars": 966,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 2,
+      "latencyMs": 1229,
+      "promptChars": 966,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 3,
+      "latencyMs": 1304,
+      "promptChars": 966,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 4,
+      "latencyMs": 1288,
+      "promptChars": 964,
+      "rawResponse": "{\"side\":\"A\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "A",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 5,
+      "latencyMs": 1378,
+      "promptChars": 964,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 6,
+      "latencyMs": 1228,
+      "promptChars": 966,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 7,
+      "latencyMs": 1291,
+      "promptChars": 964,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 8,
+      "latencyMs": 1280,
+      "promptChars": 964,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 9,
+      "latencyMs": 1236,
+      "promptChars": 966,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 10,
+      "latencyMs": 1261,
+      "promptChars": 966,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 11,
+      "latencyMs": 1135,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 12,
+      "latencyMs": 1199,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 13,
+      "latencyMs": 1194,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 14,
+      "latencyMs": 1196,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 15,
+      "latencyMs": 1200,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 16,
+      "latencyMs": 1193,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 17,
+      "latencyMs": 1217,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"A\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "A",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 18,
+      "latencyMs": 1202,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 19,
+      "latencyMs": 1207,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 20,
+      "latencyMs": 1257,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 21,
+      "latencyMs": 1132,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 22,
+      "latencyMs": 1209,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 23,
+      "latencyMs": 1196,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 24,
+      "latencyMs": 1194,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 25,
+      "latencyMs": 1269,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 26,
+      "latencyMs": 1200,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 27,
+      "latencyMs": 1141,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 28,
+      "latencyMs": 1262,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 29,
+      "latencyMs": 1196,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 30,
+      "latencyMs": 1226,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 31,
+      "latencyMs": 1199,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 32,
+      "latencyMs": 1206,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 33,
+      "latencyMs": 1203,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 34,
+      "latencyMs": 1195,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 35,
+      "latencyMs": 1205,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 36,
+      "latencyMs": 1211,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 37,
+      "latencyMs": 1255,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 38,
+      "latencyMs": 1217,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 39,
+      "latencyMs": 1198,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 40,
+      "latencyMs": 1204,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 41,
+      "latencyMs": 1125,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 42,
+      "latencyMs": 1254,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 43,
+      "latencyMs": 1142,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 44,
+      "latencyMs": 1204,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 45,
+      "latencyMs": 1264,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 46,
+      "latencyMs": 1203,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 47,
+      "latencyMs": 1199,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 48,
+      "latencyMs": 1209,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 49,
+      "latencyMs": 1190,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 50,
+      "latencyMs": 1217,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 51,
+      "latencyMs": 1172,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 52,
+      "latencyMs": 1144,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 53,
+      "latencyMs": 1266,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 54,
+      "latencyMs": 1196,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 55,
+      "latencyMs": 1207,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 56,
+      "latencyMs": 1205,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 57,
+      "latencyMs": 1208,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 58,
+      "latencyMs": 1209,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 59,
+      "latencyMs": 1268,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 60,
+      "latencyMs": 1208,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 61,
+      "latencyMs": 1136,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 62,
+      "latencyMs": 1148,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 63,
+      "latencyMs": 1267,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 64,
+      "latencyMs": 1191,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 65,
+      "latencyMs": 1144,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 66,
+      "latencyMs": 1253,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 67,
+      "latencyMs": 1206,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 68,
+      "latencyMs": 1196,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 69,
+      "latencyMs": 1203,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 70,
+      "latencyMs": 1193,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 71,
+      "latencyMs": 1133,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 72,
+      "latencyMs": 1192,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 73,
+      "latencyMs": 1218,
+      "promptChars": 978,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 74,
+      "latencyMs": 1198,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 75,
+      "latencyMs": 1272,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 76,
+      "latencyMs": 1192,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 77,
+      "latencyMs": 1207,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 78,
+      "latencyMs": 1211,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 79,
+      "latencyMs": 1200,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 80,
+      "latencyMs": 1189,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 81,
+      "latencyMs": 1185,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 82,
+      "latencyMs": 1206,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 83,
+      "latencyMs": 1210,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 84,
+      "latencyMs": 1206,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 85,
+      "latencyMs": 1203,
+      "promptChars": 967,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 86,
+      "latencyMs": 1207,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 87,
+      "latencyMs": 1197,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 88,
+      "latencyMs": 1203,
+      "promptChars": 963,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 89,
+      "latencyMs": 1192,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"B\",\"type\":\"contain\"}",
+      "parsedAction": {
+        "side": "B",
+        "type": "contain"
+      },
+      "parseMethod": "direct_json"
+    },
+    {
+      "turn": 90,
+      "latencyMs": 1189,
+      "promptChars": 965,
+      "rawResponse": "{\"side\":\"A\",\"type\":\"advance\"}",
+      "parsedAction": {
+        "side": "A",
+        "type": "advance"
+      },
+      "parseMethod": "direct_json"
+    }
+  ],
+  "boundary_checks": [
+    {
+      "check": "valid_action_accepted",
+      "input": {
+        "side": "A",
+        "type": "advance"
+      },
+      "status": "accepted",
+      "verdict": "PASS",
+      "stateChanged": true
+    },
+    {
+      "check": "malformed_action_rejected",
+      "input": "advance (raw string, not an object)",
+      "status": "rejected_malformed",
+      "reason": "action must be an object like { side, type }",
+      "turnoverApplied": true,
+      "rngStateUnchanged": true,
+      "verdict": "PASS"
+    },
+    {
+      "check": "illegal_action_rejected",
+      "input": {
+        "side": "B",
+        "type": "shoot"
+      },
+      "status": "rejected_illegal",
+      "reason": "\"shoot\" is not legal for the attacking side here (rule R1)",
+      "documentedRule": "R2",
+      "turnoverApplied": true,
+      "rngStateUnchanged": true,
+      "penaltyRecorded": true,
+      "verdict": "PASS"
+    }
+  ],
+  "hashes": {
+    "initialStateHash": "90168e56faf83da89c91d597bacc57cadc02dcbf8e9337a9613a25c8aec1cc4b",
+    "eventLogHash": "d201e1a4abf3f16301f9096b70b90b893ddd25ef88ed7360a37ebc268e9dcffa",
+    "terminalStateHash": "369bb2261f29870dc3f9dfb0136fc672ff8d20efedbda127c47d3ed557c28bb0"
+  }
+}
