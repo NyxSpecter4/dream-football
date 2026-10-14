@@ -1,0 +1,74 @@
+{
+  "schema": "dream-football-match-receipt/1.0.0",
+  "repository": "NyxSpecter4/dream-football",
+  "branch": "agent/eval-match",
+  "engine_commit": "08f17a91f498f2975f4beed201d22709739bfdba",
+  "engine_version": "1.0.0",
+  "seed": 20261014,
+  "total_turns": 90,
+  "policies": {
+    "A": {
+      "name": "aggressor",
+      "version": "1.0.0"
+    },
+    "B": {
+      "name": "conservative",
+      "version": "1.0.0"
+    }
+  },
+  "initial_state_hash": "90168e56faf83da89c91d597bacc57cadc02dcbf8e9337a9613a25c8aec1cc4b",
+  "event_log_hash": "2370a27a42798e2b01b9a89d2feabed6e143a05d45ca4e2a5c2a642fe519307c",
+  "terminal_state_hash": "c03f0d1396e92b305df4aa264f857d6c0e74d92781a4ac12322c6ca2157821bd",
+  "final_score": {
+    "A": 4,
+    "B": 1,
+    "winner": "A"
+  },
+  "action_count": 180,
+  "accepted_action_count": 180,
+  "rejected_action_count": 0,
+  "boundary_checks": [
+    {
+      "check": "valid_action_accepted",
+      "input": {
+        "side": "A",
+        "type": "advance"
+      },
+      "status": "accepted",
+      "verdict": "PASS",
+      "stateChanged": true
+    },
+    {
+      "check": "malformed_action_rejected",
+      "input": "advance (raw string, not an object)",
+      "status": "rejected_malformed",
+      "reason": "action must be an object like { side, type }",
+      "turnoverApplied": true,
+      "rngStateUnchanged": true,
+      "verdict": "PASS"
+    },
+    {
+      "check": "illegal_action_rejected",
+      "input": {
+        "side": "B",
+        "type": "shoot"
+      },
+      "status": "rejected_illegal",
+      "reason": "\"shoot\" is not legal for the attacking side here (rule R1)",
+      "documentedRule": "R2",
+      "turnoverApplied": true,
+      "rngStateUnchanged": true,
+      "penaltyRecorded": true,
+      "verdict": "PASS"
+    }
+  ],
+  "deterministic_replay": {
+    "event_log_hash_match": true,
+    "terminal_state_hash_match": true,
+    "final_score_match": true,
+    "verdict": "PASS"
+  },
+  "overall_verdict": "PASS",
+  "executed_at_utc": "2026-10-14T22:08:01.146Z",
+  "runner": "node v22.20.0 (native TypeScript type-stripping)"
+}
