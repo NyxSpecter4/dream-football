@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlayRouteImport } from './routes/play'
 import { Route as ApiGrokBotRouteImport } from './routes/api/grok-bot'
 import { Route as ApiNflRouteImport } from './routes/api/nfl'
 import { Route as ApiPluginRouteImport } from './routes/api/plugin'
@@ -18,6 +19,11 @@ import { Route as ApiRtcRouteImport } from './routes/api/rtc'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayRoute = PlayRouteImport.update({
+  id: '/play',
+  path: '/play',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGrokBotRoute = ApiGrokBotRouteImport.update({
@@ -43,6 +49,7 @@ const ApiRtcRoute = ApiRtcRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/play': typeof PlayRoute
   '/api/grok-bot': typeof ApiGrokBotRoute
   '/api/nfl': typeof ApiNflRoute
   '/api/plugin': typeof ApiPluginRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/play': typeof PlayRoute
   '/api/grok-bot': typeof ApiGrokBotRoute
   '/api/nfl': typeof ApiNflRoute
   '/api/plugin': typeof ApiPluginRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/play': typeof PlayRoute
   '/api/grok-bot': typeof ApiGrokBotRoute
   '/api/nfl': typeof ApiNflRoute
   '/api/plugin': typeof ApiPluginRoute
@@ -65,15 +74,23 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/grok-bot' | '/api/nfl' | '/api/plugin' | '/api/rtc'
+  fullPaths:
+    '/' | '/play' | '/api/grok-bot' | '/api/nfl' | '/api/plugin' | '/api/rtc'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/grok-bot' | '/api/nfl' | '/api/plugin' | '/api/rtc'
+  to: '/' | '/play' | '/api/grok-bot' | '/api/nfl' | '/api/plugin' | '/api/rtc'
   id:
-    '__root__' | '/' | '/api/grok-bot' | '/api/nfl' | '/api/plugin' | '/api/rtc'
+    | '__root__'
+    | '/'
+    | '/play'
+    | '/api/grok-bot'
+    | '/api/nfl'
+    | '/api/plugin'
+    | '/api/rtc'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PlayRoute: typeof PlayRoute
   ApiGrokBotRoute: typeof ApiGrokBotRoute
   ApiNflRoute: typeof ApiNflRoute
   ApiPluginRoute: typeof ApiPluginRoute
@@ -87,6 +104,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play': {
+      id: '/play'
+      path: '/play'
+      fullPath: '/play'
+      preLoaderRoute: typeof PlayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/grok-bot': {
@@ -122,6 +146,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PlayRoute: PlayRoute,
   ApiGrokBotRoute: ApiGrokBotRoute,
   ApiNflRoute: ApiNflRoute,
   ApiPluginRoute: ApiPluginRoute,
